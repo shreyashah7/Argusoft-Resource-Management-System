@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+    <head>
+        <title>Manage User</title>	
+
+    </head>
+    <body>
+        <ui:composition template="../layout/homeLayout.xhtml" >
+            <ui:define name="content" ><br/>
+
+                <f:event listener="#{userServiceBean.showUsersByType()}" type="preRenderComponent" />
+                <h:form prependId="false" >
+                    
+                    <h2>Manage User </h2>
+                    <hr/>
+                    
+                   <div class="active-div">
+                    <h:panelGroup id="out">
+                        <a4j:outputPanel>
+                            <ui:include src="../common/message.xhtml"/>
+                        </a4j:outputPanel>
+                    </h:panelGroup>
+                    <h:selectOneMenu id="showtype" value="#{userDataBean.showType}" style="float: left" >
+                        <f:selectItem itemValue="Active" itemLabel="Active" />
+                        <f:selectItem itemValue="Inactive" itemLabel="Inactive" />
+                        <f:selectItem itemValue="Show All" itemLabel="Show All" />
+                        <a4j:ajax event="change" listener="#{userServiceBean.showUsersByType()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();" render="tablepanel out" />
+                    </h:selectOneMenu>
+                     <a4j:commandLink action="pretty:addUser" >
+                        <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/add-more-btn.jpg" title="Add new user."  style="float: right" rendered="#{loginDataBean.itemAttributes.contains('add user')}"/> 
+                    </a4j:commandLink>
+                   </div>
+                                        
+                    <h:panelGroup id="tablepanel">
+                        <h3 class="norecordfound"><h:outputLabel value="No records found." rendered="#{systemResultViewUtil.users == null or empty systemResultViewUtil.users}"/></h3>
+                        <rich:dataTable id="dt1" value="#{systemResultViewUtil.users}" 
+                                        var="item" 
+                                        rendered="#{systemResultViewUtil.users != null and not empty systemResultViewUtil.users}">			 
+
+                            <rich:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Employee Id" />
+                                </f:facet> 
+                                <h:outputText value="#{item.userId}"></h:outputText>
+                            </rich:column>
+
+                            <rich:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Employee Name"/>
+                                </f:facet> 
+                                <a4j:commandLink value="#{item.firstName} #{item.lastName}" action="pretty:userProfile" >
+                                    <f:setPropertyActionListener target="#{systemResultSessionUtil.userId}" value="#{item.userId}"/>
+                                </a4j:commandLink>
+                            </rich:column>
+
+                            <rich:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Role"/>
+                                </f:facet>
+                                <h:outputText value="#{item.role}"></h:outputText>
+                            </rich:column>
+
+                            <rich:column>
+                                <f:facet name="header">
+                                    <h:outputText value="UserName"/>
+                                </f:facet>
+                                <h:outputText value="#{item.userName}"></h:outputText>
+                            </rich:column>
+                            <rich:column>
+                                <f:facet name="header">
+                                    <h:outputText value="EmailId"/>
+                                </f:facet>
+                                <h:outputText value="#{item.emailId}"></h:outputText>
+                            </rich:column>
+                            <rich:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Contact No."/>
+                                </f:facet>
+                                <h:outputText value="#{item.phoneNum != null and not empty item.phoneNum ? item.phoneNum : 'N/A'}" />
+                            </rich:column>
+
+                            <rich:column rendered="#{loginDataBean.itemAttributes.contains('update user')}">
+
+                                <f:facet name="header"  >
+                                    <h:outputText value="Action"/>
+                                </f:facet>
+                                <center>
+                                <a4j:commandLink  action="#{userServiceBean.outcome()}" >
+                                    <f:setPropertyActionListener target="#{systemResultSessionUtil.id}" value="#{item.userId}" />
+                                    <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/edit.jpg" title="Click here to edit user detail." />
+                                </a4j:commandLink>
+                                </center>
+                            </rich:column>
+                            <rich:column>
+
+                                <f:facet name="header">
+                                    <h:outputText value="Status"/>
+                                </f:facet>
+                                <center>
+                                <a4j:commandLink  id="delimage"  action="#{userServiceBean.changeStatus(item)}" render="tablepanel out" >
+                                    <f:setPropertyActionListener target="#{systemResultSessionUtil.id}" value="#{item.userId}" />
+                                    <h:graphicImage  value="#{facesContext.externalContext.requestContextPath}/images/active.png" title="Click here to deactivate user." rendered="#{item.isActive==true}" />
+                                    <h:graphicImage   value="#{facesContext.externalContext.requestContextPath}/images/inactive.png" title="Click here to activate user." rendered="#{item.isActive==false}" />
+                                </a4j:commandLink>
+                                </center>
+
+                            </rich:column>
+                            
+                        </rich:dataTable>
+                        <script type="text/javascript">
+                            $(document).ready(function() {
+                                var table = $('#dt1').DataTable({
+                                    "iDisplayLength": 10,
+                                    "aLengthMenu": [[10, 20, 30, 40, -1], [10, 20, 30, 40, "All"]]
+                                });
+                            });
+
+
+                        </script>
+                    </h:panelGroup> 
+                </h:form>
+            </ui:define>
+        </ui:composition> 
+    </body>
+</html>

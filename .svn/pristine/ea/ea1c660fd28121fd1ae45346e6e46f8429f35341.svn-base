@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:a4j="http://richfaces.org/a4j">
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+                <f:metadata>
+                    <f:viewAction action="#{systemConfigurationServiceBean.retrieveSystemConfigurationByType()}"  />
+                </f:metadata>
+                <h2>System Configuration</h2>
+                <hr/>
+                <h:form id="menu" prependId="false">
+                    <div class="active-div">
+                        <div style="width: 100%" id="message">
+                            <h:panelGroup layout="block" id="out">
+                                <ui:include src="../common/message.xhtml" /> 
+                            </h:panelGroup>
+                            <h:selectOneMenu title="Select Status" value="#{systemResultViewUtil.sysConfigStatus}">
+                                <f:selectItem itemValue="Active" itemLabel="Active"/>
+                                <f:selectItem itemValue="Inactive" itemLabel="Inactive"/>
+                                <f:selectItem itemValue="Show All" itemLabel="Show All"/>
+                                <a4j:ajax event="change" listener="#{systemConfigurationServiceBean.retrieveSystemConfigurationByType()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();" render="panel,out retrieve" />
+                            </h:selectOneMenu> 
+                        </div>
+                    </div>
+                </h:form>
+                <center>
+                    <a4j:outputPanel id="data" rendered="#{loginDataBean.itemAttributes.contains('add system configuration')}">
+                        <h:form id="form" prependId="false">
+                            <table width="100%" style="margin:0px auto;" class="meal-plan" border="0" cellspacing="0" cellpadding="0">
+                                <thead>
+                                    <th class="header"><h:outputText value="Key" /></th>
+                                    <th class="header"><h:outputText value="Value" /></th>
+                                    <th class="header"><h:outputText value="Action" /></th>
+                                </thead>
+                                <tbody>
+                                    <tr valign="top" >
+                                        <td width="38%">
+                                            <h:inputText id="keyid" value="#{systemConfigurationDataBean.systemKey}" required="true" requiredMessage='#{msg.system_key_required}' validatorMessage="#{msg.correct_key_required}">
+                                                <f:ajax event="blur" render="keyidMsg"/>
+                                            </h:inputText>
+                                            <rich:message id="keyidMsg" for="keyid" style="color: red"/>
+                                        </td>
+                                        <td width="30%">
+                                            <h:inputText id="valueid" value="#{systemConfigurationDataBean.keyValue}" required="true" requiredMessage='#{msg.key_value_required}' validatorMessage="#{msg.correct_size_required}">
+                                                <f:ajax event="blur" render="messagevalue"/>
+                                                <f:validateLength maximum="20"/>
+                                            </h:inputText>
+                                            <rich:message id="messagevalue" for="valueid" style="color: red"/>
+                                        </td>
+                                        <td width="10%"> 
+                                            <a4j:commandLink action="#{systemConfigurationServiceBean.createSystemConfiguration}" title="Add Key value pair" style="text-align: center" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();" render="panel,out,keyid,valueid,retrieve">
+                                                <img src="#{facesContext.externalContext.requestContextPath}/images/add-more-btn.jpg" style="border: none"/>
+                                            </a4j:commandLink>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </h:form>
+                    </a4j:outputPanel>
+                    <br/>
+
+                    <h:form prependId="false">
+                        <a4j:outputPanel id="panel">
+                            <h3 class="norecordfound"><h:outputLabel value="#{msg.no_keyValue_pair_exists}"  style="font-size:14px;font-weight: bold;" rendered="#{empty systemResultViewUtil.systemConfigurationDataBeanList}"/></h3>
+                            <rich:dataTable rowKeyVar="rowId"  style="width: 100%;" rowClass="#{rowId%2 == 0 ? 'alt-row1':'alt-row'}" id="sysconfigtable" value="#{systemResultViewUtil.systemConfigurationDataBeanList}"  rendered="#{not empty systemResultViewUtil.systemConfigurationDataBeanList}" var="systemconfigBean">
+                                <h:column>
+                                    <f:facet name="header">Key</f:facet>
+                                    <h:outputText value="#{systemconfigBean.systemKey}" style="text-align: left;padding-right: 120px" />
+                                </h:column >
+                                <h:column>
+                                    <f:facet name="header">Value</f:facet>
+                                    <h:inputText id="keyvalue" value="#{systemconfigBean.keyValue}" style="text-align: left;border: 0;">
+                                    </h:inputText>
+                                </h:column>
+                                <h:column rendered="#{loginDataBean.itemAttributes.contains('update system configuration')}">
+                                    <f:facet name="header">Edit</f:facet>
+                                    <a4j:commandLink title="Update Key" action="#{systemConfigurationServiceBean.updateSystemConfiguration}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"  render="out panel retrieve">
+                                        <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/edit.jpg" style="border: none"/>
+                                        <f:setPropertyActionListener id="keyUpdate" target="#{systemResultViewUtil.key}" value="#{systemconfigBean.systemKey}"/>
+                                        <f:setPropertyActionListener id="valueUpdate" target="#{systemResultViewUtil.value}" value="#{systemconfigBean.keyValue}"/>
+                                        <f:setPropertyActionListener  target="#{systemResultViewUtil.status}" value="#{systemconfigBean.isActive}"/>
+                                    </a4j:commandLink>
+                                </h:column>
+                                <h:column rendered="#{loginDataBean.itemAttributes.contains('delete system configuration')}">
+                                    <f:facet name="header">Action</f:facet>
+                                    <a4j:commandLink title="Delete Key" action="#{systemConfigurationServiceBean.changeStatus()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();" render="panel out retrieve ">
+                                        <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/active.png" style="border: none" rendered="#{systemconfigBean.isActive eq true}" />
+                                        <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/inactive.png" style="border: none" rendered="#{systemconfigBean.isActive eq false}"/>
+                                        <f:setPropertyActionListener id="keydelete" target="#{systemResultViewUtil.key}" value="#{systemconfigBean.systemKey}"/>
+                                        <f:setPropertyActionListener id="valuedelete" target="#{systemResultViewUtil.value}" value="#{systemconfigBean.keyValue}"/>
+                                        <f:setPropertyActionListener  target="#{systemResultViewUtil.status}" value="#{systemconfigBean.isActive}"/>
+                                    </a4j:commandLink>
+                                    <h:outputLabel value="" />
+                                </h:column>
+                            </rich:dataTable>
+                            <script>
+                                $(function() {
+                                    $("#sysconfigtable").DataTable();
+                                });
+                            </script>
+                        </a4j:outputPanel>
+
+                    </h:form>
+
+                </center>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+
+</html>
+

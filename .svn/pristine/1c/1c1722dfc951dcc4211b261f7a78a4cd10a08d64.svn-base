@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
+   http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
+    version="2.0"> 
+    <application>
+        <el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver</el-resolver>
+    </application>
+    <application>
+        <resource-bundle>
+            <base-name>validationMessages_EN_US</base-name>
+            <var>msg</var>
+        </resource-bundle>
+    </application>
+
+    <lifecycle>
+        <phase-listener>com.argusoft.armms.web.listener.LoginErrorPhaseListener</phase-listener>
+    </lifecycle>
+    <managed-bean>
+        <managed-bean-name>basicPasswordEncryptor</managed-bean-name>
+        <managed-bean-class>org.jasypt.util.password.BasicPasswordEncryptor</managed-bean-class>
+        <managed-bean-scope>application</managed-bean-scope>
+    </managed-bean>
+
+</faces-config>

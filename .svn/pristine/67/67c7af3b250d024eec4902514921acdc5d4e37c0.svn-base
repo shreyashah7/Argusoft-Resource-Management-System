@@ -1,0 +1,133 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"          
+
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+    <h:head>
+        <script type="text/javascript" src="./scripts/jquery/jquery.js"></script>
+        <link href="./css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="./scripts/jquery/jquery.dataTables.min.js"></script>
+        <script src="./scripts/jquery/jquery.dataTables.js"></script>
+        <style>
+
+            .project-master-table-odd-row{
+                text-align:center;
+
+            }
+
+            .project-master-table-even-row{
+                text-align:center;
+
+            }
+        </style>
+    </h:head>
+
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">                  
+            <ui:define name="content">
+
+                <f:event type="preRenderComponent" listener="#{projectServiceBean.retrieveAllActiveProjects()}"/>
+                <f:event type="preRenderComponent" listener="#{projectServiceBean.displayMessageByType()}"/>
+                <h:form prependId="false">
+
+
+                    <h2> Project Management </h2>
+                    <hr/>
+                    <div class="active-div">
+                        <h:panelGroup layout="block" id="msg">
+                            <ui:include src="../common/message.xhtml" />
+                        </h:panelGroup>
+                        <h:selectOneMenu id="showtype"  value="#{systemResultViewUtil.showProjectType}" style="float:left" >
+                            <f:selectItem itemValue="Active" itemLabel="Active" />
+                            <f:selectItem itemValue="Inactive" itemLabel="Inactive" />
+                            <f:selectItem itemValue="Show All" itemLabel="All" />
+                            <a4j:ajax event="change" listener="#{projectServiceBean.showProjectByType()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"  render="tablepanel msg"  />
+                        </h:selectOneMenu>
+                        <a4j:commandLink action="pretty:addProject" render="msg" styleClass="add-btn">
+                            <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/add-more-btn.jpg"   style="float: left" title="Click here to add new project"/>
+                        </a4j:commandLink>
+                    </div>
+
+                    <h:panelGroup id="tablepanel">
+                        <h3 class="norecordfound"> <h:outputLabel value="No records found." rendered="#{(systemResultViewUtil.projectList eq null) or (systemResultViewUtil.projectList.size() eq 0)}"/></h3>
+                        <rich:dataTable  id="datatbl" value="#{systemResultViewUtil.projectList}"  var="projects" styleClass="project-master-table"
+                                         headerClass="project-master-table-header" rendered="#{(systemResultViewUtil.projectList ne null) and (systemResultViewUtil.projectList.size() gt 0)}"
+                                         rowClasses="project-master-table-odd-row,project-master-table-even-row">
+
+                            <h:column>
+                                <f:facet name="header"> Sr No.</f:facet>
+                                <h:outputText value="#{projects.projectId}"/>
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Project Name</f:facet>
+
+                                <a4j:commandLink value="#{projects.projectName}" action="#{activityServiceBean.projectSummaryOutcome(projects.projectId)}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Project Alias</f:facet>
+                                <a4j:commandLink value="#{projects.projectAlias}" action="#{activityServiceBean.projectSummaryOutcome(projects.projectId)}" />
+                            </h:column>
+
+                            <h:column>
+
+                                <f:facet name="header">Project Priority</f:facet>
+                                <h:outputText value="#{projects.projectPriority} "/>
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header"> Start Date</f:facet>
+                                <h:outputText value="#{projects.startDate}" >
+                                    <f:convertDateTime type="date" pattern="dd-MM-yyyy" timeZone="#{systemPropertyUtil.serverTimeZone}"/>
+                                </h:outputText>
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Estimated End date</f:facet>
+                                <h:outputText value="#{projects.estimatedEndDate}">
+                                    <f:convertDateTime type="date" pattern="dd-MM-yyyy" timeZone="#{systemPropertyUtil.serverTimeZone}"/>
+                                </h:outputText>
+                            </h:column>
+
+                            <h:column>
+
+                                <f:facet name="header"> Svn Url</f:facet>
+                                <h:outputText value="#{projects.svnUrl}"/>
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Project Manager</f:facet>
+                                <a4j:commandLink value="#{projects.projectManagerName}" action="pretty:userProfile" >
+                                    <f:setPropertyActionListener target="#{systemResultSessionUtil.userId}" value="#{projects.assignedTo}"/>
+                                </a4j:commandLink>
+                            </h:column>
+
+                            <h:column>
+                                <f:facet name="header">Action </f:facet>
+                                <center>
+                                    <a4j:commandLink  action="pretty:editProject"  render="msg" >
+                                        <f:setPropertyActionListener target="#{systemResultSessionUtil.projectId}" value="#{projects.projectId}"/>
+                                        <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/edit.jpg" title="Click here to edit" />
+                                    </a4j:commandLink>
+                                </center>
+                            </h:column>   
+                            <h:column>
+                                <f:facet name="header">Status </f:facet>
+                                <center>
+                                    <a4j:commandLink  action="#{projectServiceBean.changeStatus(projects)}"  render="tablepanel,msg">
+                                        <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/active.png"  title="Click here to deactivate" rendered="#{projects.isActive==true}" />
+                                        <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/inactive.png" title="Click here to activate" rendered="#{projects.isActive==false}" />
+                                    </a4j:commandLink>
+                                </center>
+                            </h:column>
+                        </rich:dataTable>
+                        <script type="text/javascript">
+                            $('#datatbl').DataTable({
+                            });</script>
+                    </h:panelGroup>
+                    <br> </br>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

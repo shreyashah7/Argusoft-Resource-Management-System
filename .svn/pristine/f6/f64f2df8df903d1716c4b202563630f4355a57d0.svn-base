@@ -1,0 +1,217 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
+    <link rel="stylesheet" href="/css/jquery-ui.css"/>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">               
+                <h2>Tasks</h2>
+                <hr/>
+                <h:panelGroup layout="block" id="notificationMessage">
+                    <ui:include src="../common/message.xhtml" />
+                </h:panelGroup>
+                <h:form>
+                    <a4j:commandLink id="addTechnology" action="pretty:createTask" style="float: right" rendered="#{loginDataBean.itemAttributes.contains('add tasks')}">
+                        <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/add-more-btn.jpg"/>
+                    </a4j:commandLink>
+
+                </h:form>
+                <f:event type="preRenderComponent" listener="#{taskServiceBean.init()}"/>
+                <f:event type="preRenderComponent" listener="#{taskServiceBean.populateMultipleTaskView()}"/>         
+                <f:event type="preRenderComponent" listener="#{taskServiceBean.retrieveTaskWithFilters()}"/>                
+                <link href="css/dashboard.css" rel="stylesheet" type="text/css" /> 
+                <script>
+                    $(document).ready(function() {
+                        getDatePickerForRangeWithFormat('startDate', 'endDate');
+//                        renderPanels();
+                        var table = $('#data').DataTable({
+                            "iDisplayLength": 5,
+                            "aLengthMenu": [[5, 10, 20, 30, 40, -1], [5, 10, 20, 30, 40, "All"]],
+                            "bSort": false
+                        });
+                    });
+                    function rendermsg() {
+                        document.getElementById("notificationMessage").style.display = "none";
+                    }
+                </script>
+                <h:form prependId="false" onclick="rendermsg()">                           
+                    <div style="width: 100% ; background-color: #F3F3F3;border-radius: 10px">   
+                        <br/>
+
+                        <table border="0" cellspacing="5px" style="padding-left: 5px">                            
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <h:outputText value="Filters" style="font-size: 20px"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="15%">
+                                        <h:outputText value="Between Dates"/>
+                                    </td>
+                                    <td width="20%">
+                                        <h:inputText value="#{taskDataBean.startDate}" p:placeholder="Start Date"  id="startDate" >                                
+                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                        </h:inputText>
+                                    </td>
+                                    <td width="20%">
+                                        <h:inputText value="#{taskDataBean.endDate}" p:placeholder="End Date" id="endDate" >
+                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                        </h:inputText>  
+                                    </td>                                    
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <h:outputText value="Project"/>                                        
+                                    </td>
+                                    <td>
+                                        <h:selectOneMenu id = "projectSelection" value="#{taskDataBean.projectId}">                                            
+                                            <f:selectItem itemValue="" itemLabel="Select"/>
+                                            <f:selectItems value="#{systemResultSessionUtil.userProjects}" var="project" itemLabel="#{project.projectAlias}" itemValue="#{project.projectId}"/>                                              
+                                        </h:selectOneMenu>
+                                    </td>
+                                    <td></td>
+                                    <td width="15%"> 
+                                        <h:outputText value="Assigned To "/>                                        
+                                    </td>
+                                    <td width="20%">
+                                        <h:selectOneMenu id = "userSelectionForAssignedTo" value="#{taskDataBean.assignedTo}">
+                                            <f:selectItem itemValue="" itemLabel="Select"/>
+                                            <f:selectItems value="#{systemResultViewUtil.listOfUsers}" var="user" itemLabel="#{user.firstName}" itemValue="#{user.userId}"/>                                               
+                                        </h:selectOneMenu>
+                                    </td>     
+                                    <td width="10%">
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <h:outputText value="Task Priority "/>                                    
+                                    </td>
+                                    <td>
+                                        <h:selectOneMenu id="TaskPrio" value="#{taskDataBean.taskPriority}">
+                                            <f:selectItem itemValue="" itemLabel="Select"/>
+                                            <f:selectItem itemLabel="High" itemValue="1"/>
+                                            <f:selectItem itemLabel="Medium" itemValue="2"/>
+                                            <f:selectItem itemLabel="Low" itemValue="3"/>
+                                        </h:selectOneMenu>    
+                                    </td>
+                                    <td></td>
+                                    <td>
+                                        <h:outputText value="Task Status "/>
+                                    </td>
+                                    <td> 
+                                        <h:selectOneMenu id="TaskStat" value="#{taskDataBean.status}">
+                                            <f:selectItem itemValue="" itemLabel="Select"/>
+                                            <f:selectItem itemValue="New" itemLabel="New" />
+                                            <f:selectItem itemValue="In Progress" itemLabel="In Progress" />
+                                            <f:selectItem itemValue="Resolved" itemLabel="Resolved" />
+                                            <f:selectItem itemValue="Completed" itemLabel="Completed" />
+                                            <f:selectItem itemValue="Closed" itemLabel="Closed" />
+                                        </h:selectOneMenu>    
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <h:outputText value="Created By "/>
+                                    </td>
+                                    <td>
+                                        <h:selectOneMenu id = "userSelectionForAssignedToorCreatedBy" value="#{taskDataBean.createdBy}">
+                                            <f:selectItem itemValue="" itemLabel="Select"/>
+                                            <f:selectItems value="#{systemResultViewUtil.listOfUsers}" var="user" itemLabel="#{user.firstName}" itemValue="#{user.userId}"/>                                               
+                                        </h:selectOneMenu>  
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <a4j:commandButton value="apply" style="float: right" styleClass="mybutton" action="#{taskServiceBean.retrieveTaskWithFilters()}" render="table">                                                                
+                                        </a4j:commandButton>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>                        
+                    <div style="margin-top: 70px">
+
+                        <a4j:outputPanel id="table">         
+                            <script>
+                                var table = $('#data').DataTable({
+                                    "iDisplayLength": 5,
+                                    "aLengthMenu": [[5, 10, 20, 30, 40, -1], [5, 10, 20, 30, 40, "All"]],
+                                    "bSort": false
+                                });
+                            </script>
+                            <h3 class="norecordfound"><h:outputText rendered="#{empty systemResultViewUtil.taskDataBeanList}" id="message" value="No such Tasks Exist" style="margin-top: 30px"/></h3>
+                            <rich:dataTable id="data" value="#{systemResultViewUtil.taskDataBeanList}" rendered="#{not empty systemResultViewUtil.taskDataBeanList}" var="taskdata" style="width: 100%;margin-top: 50px">                                                    
+                                <rich:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="TaskId" />
+                                    </f:facet>
+                                    <a4j:commandLink value="#{taskdata.taskId}" action="pretty:TaskViewAndUpdate">
+                                        <f:setPropertyActionListener target="#{systemResultSessionUtil.taskIdForTaskView}" value="#{taskdata.taskId}"/>
+                                    </a4j:commandLink>
+                                </rich:column>
+                                <rich:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="Task Name" />
+                                    </f:facet>
+                                    <h:outputText value="#{taskdata.taskName}"/>
+                                </rich:column>
+                                <rich:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="Project" />
+                                    </f:facet>
+                                    <h:outputText value="#{taskdata.projectAlias}" style="text-transform: capitalize"/>
+                                </rich:column>
+                                <rich:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="Task Priority" />
+                                    </f:facet>                                                                                                     
+                                    <h:outputText value="#{taskdata.priority eq 1 ? 'High' : taskdata.priority eq 2 ? 'Medium':'Low' }"/>
+                                </rich:column>
+                                <rich:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="Start Date" />
+                                    </f:facet>
+                                    <h:outputText value="N/A" rendered="#{empty taskdata.startDate}"  />
+                                    <h:outputText value="#{taskdata.startDate}" rendered="#{not empty taskdata.startDate}">
+                                        <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                    </h:outputText>
+                                </rich:column>
+                                <rich:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="End Date" />
+                                    </f:facet>
+
+                                    <h:outputText value="N/A" rendered="#{empty taskdata.endDate}"  />
+                                    <h:outputText value="#{taskdata.endDate}" rendered="#{not empty taskdata.endDate}">
+                                        <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                    </h:outputText>
+                                </rich:column>
+                                <rich:column rendered="#{loginDataBean.itemAttributes.contains('delete tasks')}">
+                                    <f:facet name="header">Action</f:facet>
+                                    <a4j:commandLink title="Delete" action="#{taskServiceBean.deleteTask()}" render="table notificationMessage">
+                                        <img src="#{facesContext.externalContext.requestContextPath}/images/delete.png" style="border: none"/>
+                                        <f:setPropertyActionListener target="#{taskDataBean.taskId}" value="#{taskdata.taskId}"/>                                        
+                                    </a4j:commandLink>
+                                </rich:column>
+                            </rich:dataTable>                            
+                        </a4j:outputPanel>
+                    </div>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+
+</html>
+

@@ -1,0 +1,210 @@
+
+<pretty-config xmlns="http://ocpsoft.com/prettyfaces/3.3.0" 
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+               xsi:schemaLocation="http://ocpsoft.com/prettyfaces/3.3.0
+               http://ocpsoft.com/xml/ns/prettyfaces/ocpsoft-pretty-faces-3.3.0.xsd">
+    
+    <url-mapping id="login">
+        <pattern value="/" />
+        <view-id value="/pages/login.xhtml" />
+    </url-mapping>
+    <url-mapping id="loginpage">
+        <pattern value="/login" />
+        <view-id value="/pages/login.xhtml" />
+    </url-mapping>
+    <!--    <url-mapping id="loginpage">
+        <pattern value="/login" />
+        <view-id value="/pages/login.xhtml" />
+    </url-mapping>-->
+    
+    
+    <url-mapping id="home">
+        <pattern value="/home" />
+        <view-id value="/pages/secure/dashboard.xhtml" />
+    </url-mapping>
+    <url-mapping id="testing">
+        <pattern value="/testing" />
+        <view-id value="/pages/secure/testing.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="userProfile">
+        <pattern value="/userProfile" />
+        <view-id value="/pages/secure/userProfile.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="projects">
+        <pattern value="/projects" />
+        <view-id value="/pages/secure/projects.xhtml"/>
+    </url-mapping>
+    <url-mapping id="manageProject">
+        <pattern value="/manageProject" />
+        <view-id value="/pages/secure/manageProject.xhtml"/>
+    </url-mapping>
+    <url-mapping id="teamMemberDashboard">
+        <pattern value="/teamMemberDashboard" />
+        <view-id value="/pages/secure/teamMemberDashboard.xhtml"/>
+    </url-mapping>
+    <url-mapping id="manageProjectRoles">
+        <pattern value="/manageProjectRoles" />
+        <view-id value="/pages/secure/manageProjectRoles.xhtml"/>
+    </url-mapping>
+    <url-mapping id="manageEmployeePerformanceReport">
+        <pattern value="/manageEmployeePerformanceReport" />
+        <view-id value="/pages/secure/manageEmployeePerformanceReport.xhtml" />
+    </url-mapping>
+    <url-mapping id="activity">
+        <pattern value="/activity" />
+        <view-id value="/pages/secure/activity.xhtml"/>
+    </url-mapping>
+    
+    <url-mapping id="manageSystemConfiguration">
+        <pattern value="/manageSystemConfiguration" />
+        <view-id value="/pages/secure/manageSystemConfiguration.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="accessDenied">
+        <pattern value="/accessDenied" />
+        <view-id value="/pages/accessDeniedPage.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="documents">
+        <pattern value="/documents" />
+        <view-id value="/pages/secure/documents.xhtml" />
+    </url-mapping>
+    <url-mapping id="issues">
+        <pattern value="/issues" />
+        <view-id value="/pages/secure/issues.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="manageTechnology">
+        <pattern value="/manageTechnology" />
+        <view-id value="/pages/secure/manageTechnology.xhtml" />
+    </url-mapping>
+    <url-mapping id="calendar">
+        <pattern value="/calendar" />
+        <view-id value="/pages/secure/calendar.xhtml" />
+    </url-mapping>    
+    <url-mapping id="repository">
+        <pattern value="/repository" />
+        <view-id value="/pages/secure/SvnRepository.xhtml" />
+    </url-mapping>
+    <url-mapping id="folderStructure">
+        <pattern value="/folderStructure" />
+        <view-id value="/pages/secure/folderStructure.xhtml" />
+    </url-mapping>
+    <url-mapping id="milestone">
+        <pattern value="/milestone" />
+        <view-id value="/pages/secure/milestone.xhtml" />
+    </url-mapping>
+
+    <url-mapping id="addUser">
+        <pattern value="/addUser" />
+        <view-id value="/pages/secure/addUser.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="userManagement">
+        <pattern value="/userManagement" />
+        <view-id value="/pages/secure/userManagement.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="editUserData">
+        <pattern value="/editUserData" />
+        <view-id value="/pages/secure/editUserData.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="addProject">
+        <pattern value="/addProject" />
+        <view-id value="/pages/secure/addProject.xhtml" />
+    </url-mapping>
+   
+    <url-mapping id="editProject">
+        <pattern value="/editProject" />
+        <view-id value="/pages/secure/editProject.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="menu">
+        <pattern value="/menu" />
+        <view-id value="/pages/common/menu.xhtml" />
+    </url-mapping>
+
+    <url-mapping id="manageMyProfile">
+        <pattern value="/manageMyProfile" />
+        <view-id value="/pages/secure/manageMyProfile.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="createTask">
+        <pattern value="/createTask" />
+        <view-id value="/pages/secure/createTask.xhtml"/>
+    </url-mapping>
+
+
+    <url-mapping id="role">
+        <pattern value="/role" />
+        <view-id value="/pages/secure/role.xhtml" />
+    </url-mapping>
+    <url-mapping id="manageRole">
+        <pattern value="/manageRole" />
+        <view-id value="/pages/secure/manageRole.xhtml" />
+    </url-mapping>
+    <url-mapping id="feature">
+        <pattern value="/feature" />
+        <view-id value="/pages/secure/feature.xhtml" />
+    </url-mapping>
+    <url-mapping id="changePermissionToRole">
+        <pattern value="/changePermissionToRole" />
+        <view-id value="/pages/secure/changePermissionToRole.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="changeRoleToUser">
+        <pattern value="/changeRoleToUser" />
+        <view-id value="/pages/secure/changeRoleToUser.xhtml" />
+    </url-mapping>
+
+    <url-mapping id="manageProjectResource">
+        <pattern value="/manageProjectResource" />
+        <view-id value="/pages/secure/manageProjectResource.xhtml" />
+    </url-mapping>
+    <url-mapping id="dashboard">
+        <pattern value="/dashboard" />
+        <view-id value="/pages/secure/dashboard.xhtml" />
+    </url-mapping>
+    <url-mapping id="ganttChart">
+        <pattern value="/ganttChart" />
+        <view-id value="/pages/secure/ganttChart.xhtml" />
+    </url-mapping>
+    <url-mapping id="ViewMultipleTask">
+        <pattern value="/ViewMultipleTask" />
+        <view-id value="/pages/secure/ViewMultipleTask.xhtml" />
+    </url-mapping>
+    <url-mapping id="projectSummary">
+        <pattern value="/projectSummary" />
+        <view-id value="/pages/secure/projectSummary.xhtml" />
+    </url-mapping>
+    <url-mapping id="TaskViewAndUpdate">
+        <pattern value="/TaskViewAndUpdate" />
+        <view-id value="/pages/secure/TaskViewAndUpdate.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="addResourcesOfProject">
+        <pattern value="/addResourcesOfProject" />
+        <view-id value="/pages/secure/addResourcesOfProject.xhtml" />
+    </url-mapping>
+    <url-mapping id="projectResources">
+        <pattern value="/projectResources" />
+        <view-id value="/pages/secure/projectResources.xhtml" />
+    </url-mapping>
+    
+    <url-mapping id="search">
+        <pattern value="/search" />
+        <view-id value="/pages/secure/search.xhtml" />
+    </url-mapping>    
+    <url-mapping id="spentTime">
+        <pattern value="/spentTime" />
+        <view-id value="/pages/secure/spentTime.xhtml" />
+    </url-mapping>    
+    <url-mapping id="logTimeDetails">
+        <pattern value="/logTimeDetails" />
+        <view-id value="/pages/secure/logTimeDetails.xhtml" />
+    </url-mapping>    
+
+</pretty-config>

@@ -1,0 +1,439 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j">
+    <h:head>
+        <title>ARMMS</title>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css"/>
+        <link rel="stylesheet" href="/resources/demos/style.css"/>
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml" >
+            <ui:define name="content">
+
+                <div>
+                    <script src="//code.jquery.com/jquery-1.9.1.js"></script>
+                    <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+                    <script type="text/javascript" src="./scripts/armms.js"></script>
+                    <style>
+                        *.rf-fu {
+                            background: none;
+                            border-color: #C4C0B9;
+                            border-style: solid;
+                            border-width: 1px;
+                            width: 400px;
+                            opacity:0.4;
+
+                        }
+                        *.rf-fu-hdr {
+
+                            border-style: solid;
+                            border-width: 1px;
+                            margin-left: -4px;
+                            margin-top: -102px;
+                            white-space: nowrap;
+
+                        }
+                        *.rf-fu-lst {
+                            overflow-x: hidden;
+                            overflow-y: auto;
+                        }
+                        *.rf-fu-cntr-hdn {
+                            display: none;
+                        }
+                        *.rf-fu-btns-lft, *.rf-fu-btns-rgh, *.rf-fu-itm-lft, *.rf-fu-itm-rgh {
+                            display: inline-block;
+                            overflow: hidden;
+                        }
+                        *.rf-fu-btns-lft {
+                            width: 100%;
+                        }
+                        *.rf-fu-btns-rgh {
+                            text-align: right;
+                            width: 34%;
+                        }
+                        *.rf-fu-btn-add, *.rf-fu-btn-add-dis, *.rf-fu-btn-upl, *.rf-fu-btn-clr {
+                            background-position: left top;
+                            background-repeat: repeat-x;
+                            border-style: solid;
+                            border-width: 1px;
+                            cursor: pointer;
+                            display: inline-block;
+                            margin: -1px;
+                            vertical-align: top;
+                            width: 125px;
+                            height: 120px;
+                            padding: 1px;
+                        }
+                        *.rf-fu-btn-add, *.rf-fu-btn-upl, *.rf-fu-btn-clr {
+                            background-color: none;
+                            border-color: none;
+                        }
+                        *.rf-fu-btn-add-dis {
+                            background-color: transparent;
+                            border-color: transparent;
+                            display: none;
+                        }
+                        *.rf-fu-btn-upl, *.rf-fu-btn-clr {
+                            display: none;
+                        }
+                        *.rf-fu-btn-cnt-add, *.rf-fu-btn-cnt-add-dis, *.rf-fu-btn-cnt-upl, *.rf-fu-btn-cnt-clr, *.rf-fu-itm-lbl, *.rf-fu-itm-st, *.rf-fu-itm-lnk {
+                            font-family: Arial, Verdana, sans-serif ;
+                            font-size: 0px;
+                            height: 114px;
+                            width: 100px;
+                        }
+                        *.rf-fu-btn-cnt-add, *.rf-fu-btn-cnt-upl, *.rf-fu-btn-cnt-clr, *.rf-fu-itm-lbl, *.rf-fu-itm-st {
+                            color: #000;
+                        }
+                        *.rf-fu-btn-cnt-add, *.rf-fu-btn-cnt-add-dis, *.rf-fu-btn-cnt-upl, *.rf-fu-btn-cnt-clr {
+                            background-position: 2px 2px;
+                            background-repeat: no-repeat;
+                            display: inline-block;
+                            padding: 3px 5px 3px 21px;
+                        }
+                        *.rf-fu-btn-cnt-add {
+                            background-image:none;
+                            overflow: hidden;
+                            position: relative;
+                        }
+                        *.rf-fu-btn-cnt-add-dis {
+                            color: transparent;
+                            display: none;
+                        }
+                        *.rf-fu-btn-cnt-upl, *.rf-fu-itm-st {
+                            font-weight: bold;
+                        }
+                        *.rf-fu-btn-cnt-upl {
+                        }
+                        *.rf-fu-btn-cnt-clr {
+                        }
+                        *.rf-fu-inp-cntr {
+                            display: block;
+                            height: 1px;
+                            position: absolute;
+                            right: 0;
+                            top: 0;
+                        }
+                        *.rf-fu-inp {
+                            filter: alpha(opacity=0);
+                            font-size: 10em;
+                            margin: 0;
+                            opacity: 0;
+                            position: absolute;
+                            right: 0;
+                            top: -24;
+                            width: 128px;
+                            height: 126px;
+                        }
+                        *.rf-fu-itm {
+                            border-bottom-color: transparent;
+                            border-bottom-style: solid;
+                            border-bottom-width: 1px;
+                            padding: 12px;
+                            white-space: nowrap;
+                        }
+                        *.rf-fu-itm-lft, *.rf-fu-itm-rgh {
+                            vertical-align: middle;
+                        }
+                        *.rf-fu-itm-lft {
+                            width: 85%;
+                        }
+                        *.rf-fu-itm-rgh {
+                            width: 14%;
+                        }
+                        *.rf-fu-itm-lnk {
+                            color: #0078D0;
+                        }
+                        *.rf-fu-itm-st {
+                            display: none;
+                            margin-top: 5px;
+                        }
+
+                    </style>
+                    <script>
+                        $(document).ready(function() {
+                            $("#tabs").tabs();
+                        });
+                        
+                        function divhover() {
+                            
+                            document.getElementById("file").style.display = "inline";
+                        }
+                        function divhout() {
+                            
+                            document.getElementById("file").style.display = "none";
+                        }
+                        
+                        function rendermsg() {
+                            
+                            document.getElementById("msg").style.display = "none";
+                        }
+                        
+                    </script>
+                    <f:event type="preRenderComponent" listener="#{userServiceBean.retrieveLoggedInUserInfo()}"/>  
+                    <f:event type="preRenderComponent" listener="#{technologyServiceBean.retrieveAllActiveTechnologybyTechnologyType()}"/> 
+                    <h2>Manage Profile</h2>
+                    <hr/>
+                    <div>
+                        <h:form prependId="false">
+                            <a4j:outputPanel id="msg">
+                                <ui:include src="../common/message.xhtml" />
+                            </a4j:outputPanel>                    
+                            <div id="tabs">
+                                <ul>
+                                    <li><a href="#ManageProfile" onclick="rendermsg()">
+                                            <h:outputText style="color: #ffffff;text-decoration: none" value="Manage Profile" />
+                                        </a>
+                                    </li>
+                                    <li><a href="#Notification" onclick="rendermsg()"> 
+                                            <h:outputText style="color: #ffffff;text-decoration: none" value="Notification"/>
+                                        </a>
+                                    </li>
+                                    <li><a href="#UserSkills" onclick="rendermsg()"> 
+                                            <h:outputText style="color: #ffffff;text-decoration: none" value="UserSkills"/>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div id="ManageProfile"> 
+                                    <a4j:commandLink id="change_password" value="ChangePassword" render="changepassword"  onclick="#{rich:component('changePasswordPopup')}.show();"  onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();" style="float: right">
+                                    </a4j:commandLink> <br/>
+                                    <hr/>
+                                    <h:form prependId="false">
+                                        <a4j:outputPanel id="edit_profile">
+                                            <table border="0" width="100%">
+                                                <tr>
+                                                    <td width="50%">
+                                                        <table  align="left" border="0"  class="form-table">
+                                                            <tr> 
+                                                                <td style="float: right;height: 20px;position: relative;top: 9px">
+                                                                    <h:outputText value=" First Name  " />
+                                                                </td>
+                                                                <td>
+                                                                    <h:inputText id="first_name" class="required" required="true" value="#{userDataBean.firstName}" requiredMessage="#{msg.EnterFirstName}" validatorMessage="#{msg.EnterValidFirstName}">
+                                                                        <f:validateRegex pattern="^[a-zA-Z]+$"/>        
+                                                                        <f:ajax event="blur" render="first_name_msg" />
+                                                                    </h:inputText><br/>
+                                                                    <h:message for="first_name" id="first_name_msg" style="color: red;"/>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="float: right;height: 20px;position: relative;top: 9px">
+                                                                    <h:outputText value="Last Name  "/>
+                                                                </td>
+                                                                <td>
+                                                                    <h:inputText id="last_name" class="required" required="true" value="#{userDataBean.lastName}" requiredMessage="#{msg.EnterLastName}" validatorMessage="#{msg.EnterValidLastName}" >
+                                                                        <f:validateRegex pattern="^[a-zA-Z]+$"/>
+                                                                        <f:ajax event="blur" render="last_name_msg" />
+                                                                    </h:inputText><br/>
+                                                                    <h:message for="last_name" id="last_name_msg" style="color: red;"/>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="float: right;height: 20px;position: relative;top: 9px"> 
+                                                                    <h:outputText value="Email Id  "/>
+                                                                </td>
+                                                                <td>
+                                                                    <h:inputText id="email_id" class="required" value="#{userDataBean.emailId}" required="true" requiredMessage="#{msg.EnterEmail}" validatorMessage="#{msg.EnterValidEmail}">
+                                                                        <f:validateRegex pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$"/>
+                                                                        <f:ajax event="blur" render="email_id_msg" />
+                                                                    </h:inputText><br/>
+                                                                    <h:message for="email_id" id="email_id_msg" style="color: red;"/>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="float: right;height: 20px;position: relative;top: 9px">
+                                                                    <h:outputText value="Contact no "/>
+                                                                </td>
+                                                                <td>
+                                                                    <h:inputText id="phone_num" value="#{userDataBean.phoneNum}" maxlength="10" validatorMessage="#{msg.PhoneNum}" onkeypress="return isNumberKey(event)" >
+                                                                        <f:validateLength minimum="10" maximum="10"/>
+                                                                        <f:validateRegex pattern="^[0-9]+$"/>
+                                                                        <f:ajax event="blur" render="phone_num_msg" />
+                                                                    </h:inputText> <br/>
+                                                                    <h:message for="phone_num" id="phone_num_msg" style="color: red;"/> 
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td>
+                                                        <table border="0" align="right" >
+                                                            <tr>
+                                                                <td>
+                                                                    <table align="right" style="position: relative; right: 35px; height: 120px;width: 120px;  border: 1px solid black " border="0">
+                                                                        <tr><td>
+                                                                                <div style="width: 120px; height: 120px;" >
+                                                                                    <div style="position: absolute; height: 120px; width: 120px;"  onmouseover="divhover();" onmouseout="divhout();" >
+                                                                                        <a4j:outputPanel id="image_display">
+                                                                                            <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/shsh.png" style="width: 120px; height: 120px;border: none" rendered="#{!userDataBean.displayImgFlag}"/>
+                                                                                            <a4j:mediaOutput id="pic" style="width: 120px; height: 120px;" element="img"  value="#{loginDataBean.profilePicturePath}" createContent="#{systemResultSessionUtil.drawImage}" mimeType="image/jpg" rendered="#{loginDataBean.profilePicturePath ne null and userDataBean.displayImgFlag}" />
+                                                                                        </a4j:outputPanel>
+                                                                                        <div class="hide" id="file" >
+                                                                                            <rich:fileUpload fileUploadListener="#{userServiceBean.fileUploadListener}" 
+                                                                                                             render="picComp image_display"
+                                                                                                             addLabel="change profile"
+                                                                                                             style="height: 20px; width: 122px;"
+                                                                                                             acceptedTypes="jpg,jpeg,bmp,png,gif"
+                                                                                                             maxFilesQuantity="1" 
+                                                                                                             ontyperejected="alert('Only JPG,JPEG,PNG,GIF and BMP files are accepted');"
+                                                                                                             id="picComp">
+                                                                                            </rich:fileUpload>
+                                                                                            <label style="display: table;margin-top: -20%;margin-left: 10%;opacity: 100;background-color: white;">Change Profile</label>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            <a4j:commandButton value="Update" styleClass="mybutton" style="position: relative;top:5px;left:65px" action="#{userServiceBean.updateLoggedInUserInfo()}"  render="msg logged_in_name phone_num_msg email_id_msg last_name_msg first_name_msg" >
+                                            </a4j:commandButton>
+                                        </a4j:outputPanel>
+                                    </h:form>
+                                </div>
+                                <div id="Notification">
+                                    <br/> 
+                                    <h1>Email Notifications</h1>
+                                    <hr/>
+                                    <br/>
+                                    <h:form prependId="false">
+                                        <a4j:outputPanel id="notification_info">
+                                            <table>
+                                                <tr>
+                                                    <td align="left">
+
+                                                        <h:selectBooleanCheckbox value="#{userDataBean.tskAllocation}"  />
+                                                        <h:outputText value="Task Assigned to me" /> <br/>
+                                                        <h:selectBooleanCheckbox value="#{userDataBean.tskUpdate}"/>
+                                                        <h:outputText value="Task Assigned to me has been changed" /><br/>
+                                                        <h:selectBooleanCheckbox value="#{userDataBean.tskDeadline}"/>
+                                                        <h:outputText value="Deadline for task Assigned to me is due" /><br/> 
+                                                        <h:selectBooleanCheckbox value="#{userDataBean.tskEnd}"/>
+                                                        <h:outputText value="Task Assigned to me have been completed and closed" /> <br/>
+                                                        <h:selectBooleanCheckbox value="#{userDataBean.watcherFlag}"/>
+                                                        <h:outputText value="Task in which I am Watcher" /> </td>
+                                                </tr>
+                                            </table>
+                                        </a4j:outputPanel>
+                                        <a4j:commandButton value="Update" styleClass="mybutton" style="position: relative;top:8px;left:65px"  action="#{userServiceBean.updateNotificationInfo()}"  render="msg notification_info" >
+                                        </a4j:commandButton>
+                                    </h:form>
+                                </div>
+
+                                <div id="UserSkills"> 
+                                    <a4j:outputPanel id="output">
+                                        <h:form prependId="false">
+                                            <table border="0" width="100%">
+                                                <tr>
+                                                    <td>
+                                                        <table class="form-table"> 
+                                                            <tr> 
+                                                                <td style="float: right;height: 20px;position: relative;top: 9px">
+                                                                    <h:outputText value=" Technology  " />
+                                                                </td>
+                                                                <td>
+                                                                    <h:selectOneMenu id="tech" value="#{userDataBean.techId}"  class="required" required="true" requiredMessage="#{msg.EnterTechnologyName}" converter="javax.faces.Long" >
+                                                                        <f:selectItem itemValue="" itemLabel="Select" />
+                                                                        <f:selectItems value="#{systemResultViewUtil.technologyList}" var="technology" 
+                                                                                       itemValue="#{technology.techId}" itemLabel="#{technology.name}" /> 
+                                                                    </h:selectOneMenu><br/>
+                                                                    <h:message for="tech" id="tech_msg" style="color: red;"/>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td style="float: right;height: 20px;position: relative;top: 9px">
+                                                                    <h:outputText value="Work Experience  "/>
+                                                                </td>
+                                                                <td>
+                                                                    <h:inputText id="experience" class="required" required="true" value="#{userDataBean.totalExperience}" requiredMessage="#{msg.EnterExperience}" >
+                                                                        <f:ajax event="blur" render="experience_msg" />
+                                                                    </h:inputText>Months<br/>
+                                                                    <h:message for="experience" id="experience_msg" style="color: red;"/>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>
+                                                                    <a4j:commandButton value="Update" styleClass="mybutton" style="position: relative;top:5px;left:65px" action="#{userServiceBean.addUserSkills()}" render="msg tech experience tech_msg experience_msg" >
+                                                                    </a4j:commandButton>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </h:form>
+                                    </a4j:outputPanel>
+                                </div>     
+                            </div>
+                            <rich:popupPanel id="changePasswordPopup" modal="true" autosized="true" width="450" height="330" >
+                                <h2>Change Password</h2>
+                                <hr/>
+                                <f:facet name="controls">
+                                    <h:outputLink value="#" onclick="#{rich:component('changePasswordPopup')}.hide()">
+                                        <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/close-btn.png" style="width: 20px;height: 15px ;top: 1px" >
+                                        </h:graphicImage>
+                                    </h:outputLink>
+                                </f:facet>
+                                <h:form prependId="false">
+                                    <a4j:outputPanel id="changepassword">
+                                        <script type="text/javascript" src="./scripts/armms.js"></script>
+                                        <table width="80%" class="form-table" align="center">
+                                            <tr>
+                                                <th style="width: 30%">Old Password</th>
+                                                <td>
+                                                    <h:inputSecret id="old_password" class="required" value="#{userDataBean.oldPassword}"
+                                                                   required="true" requiredMessage="#{msg.EnterOldPassword}" validatorMessage="#{msg.MinimumLength}" >
+                                                        <f:validateLength minimum="8" />
+                                                    </h:inputSecret><br/>
+                                                    <h:message for="old_password" style="color: red;" id="old_password_msg"  />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th  style="width: 30%">New Password</th>
+                                                <td>
+                                                    <h:inputSecret id="new_password" class="required" value="#{userDataBean.newPassword}"
+                                                                   required="true" requiredMessage="#{msg.EnterNewPassword}" validatorMessage="#{msg.MinimumLength}" >
+                                                        <f:validateLength minimum="8" />
+                                                    </h:inputSecret><br/>
+                                                    <h:message for="new_password" style="color: red;" id="new_password_msg"  /></td>
+                                            </tr>
+                                            <tr>
+                                                <th  style="width: 50%">Re-Type New Password</th>
+                                                <td>
+                                                    <h:inputSecret id="retype_newpassword" class="required" value="#{userDataBean.retypeNewPassword}"
+                                                                   required="true" requiredMessage="#{msg.RetypeNewPassword}" validatorMessage="#{msg.MinimumLength}" >
+                                                        <f:validateLength minimum="8" />
+                                                    </h:inputSecret><br/>
+                                                    <h:message for="retype_newpassword" style="color: red;" id="re_type_newpassword_msg"  /></td>
+                                            </tr>
+                                        </table><br/>
+                                        <center>                                    
+                                            <table>
+                                                <tr>
+                                                    <td>
+                                                        <a4j:commandButton id="submit" value="submit" styleClass="mybutton" action="#{userServiceBean.changePassword()}" render="msg old_password_msg changepassword new_password_msg re_type_newpassword_msg">
+                                                        </a4j:commandButton>   
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </center>
+                                    </a4j:outputPanel>
+                                </h:form>
+                            </rich:popupPanel>
+                        </h:form>
+                    </div> 
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

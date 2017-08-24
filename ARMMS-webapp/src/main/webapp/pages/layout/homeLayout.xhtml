@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:rich="http://richfaces.org/rich">
+    <h:head>
+        <meta http-equiv="X-UA-Compatible" content="IE=9"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />          
+        <link rel="Scope icon" href="#{facesContext.externalContext.requestContextPath}/images/icon1.jpg"/>
+        <title>ARMMS - Argusoft Resource Monitoring and Management System</title>
+    </h:head>
+    <h:body>       
+        <style>
+            .ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+            .ui-timepicker-div dl { text-align: left; }
+            .ui-timepicker-div dl dt { height: 25px; margin-bottom: -25px; }
+            .ui-timepicker-div dl dd { margin: 0 10px 10px 65px; }
+            .ui-timepicker-div td { font-size: 90%; }
+            .ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+            .dataTables_paginate {
+                padding-top: 10px;
+            }
+        </style>
+        <link href="#{facesContext.externalContext.requestContextPath}/css/jquery-ui.css" rel="stylesheet" type="text/css" /> 
+        <link href="#{facesContext.externalContext.requestContextPath}/css/jquery-picklist.css" rel="stylesheet" type="text/css" /> 
+        <link href="#{facesContext.externalContext.requestContextPath}/css/jquery.dataTables.css" rel="stylesheet" type="text/css" /> 
+        <link href="#{facesContext.externalContext.requestContextPath}/css/jquery.dataTables_themeroller.css" rel="stylesheet" type="text/css" /> 
+        <link href="#{facesContext.externalContext.requestContextPath}/css/ui.multiselect.css" rel="stylesheet" type="text/css" />
+        <link href="#{facesContext.externalContext.requestContextPath}/css/armms.css" rel="stylesheet" type="text/css" /> 
+        <link href="#{facesContext.externalContext.requestContextPath}/css/general.css" rel="stylesheet" type="text/css" /> 
+        <link href="#{facesContext.externalContext.requestContextPath}/css/jquery.loadmask.css" rel="stylesheet" type="text/css" /> 
+        <link href="#{facesContext.externalContext.requestContextPath}/css/dashboard.css" rel="stylesheet" type="text/css" /> 
+        <script language="javascript" type="text/javascript">
+            var hostName = document.location.hostname;
+            if (hostName.indexOf('www') == -1)
+            {
+                if (hostName == 'armms.com') {
+                    document.location.hostname = "www." + hostName;
+                }
+            }
+        </script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/jquery-1.6.2.min.js" type="text/javascript"></script>        
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/jquery-ui.min.js" type="text/javascript"></script> 
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/popup.js" type="text/javascript"></script> 
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/jquery.dataTables.js" type="text/javascript"></script> 
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/common/scope.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/jquery.alphanumeric.js" type="text/javascript"></script>
+        <!--<script src="{facesContext.externalContext.requestContextPath}/scripts/jquery/jquery-ui.min_18.js" type="text/javascript"></script>-->
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/jquery-ui-timepicker-addon.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/jquery-ui-sliderAccess.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/jquery.loadmask.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/ui.multiselect.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/jquery.mtz.monthpicker.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/jquery-picklist.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/jquery-picklist.min.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/jquery.ui.widget.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/jquery.ui.widget.min.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jChartfx/jchartfx.system.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jChartfx/jchartfx.coreVector.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jChartfx/jchartfx.coreBasic.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jChartfx/jchartfx.advanced.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jChartfx/jchartfx.animation.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jChartfx/jchartfx.overlaybubble.js" type="text/javascript"></script>
+        <script src="#{facesContext.externalContext.requestContextPath}/scripts/jChartfx/jchartfx.coreVector3d.js" type="text/javascript"></script>
+
+        <div class="header-wrapper">
+            <div id="header" style="width:100%; margin:0px auto; padding:15px 0px; padding-bottom:1%; ">
+                <ui:insert name="header">
+                    <ui:include src="../common/header.xhtml"/>
+                </ui:insert>
+            </div>
+        </div>
+        <div class="nav-wrapper">
+            <div style="margin:0px auto; ">
+                <div style="clear:both;">
+                    <h:outputLabel rendered="#{loginDataBean.isLoggedin}">
+                        <ui:insert name="menu">
+                            <ui:include src="../common/menu.xhtml"/>
+                        </ui:insert>
+                    </h:outputLabel>                       
+                </div>
+            </div>
+        </div>
+
+        <div class="content" style="width:1250px;min-height: 600px ;margin-left: 88px;overflow: hidden">
+            <div id="leftDiv"  style="width:80%;float:left; padding-bottom:80000px;margin-bottom:-80000px;">
+                <ui:insert name="content">
+                </ui:insert> 
+            </div>  
+            <h:outputLabel rendered="#{loginDataBean.isLoggedin}">
+                <div id="rightDiv" style="width:19%;float:right;background-color: #e8eaec;min-height: 600px; padding-bottom:80000px;margin-bottom:-80000px; ">
+                    <ui:include src="../common/newTemplate.xhtml"/>
+                </div>
+            </h:outputLabel>
+            <ui:include src="../common/waitPanel.xhtml" />    
+        </div> 
+
+
+        <div class="clearing"></div>
+        <hr/>
+        <div id="footer">    
+            <ui:insert name="footer">
+                <ui:include src="../common/footer.xhtml"/>
+            </ui:insert>
+        </div>  
+
+    </h:body>
+</html>

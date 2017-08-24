@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>Technology</title>
+        <meta name="viewport" content="width=device-width"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <script type="text/javascript" src="./scripts/jquery/jquery.js"></script>
+        <link href="./css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="./scripts/jquery/jquery.dataTables.min.js"></script>
+        <script src="./scripts/jquery/jquery.dataTables.js"></script>
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content"><br/>
+                <div>
+
+                    <h2>Manage Technology</h2>
+                    <hr/>
+                    <f:event listener="#{technologyServiceBean.retrieveAllActiveTechnology()}" type="preRenderComponent" />
+                    <script type="text/javascript" src="./scripts/armms.js"></script>
+
+                    <h:form prependId="false"> 
+                        <div class="active-div">
+                            <a4j:outputPanel id="msg">
+                                <ui:include src="../common/message.xhtml" />
+                            </a4j:outputPanel>
+                            <h:selectOneMenu id="showtype" value="#{systemResultViewUtil.showAllStatus}" style="float:left" >
+                                <f:selectItem itemValue="Active" itemLabel="Active" />
+                                <f:selectItem itemValue="Inactive" itemLabel="InActive" />
+                                <f:selectItem itemValue="Show All" itemLabel="All" />
+                                <f:ajax execute="showtype" listener="#{technologyServiceBean.retrieveTechnologiesByType()}" render="datatablepanal msg"   />
+                            </h:selectOneMenu>
+                            <a4j:commandLink id="addTechnology" onclick="#{rich:component('addTechnologyPopup')}.show();" render="datatablepanal,addTechnologyOutputPanal" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();" style="float: right" rendered="#{loginDataBean.itemAttributes.contains('add technology')}">
+                                <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/add-more-btn.jpg"/>
+                            </a4j:commandLink>
+                        </div>
+                        <!--                    OutputPanal for rich:DataTable-->
+                        <a4j:outputPanel id="datatablepanal">
+
+                            <h3 class="norecordfound"><h:outputLabel value="#{msg.NoRecordFound}"  rendered="#{empty systemResultViewUtil.technologyList}"/></h3>
+                            <center>
+                                <script type="text/javascript">
+                                    $(document).ready(function() {
+                                        sort();
+                                    });
+
+                                    function sort() {
+                                        $('#datatable').DataTable({
+                                            "bSort": false
+                                                    //                                        "aLengthMenu": [[5, 10, 15, 20, -1], [5, 10, 15, 20, "All"]]
+                                        });
+                                    }
+                                </script>
+                                <rich:dataTable id="datatable" value="#{systemResultViewUtil.technologyList}" var="technology" rendered="#{not empty systemResultViewUtil.technologyList}"                             
+                                                styleClass="systemResultViewUtil-table"
+                                                style="width: 100%"
+
+                                                headerClass="systemResultViewUtil-table-header" 
+                                                rowClasses="systemResultViewUtil-table-odd-row,systemResultViewUtil-table-even-row">
+
+                                    <rich:column style="width: 70px" sortBy="#{technology.name}" sortOrder="ascending">
+                                        <f:facet name="header">Name</f:facet>
+                                        <center> <a4j:commandLink  oncomplete="#{rich:component('editTechnologyPopup')}.show();" action="#{technologyServiceBean.retrieveTechOrToolById()}" render="editOutputPanal"> 
+                                                <f:setPropertyActionListener target="#{technologyDataBean.techId}" value="#{technology.techId}" />
+                                                <h:outputText value="#{technology.name}" style="font-size: 12px"/>  
+                                            </a4j:commandLink>  </center>  
+                                    </rich:column>
+                                    <rich:column style="width: 250px">
+                                        <f:facet name="header">Description</f:facet>
+                                        <center>  <h:outputText value="N/A" rendered="#{technology.description eq ''}" style="font-size: 12px"/>    
+                                            <h:outputText value="#{technology.description}" style="font-size: 12px"/>  </center>  
+                                    </rich:column>
+                                    <rich:column style="width: 50px">
+                                        <f:facet name="header">Type</f:facet>
+                                        <center>  <h:outputText value="Technology" rendered="#{technology.type=='T'}" style="font-size: 12px">
+                                            </h:outputText>
+                                            <h:outputText value="Tool" rendered="#{technology.type=='L'}" style="font-size: 12px">
+                                            </h:outputText>
+                                            <h:outputText value="Operating System" rendered="#{technology.type=='O'}" style="font-size: 12px">
+                                            </h:outputText>
+                                            <h:outputText value="Server" rendered="#{technology.type=='S'}" style="font-size: 12px">
+                                            </h:outputText>
+                                            <h:outputText value="Browser" rendered="#{technology.type=='B'}" style="font-size: 12px">
+                                            </h:outputText></center>
+
+                                    </rich:column>
+                                    <rich:column style="width: 35px">
+                                        <f:facet name="header">Action</f:facet>
+                                        <center>  <a4j:commandLink  oncomplete="#{rich:component('editTechnologyPopup')}.show();" action="#{technologyServiceBean.retrieveTechOrToolById()}" render="editOutputPanal"> 
+                                                <f:setPropertyActionListener target="#{technologyDataBean.techId}" value="#{technology.techId}" />
+                                                <h:graphicImage value="/images/edit.jpg" title="Click here to Edit" />
+                                            </a4j:commandLink></center>
+                                    </rich:column>
+                                    <rich:column style="width: 35px;" rendered="#{loginDataBean.itemAttributes.contains('update technology')}">
+                                        <f:facet name="header">Status</f:facet>
+                                        <a4j:commandLink id="status"  action="#{technologyServiceBean.changeTechnologyStatus(technology)}" render="datatablepanal msg " onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();">
+                                            <center><h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/active.png" title="Click here to InActivate" rendered="#{technology.status=='true'}"  >
+                                                </h:graphicImage>
+                                                <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/inactive.png" title="Click here to Activate" rendered="#{technology.status=='false'}" >
+                                                </h:graphicImage></center>
+                                        </a4j:commandLink>
+                                    </rich:column>
+
+                                </rich:dataTable>
+                            </center>
+                        </a4j:outputPanel>
+                    </h:form>
+
+
+                    <!--Pop up panel for Add Technology-->
+                    <rich:popupPanel id="addTechnologyPopup" modal="true" autosized="true" width="500" height="350" >
+                        <h2>Add Technology</h2>
+                        <hr/>
+                       
+                        <f:facet name="controls">
+                            <h:outputLink value="#" onclick="#{rich:component('addTechnologyPopup')}.hide()">
+                                <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/close-btn.png" style="width: 20px;height: 15px ;top: 1px" >
+                                </h:graphicImage>
+                            </h:outputLink>
+                        </f:facet>
+                        <h:form prependId="false">
+                            <a4j:outputPanel id="addTechnologyOutputPanal">
+                                <script type="text/javascript" src="./scripts/armms.js"></script>
+                                <table class="form-table">
+                                    <tbody>
+
+                                        <tr>
+                                            <th style="float: right;width: 100px">Name</th>
+                                            <td><h:inputText id="name" class="required" value="#{technologyDataBean.name}" required="true" requiredMessage="#{msg.EnterName}" validatorMessage="#{msg.UserValidation}">
+                                                    <f:validateRegex pattern="^[a-zA-Z0-9\.\-]+[a-zA-Z0-9\.\- \s]*$"/>
+                                                    <f:ajax event="blur" render="name_msg" />
+                                                </h:inputText>
+                                                <br></br>
+                                                <h:message id="name_msg" for="name" style="color: red"/></td>
+                                        </tr>
+                                        <tr>
+                                            <th style="float: right;width: 100px">Description</th>
+                                            <td ><h:inputTextarea id="description" value="#{technologyDataBean.description}" validatorMessage="#{msg.UserValidation}">
+                                                </h:inputTextarea>
+                                            </td></tr>
+                                        <tr>
+                                            <th style="width: 100px;float: right">Type</th>
+                                            <td><h:selectOneMenu id="techtype" class="required" value="#{technologyDataBean.type}" required="true" requiredMessage="#{msg.EnterTechnologyType}">
+                                                    <f:selectItem itemValue="" itemLabel="--Select--" />
+                                                    <f:selectItem itemValue="T" itemLabel="Technology" />
+                                                    <f:selectItem itemValue="L" itemLabel="Tool" />
+                                                    <f:selectItem itemValue="S" itemLabel="Server" />
+                                                    <f:selectItem itemValue="O" itemLabel="Operating System" />
+                                                    <f:selectItem itemValue="B" itemLabel="Browser" />
+                                                    <f:ajax event="blur" render="type_msg" />
+                                                </h:selectOneMenu>
+                                                <br></br>
+                                                <h:message id="type_msg" for="techtype" style="color: red"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </a4j:outputPanel>
+                            <br></br><center>
+                                <a4j:commandButton  value="Add" styleClass="mybutton" action="#{technologyServiceBean.addTechnologyOrTool()}" oncomplete="if(#{messageDataBean.isSuccess != null}){#{rich:component('addTechnologyPopup')}.hide();}" render=" msg name_msg type_msg description_msg datatablepanal"  >
+                                </a4j:commandButton></center>
+                        </h:form>
+                    </rich:popupPanel>
+
+                    <!--Pop up panel for edit Technology-->
+                    <rich:popupPanel id="editTechnologyPopup" modal="true" autosized="true" width="500" height="360" >
+                        <h2>Edit Technology</h2>
+                        <hr/>
+                        
+                        <f:facet name="controls">
+                            <h:outputLink value="#" onclick="#{rich:component('editTechnologyPopup')}.hide()">
+                                <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/close-btn.png" style="width: 20px;height: 15px ;top: 1px" >
+                                </h:graphicImage>
+                            </h:outputLink>
+                        </f:facet>
+
+                        <h:form prependId="false" id="editform">
+                            <a4j:outputPanel id="editOutputPanal">
+                                <script type="text/javascript" src="./scripts/armms.js"></script>
+                                <table class="form-table">
+                                    <tbody>
+                                        <tr>
+                                            <th style="float: right">Name</th>
+                                            <td><h:inputText id="edit_name" class="required" value="#{technologyDataBean.name}" required="true" requiredMessage="#{msg.EnterName}" validatorMessage="#{msg.UserValidation}">
+                                                    <f:validateRegex pattern="^[a-zA-Z0-9\.\-]+[a-zA-Z0-9\.\- \s]*$"/>
+                                                    <f:ajax event="blur" render="edit_name_msg" />
+                                                </h:inputText>
+
+                                                <br></br>
+                                                <h:message id="edit_name_msg" for="edit_name" style="color: red"/></td>
+                                        </tr>
+                                        <tr>
+                                            <th style="float: right">Description</th>
+                                            <td><h:inputTextarea id="edit_description" value="#{technologyDataBean.description}" validatorMessage="#{msg.UserValidation}">
+                                                </h:inputTextarea>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <th style="float: right">Type</th>
+                                            <td><h:selectOneMenu id="edit_tech_type" class="required" value="#{technologyDataBean.type}" required="true" requiredMessage="#{msg.EnterTechnologyType}">
+                                                    <f:selectItem itemValue="" itemLabel="--Select--" />
+                                                    <f:selectItem itemValue="T" itemLabel="Technology" />
+                                                    <f:selectItem itemValue="L" itemLabel="Tool" />
+                                                    <f:selectItem itemValue="S" itemLabel="Server" />
+                                                    <f:selectItem itemValue="O" itemLabel="Operating System" />
+                                                    <f:selectItem itemValue="B" itemLabel="Browser" />
+                                                    <f:ajax event="blur" render="edit_type_msg" />
+                                                </h:selectOneMenu>
+                                                <br></br>
+                                                <h:message id="edit_type_msg" for="edit_tech_type" style="color: red"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <h:selectBooleanCheckbox  id="edit_status" value="#{technologyDataBean.status}"  style="display: none"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <br></br>
+                                <center>
+                                    <a4j:commandButton value="Update"  styleClass="mybutton" action="#{technologyServiceBean.updateTechnologyOrTool()}" oncomplete="if(#{messageDataBean.isSuccess != null}){#{rich:component('editTechnologyPopup')}.hide();}" render=" msg edit_name_msg edit_description_msg datatablepanal edit_type_msg"  >
+                                    </a4j:commandButton>
+                                </center> 
+                            </a4j:outputPanel>
+                        </h:form>
+                    </rich:popupPanel>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

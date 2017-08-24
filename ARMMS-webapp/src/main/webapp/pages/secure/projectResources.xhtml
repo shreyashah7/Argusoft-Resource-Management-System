@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>Project Resources</title>
+        <meta name="viewport" content="width=device-width"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+                <div>
+                    <script type="text/javascript">
+
+
+                        function retrieveResources() {
+
+                            var projectName = document.getElementById("project").value;
+                            document.getElementById("resourceData").click();
+                        }
+
+                    </script>
+
+
+                    <h2>Project Resources</h2>
+                    <hr></hr>
+
+                    <f:event type="preRenderComponent" listener="#{projectResourceServiceBean.init()}"/>
+                    <f:event type="preRenderComponent" listener="#{projectResourceServiceBean.retrieveAllProjectResources()}"/>
+                    <f:event type="preRenderComponent" listener="#{projectResourceServiceBean.retrieveAllProjectRoles()}"/>
+                    <div class="active-div">
+                        <h:form>
+                            <a4j:commandLink id="addResources" action="pretty:addResourcesOfProject"   style="float: right" rendered="#{loginDataBean.itemAttributes.contains('add resource')}">
+                                <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/add-more-btn.jpg"/>
+                            </a4j:commandLink>
+                        </h:form>
+                        <h:panelGroup id="msg">
+                            <a4j:outputPanel>
+                                <ui:include src="../common/message.xhtml"/>
+                            </a4j:outputPanel>
+                        </h:panelGroup> 
+
+
+                        <h:form  prependId="false" class="form-table" >
+                            <table style="width: 50%" align="left" >  
+                                <tr>
+                                    <td style="width: 10%">
+                                        <h:outputText value="Project" style="float: right"/>
+                                    </td>
+                                    <td style="width: 80%">
+                                        <h:selectOneMenu id="project" value="#{systemResultViewUtil.projectId}" onchange="retrieveResources()"  required="true" requiredMessage="Select project."  onmousemove="rendermsg()">
+                                            <f:selectItem itemValue="-1" itemLabel="Select"/>
+                                            <f:selectItems value="#{systemResultSessionUtil.userProjects}" var="project" itemValue="#{project.projectId}" itemLabel="#{project.projectAlias}"/>
+                                            <a4j:ajax event="blur" render="project_name_msg" />
+                                        </h:selectOneMenu><br></br>
+                                        <h:message id="project_name_msg" for="project" style="color: red"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a4j:commandButton id="resourceData" style="display: none" action="#{projectResourceServiceBean.retrieveAllProjectResources()}" render="retriveUser datatablepanal selectedProject">
+                                            <f:setPropertyActionListener target="#{systemResultSessionUtil.selectedProjectId}" value="#{systemResultViewUtil.projectId}"/>
+                                        </a4j:commandButton>
+
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </h:form>
+                    </div>
+
+                    <table style="width: 100%" align="left" >  
+                        <tr>
+                            <td>
+                                <h:form prependId="false" id="second">
+                                    <a4j:outputPanel id="datatablepanal">
+                                        <h3 class="norecordfound">  <h:outputLabel value="#{msg.NoRecordFound}"  style="position: relative;left: 20px" rendered="#{(systemResultSessionUtil.selectedProjectId!=null or systemResultViewUtil.projectId != null) and (empty systemResultViewUtil.projectResourceList)}"/></h3>
+                                        <script type="text/javascript">
+                                            $(document).ready(function() {
+                                                sort();
+                                            });
+                                            function sort() {
+                                                $('#datatable').DataTable({
+                                                    "bsort": false
+                                                            //                                        "aLengthMenu": [[5, 10, 15, 20, -1], [5, 10, 15, 20, "All"]]
+                                                });
+                                            }
+                                        </script>
+                                        <rich:dataTable id="datatable" value="#{systemResultViewUtil.projectResourceList}" var="projectResource" rendered="#{not empty systemResultViewUtil.projectResourceList}"
+                                                        style="width: 100%"    headerClass="systemResultViewUtil-table-header" 
+                                                        rowClasses="systemResultViewUtil-table-odd-row,systemResultViewUtil-table-even-row"  styleClass="systemResultViewUtil-table" rowKeyVar="rowId">
+
+                                            <rich:column style="width:5%" >
+                                                <f:facet name="header">Index</f:facet>
+                                                <h:outputText value="#{rowId+1}" style="font-size: 15px"/>
+                                            </rich:column>
+                                            <rich:column style="width: 20%">
+                                                <f:facet name="header">Name</f:facet>
+                                                <h:outputText value="#{projectResource.userName}" style="font-size: 15px"/>     
+                                            </rich:column>
+                                            <rich:column  style="width: 20%">
+                                                <f:facet name="header">Role Type</f:facet>
+                                                <h:outputText value="#{projectResource.roleName}" style="font-size: 15px"/>     
+                                            </rich:column>
+                                            <rich:column  style="width: 20%">
+                                                <f:facet name="header">Assigned By</f:facet>
+                                                <h:outputText value="#{projectResource.assignedBy}" style="font-size: 15px"/>     
+                                            </rich:column>
+                                            <rich:column style="width: 5%">
+                                                <f:facet name="header">Action</f:facet>
+                                                <a4j:commandLink  oncomplete="#{rich:component('editRolePopup')}.show()" action="#{projectResourceServiceBean.retrieveProjectResourceById()}" render="editOutputPanal"> 
+                                                    <f:setPropertyActionListener target="#{projectResourceDataBean.projectResourceId}" value="#{projectResource.projectResourceId}" />
+                                                    <f:setPropertyActionListener target="#{projectResourceDataBean.userName}" value="#{projectResource.userName}" />
+                                                    <h:graphicImage value="/images/edit.jpg"  />
+                                                </a4j:commandLink>
+                                            </rich:column>
+                                        </rich:dataTable>
+
+                                    </a4j:outputPanel>
+                                </h:form>
+                            </td>
+                        </tr>
+                    </table>
+                    <rich:popupPanel id="editRolePopup" modal="true" width="300" height="250" >
+
+                        <h2>Edit Role</h2>
+                        <hr/>
+                        <br/>
+                        <h:outputText value="(Fields marked with * are mandatory)" style="float:right;font-size: 80%"> </h:outputText>
+                        <br/><br/>
+                        <f:facet name="controls">
+                            <h:outputLink value="#" onclick="#{rich:component('editRolePopup')}.hide()">
+                                <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/close-btn.png" style="width: 20px;height: 15px ;top: 1px" >
+                                </h:graphicImage>
+                            </h:outputLink>
+                        </f:facet>
+
+                        <h:form prependId="false" id="editform">
+                            <a4j:outputPanel id="editOutputPanal">
+                                <table  class="form-table">
+                                    <tbody>
+                                        <tr>
+                                            <th style="float: right">Name</th>
+                                            <td><h:outputText value="#{projectResourceDataBean.userName}"/>
+                                                <br></br>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th style="float: right">Type<abbr style="color: red;font-size: 150%" title="required">*</abbr></th>
+                                            <td>
+                                                <h:selectOneMenu id="edit_role_type" value="#{projectResourceDataBean.roleType}" required="true"  requiredMessage="Select Role Type.">
+                                                    <f:selectItem itemValue="-1" itemLabel="MEMBER"/>
+                                                    <f:selectItems value="#{systemResultViewUtil.projectRolesDataBeanList}" var="projectRoles" itemValue="#{projectRoles.projectRolesId}" itemLabel="#{projectRoles.projectRolesDescription}">
+                                                    </f:selectItems>
+                                                    <f:ajax event="blur" render="edit_role_type_msg" />
+                                                </h:selectOneMenu>
+                                                <h:message id="edit_role_type_msg" for="edit_role_type" />
+
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <h:inputHidden value="#{projectResourceDataBean.projectResourceId}" />
+                                            </td>
+                                        </tr>
+                                        <tr><td><br/>
+                                                <a4j:commandButton value="Update" style="float: left" styleClass="mybutton" action="#{projectResourceServiceBean.updateProjectResourceById()}" oncomplete="if(#{messageDataBean.isSuccess != null}){#{rich:component('editRolePopup')}.hide();}"  render="msg edit_role_type datatablepanal" >
+                                                </a4j:commandButton> 
+                                            </td>
+                                        </tr></tbody>
+                                </table>
+                            </a4j:outputPanel>
+                        </h:form>
+                    </rich:popupPanel>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

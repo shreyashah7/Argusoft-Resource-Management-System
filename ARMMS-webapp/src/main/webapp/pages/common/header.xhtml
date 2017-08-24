@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:a4j="http://richfaces.org/a4j">
+    <ui:composition>         
+        <h:form> 
+            <div class="login">           
+                <link href="#{facesContext.externalContext.requestContextPath}/css/ddsmoothmenu.css" rel="stylesheet" type="text/css" /> 
+                <script src="#{facesContext.externalContext.requestContextPath}/scripts/jquery/ddsmoothmenu.js" type="text/javascript"></script> 
+                <noscript>
+                    <div class="ui-widget" style="text-align: left;">
+                        <div class="ui-state-error ui-corner-all" style="padding:0px 5px; margin-bottom:10px; font-weight:bold; line-height:16px; "> 
+                            <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+                                <h:outputText value=" Javascript is disabled in your browser. Please
+                                              enable javascript from your browser settings to get Scope
+                                              functioning." escape="false"/></p><div class="clearing"></div>
+                        </div>                
+                    </div>                      
+                </noscript>                            
+                <table width="90%" border="0" cellspacing="0" cellpadding="0" style="margin-top: -1%;margin-left: 5%">
+                    <tbody>
+                        <tr>
+                            <td colspan="2">
+                                <h:outputLabel rendered="#{loginDataBean.isLoggedin}">    
+
+                                    <div style="float: right; display: inline; font-size: 15px;;margin-right: 1%">
+                                        <table border="0" style="width: fit-content">
+                                            <tr>                                                                                                  
+                                                <td>                                                      
+                                                    <div id="smoothmenu1" class="ddsmoothmenu">
+                                                        <ul>
+                                                            <li>    
+                                                                <h:commandLink action="pretty:userProfile" value="#{loginDataBean.name}" style="text-decoration: none;background-color: transparent;color: grey;border-right: 0px;font-size: 12px;text-transform: capitalize">
+                                                                    <f:setPropertyActionListener target="#{systemResultSessionUtil.userId}" value="#{loginDataBean.id}"/>
+                                                                </h:commandLink>
+                                                                <ul>                                                                    
+                                                                    <li style="float:left;background-color: transparent;">
+                                                                        <h:commandLink action="pretty:manageMyProfile" value="My Account" style="color: white">
+                                                                            <f:setPropertyActionListener target="#{systemResultSessionUtil.userId}" value="#{loginDataBean.id}"/>
+                                                                        </h:commandLink>
+                                                                    </li>      
+                                                                    <br/>
+                                                                    <li style="float:left;background-color: transparent;">
+                                                                        <h:commandLink value="Logout" style="color:white" action="#{springSecurityLoginServiceBean.doLogout}" >
+                                                                            <!--                                                            <h:graphicImage value="{facesContext.externalContext.requestContextPath}/images/LOGOUT.png" alt="Login" style="vertical-align: middle; border: none" />-->
+                                                                        </h:commandLink>
+                                                                    </li>
+                                                                </ul>
+                                                            </li>
+                                                        </ul>                
+                                                    </div>
+                                                </td>                            
+                                            </tr>
+                                        </table>
+                                    </div>                                       
+                                </h:outputLabel>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td width="56%" style="font-weight: bold;font-size: 32px;"><a href="dashboard" style="text-decoration: none;color: black">ARMMS</a></td>
+                            <td width="44%"> 
+                                <h:outputLabel rendered="#{loginDataBean.isLoggedin}"> 
+                                    <f:event type="preRenderComponent" listener="#{projectServiceBean.retieveAllActiveProjectsOfUser()}"/>
+                                    <div style="float: right">
+                                        <div style="float: left">
+                                            <div style="float: left">
+                                                <h:inputText value="#{systemResultSessionUtil.searchString}" style="height: 16px"/>                        
+                                            </div>
+                                            <div style="float: right">
+                                                <a4j:commandLink value="" action="pretty:search" >                            
+                                                    <h:graphicImage url="/images/search_button.jpg" height="25px" width="25px" style="margin-left: -8px"/>                                
+                                                </a4j:commandLink>
+                                            </div>
+                                        </div>
+                                        <div style="float: right">  
+                                            <a4j:outputPanel id="selectedProject">
+                                                <h:selectOneMenu value="#{systemResultSessionUtil.selectedProjectId}" id="seleted_project_id" style="float: right">
+                                                    <f:selectItem itemValue="" itemLabel="Select" />
+                                                    <f:selectItems value="#{systemResultSessionUtil.userProjects}" var="project" itemValue="#{project.projectId}" itemLabel="#{project.projectAlias}"/>
+                                                    <a4j:ajax render="temp" oncomplete="getURL()"/>                                
+                                                </h:selectOneMenu>
+                                            </a4j:outputPanel>
+                                        </div>
+                                    </div>
+                                </h:outputLabel>
+                            </td>                                        
+                        </tr>                        
+                    </tbody>
+                </table>     
+            </div>                    
+            <div id="frameDiv"></div>  
+            <div id="mydiv"></div>
+
+        </h:form>        
+    </ui:composition>
+</html>
+

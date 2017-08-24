@@ -1,0 +1,219 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:a4j="http://richfaces.org/a4j">
+    <h:head>
+        <title>Employee Performance</title>
+        <script type="text/javascript" src="./scripts/jquery/jquery.js"></script>
+        <link href="./css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="./scripts/jquery/jquery.dataTables.min.js"></script>
+        <script src="./scripts/jquery/jquery.dataTables.js"></script>
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+                <h:form prependId="false">    
+                    <script type="text/javascript">
+//                        var memberList = [];
+//                        var noResult = []
+//                        noResult.push({
+//                            label: "No results found",
+//                            value: ""
+//                        });
+                        $(document).ready(function() {
+                            getDatePickerForRangeWithFormat('startDate', 'endDate');
+
+                        });
+                    </script>
+                    <style type="text/css">
+                        .ui-datepicker {
+                            background: #FFFFFF;
+                            border: 1px solid #555;
+                            color: #EEE;
+                        }
+                    </style>
+                    <!--                    <ui:repeat value="{systemResultViewUtil.users}" var="members">
+                                            <script type="text/javascript">
+                                                memberList.push({
+                                                    label: "{members.userName}",
+                                                    value: "{members.userId}"
+                                                });</script>
+                                        </ui:repeat>-->
+                    <f:event listener="#{userServiceBean.retrieveAllActiveUsers()}" type="preRenderComponent"/>
+                    <div class="main-wrapper" id="mainForm">
+                        <div class="left-col"> 
+                            <div class="heading">
+                                <a4j:outputPanel id="printOptions">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="heading-table">
+                                        <tr>
+                                            <td width="90%"><h2>Employee Performance</h2></td>
+                                            <td align="right">
+                                                <h:commandLink immediate="true" action="#{employeePerformanceReport.createReport()}" rendered="#{systemResultViewUtil.employeePerformanceList ne null and not empty systemResultViewUtil.employeePerformanceList}">
+                                                    <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/pdf.png" rendered="#{loginDataBean.itemAttributes.contains('download report')}"/>
+                                                    <f:setPropertyActionListener target="#{systemResultViewUtil.extension}" value=".pdf"/>
+                                                </h:commandLink>
+                                            </td>
+                                            <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                <h:commandLink immediate="true" action="#{employeePerformanceReport.createReport()}" rendered="#{systemResultViewUtil.employeePerformanceList ne null and not empty systemResultViewUtil.employeePerformanceList}">
+                                                    <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/xls.png" rendered="#{loginDataBean.itemAttributes.contains('download report')}"/>
+                                                    <f:setPropertyActionListener target="#{systemResultViewUtil.extension}" value=".xls"/>
+                                                </h:commandLink>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </a4j:outputPanel>
+                            </div>
+                            &nbsp;
+                            <h:panelGrid id="message" width="100%">
+                                <ui:include src="../common/message.xhtml" /> 
+                            </h:panelGrid>
+                            &nbsp;
+                        </div>
+
+                        <fieldset style="width: 90%">
+                            <legend>Employee Details</legend>
+                            <table class="form-table">
+                                <tr>
+                                    <td>
+                                        <a4j:outputPanel id="filterpanel"> 
+                                            <table class="form-table">
+                                                <tr>
+                                                    <th style="float: left">Employee Name</th>
+                                                    <td style="float: left">
+                                                        <h:selectOneMenu value="#{systemResultViewUtil.userId}" id="user_name"  style="width: 120px">
+                                                            <f:selectItem itemValue="" itemLabel="--Select--" />
+                                                            <f:selectItems value="#{systemResultViewUtil.retrieveUsers}" var="user" itemValue="#{user.userId}" itemLabel="#{user.userName}"/>
+                                                            <f:ajax event="blur" render="assignee_name_msg" />
+                                                            <f:ajax event="change" listener="#{projectServiceBean.changeProject()}" render="projectList"/>
+                                                        </h:selectOneMenu>
+                                                        <!--                                                        <h:inputText id="textId" value="{systemResultViewUtil.userName}" required="true" requiredMessage="{msg.EnterUserName}"/>
+                                                                                                                <rich:message id="keyidMsg" for="textId" style="color: red"/>
+                                                                                                                <h:inputHidden id="temp" value="{systemResultViewUtil.userId}"/>
+                                                                                                                <a4j:commandButton style="float:right;margin-top: 0px;display: none" id="gomember" render="projectList" execute="projectList,temp" action="{projectServiceBean.changeProject()}"/>-->
+                                                        <br/>
+                                                        <h:message id="assignee_name_msg" for="user_name" style="color: red"/>
+                                                    </td>
+                                                    <th style="float: left">Projects</th>
+                                                    <td style="float: left">
+                                                        <h:selectManyListbox style="height: 70px;background-color: white;width: 100px" id="projectList" value="#{employeePerformanceDataBean.projectIds}" converter="javax.faces.Long">
+                                                            <f:selectItems value="#{systemResultViewUtil.projectNames}" var="projects"
+                                                                           itemValue="#{projects.projectId}" itemLabel="#{projects.projectName}" /> 
+                                                        </h:selectManyListbox>
+                                                    </td>
+
+                                                    <th style="float: left">Start Date</th>
+                                                    <td style="float: left;"> 
+                                                        <h:inputText value="#{employeePerformanceDataBean.startDate}"  id="startDate" style="width: 100px"  >
+                                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                                        </h:inputText>
+                                                        <br/>
+                                                    </td>
+                                                    <th style="float: left">End Date</th>
+                                                    <td style="float: left"> 
+                                                        <h:inputText value="#{employeePerformanceDataBean.endDate}"  id="endDate" style="width: 100px" >
+                                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                                        </h:inputText>
+                                                        <br/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </a4j:outputPanel>
+                                        <script>
+                                            getDatePickerForRangeWithFormat('startDate', 'endDate');
+                                        </script>
+                                        <!--                                        <script type="text/javascript">
+                                                                                    function fillPsList() {
+                                                                                        $("#textId").autocomplete({
+                                                                                            source: memberList,
+                                                                                            select: function(event, ui) {
+                                                                                                if (ui.item.label !== 'No results found') {
+                                                                                                    document.getElementById("textId").value = ui.item.label;
+                                                                                                    document.getElementById("temp").value = ui.item.value;
+                                                                                                    document.getElementById("gomember").click();
+                                                                                                }
+                                                                                                if (ui.item.label === 'No results found') {
+                                                                                                    document.getElementById("textId").value = "";
+                                                                                                }
+                                                                                                return false;
+                                                                                            }, focus: function(event, ui) {
+                                                                                                return false;
+                                                                                            }, source: function(req, responseFn) {
+                                                                                                //                                    document.getElementById("uid").value="";
+                                                                                                var re = $.ui.autocomplete.escapeRegex(req.term);
+                                                                                                var matcher = new RegExp(re, "i");
+                                                                                                var a = $.grep(memberList, function(item, index) {
+                                                                                                    return matcher.test(item.label);
+                                                                                                });
+                                                                                                if (!a.length) {
+                                                                                                    re = $.ui.autocomplete.escapeRegex("N");
+                                                                                                    matcher = new RegExp("^" + re, "i");
+                                                                                                    a = $.grep(noResult, function(item, index) {
+                                                                                                        return matcher.test(item.label);
+                                                                                                    });
+                                                                                                }
+                                                                                                responseFn(a);
+                                                                                            }
+                                                                                        });
+                                                                                    }
+                                                                                    setTimeout(fillPsList(), 1000);
+                                                                                </script>-->
+
+                                    </td>
+                                    <td valign="top" style="padding: 9px;">
+                                        <a4j:commandButton type="reset" value="Submit" id="buttons" styleClass="mybutton" action="#{taskServiceBean.retrieveTaskByProjectIdAndUserIdAndDates}" render="reportPanel printOptions message projectList">
+                                        </a4j:commandButton>
+                                    </td>
+                                </tr>
+                            </table>
+                        </fieldset><br/><br/>
+
+                        <a4j:outputPanel id="reportPanel">
+                            <a4j:outputPanel rendered="#{not empty systemResultViewUtil.employeePerformanceList}"><h2>#{systemResultSessionUtil.userName}'s Performance Report</h2></a4j:outputPanel><br/><br/>
+                            <rich:dataTable id="reportTaskList" value="#{systemResultViewUtil.employeePerformanceList}" rendered="#{not empty systemResultViewUtil.employeePerformanceList}" var="reportVar">
+                                <h:column>
+                                    <f:facet name="header">Task Name</f:facet>
+                                    <h:outputText value="#{reportVar.taskName}" />
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Project Name</f:facet>
+                                    <h:outputText value="#{reportVar.projectName}" style="text-align: left;padding-right: 40px" />
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Start Date</f:facet>
+                                    <h:outputText value="#{reportVar.taskStartDate}" >
+                                        <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                    </h:outputText>
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">End Date</f:facet>
+                                    <h:outputText value="#{reportVar.taskActualEndDate}"  rendered="#{reportVar.taskActualEndDate != null}">
+                                        <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                    </h:outputText>
+                                    <h:outputText value="Not Available" rendered="#{reportVar.taskActualEndDate == null}" />
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Task Status</f:facet>
+                                    <h:outputText value="#{reportVar.taskStatus}" />
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Performance</f:facet>
+                                    <h:outputText value="#{reportVar.performance}" style="text-align: left;padding-right: 100px" />
+                                </h:column>
+                            </rich:dataTable>
+                            <script>
+                                $(function() {
+                                    $("#reportTaskList").DataTable();
+                                });
+                            </script>
+                        </a4j:outputPanel>
+                    </div>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

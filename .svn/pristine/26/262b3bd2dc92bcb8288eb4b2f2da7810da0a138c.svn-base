@@ -1,0 +1,30 @@
+#===================================================================================
+#                     USER MANAGEMENT COMPONENT DEPENDENCIES 
+#===================================================================================
+model.sql.usermanagement.p1=com.argusoft.usermanagement.common.model
+database.sql.usermanagement.p1=com.argusoft.usermanagement.common.database
+database.sql.usermanagement.p2=com.argusoft.usermanagement.common.database.hibernate
+service.sql.usermanagement.p1=com.argusoft.usermanagement.common.core
+service.sql.usermanagement.p2=com.argusoft.usermanagement.common.core.serviceimpl
+service.sql.usermanagement.p3=com.argusoft.usermanagement.common.util
+
+
+
+#===================================================================================
+#                     EMAIL COMPONENT DEPENDENCIES 
+#===================================================================================
+model.sql.email.p1=com.argusoft.email.model
+database.sql.email.p1=com.argusoft.emaill.database
+database.sql.email.p2=com.argusoft.email.database.impl
+service.sql.email.p1=com.argusoft.email.common.core
+service.sql.email.p2=com.argusoft.email.common.core.serviceimpl
+service.sql.email.p3=com.argusoft.email.common.utils
+
+#===================================================================================
+#                     ARMMS PROJECT DEPENDENCIES 
+#===================================================================================
+model.sql.armms.p1=com.argusoft.armms.model
+database.sql.armms.p1=com.argusoft.armms.database
+database.sql.armms.p2=com.argusoft.armms.database.impl
+service.sql.armms.p1=com.argusoft.armms.core
+service.sql.armms.p2=com.argusoft.armms.core.impl

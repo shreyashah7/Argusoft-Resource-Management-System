@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+  <persistence-unit name="com.argusoft.armms_ARMMS-model_jar_1.0PU" transaction-type="RESOURCE_LOCAL">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <class>com.argusoft.ars.model.Leave</class>
+    <class>com.argusoft.ars.model.UsermanagementSystemUser</class>
+    <class>com.argusoft.ars.model.UsermanagementUserContact</class>
+    <class>com.argusoft.armms.model.UMUser</class>
+    <class>com.argusoft.armms.model.TskTrck</class>
+    <class>com.argusoft.armms.model.TskDpndncy</class>
+    <class>com.argusoft.armms.model.TskTechDtl</class>
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/ARS"/>
+      <property name="javax.persistence.jdbc.password" value="argusadmin"/>
+      <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+      <property name="javax.persistence.jdbc.user" value="postgres"/>
+    </properties>
+  </persistence-unit>
+</persistence>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee 
+                    http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         
+         version="3.1">
+    
+    <!-- Entry for rich faces -->
+    <context-param>
+        <param-name>org.richfaces.LoadStyleStrategy</param-name>
+        <param-value>NONE</param-value>
+    </context-param>
+    <context-param>
+        <param-name>org.richfaces.SKIN</param-name>
+        <param-value>plain</param-value>
+    </context-param>
+    <context-param>
+        <param-name>org.richfaces.enableControlSkinning</param-name>
+        <param-value>false</param-value>
+    </context-param>
+    <context-param>
+        <param-name>org.richfaces.enableControlSkinningClasses</param-name>
+        <param-value>false</param-value>
+    </context-param>
+    
+    <context-param >
+        <param-name>org.richfaces.fileUpload.maxRequestSize</param-name>
+        <!-- in bytes  -->
+        <param-value>52428800</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>org.richfaces.fileUpload.createTempFiles</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    
+    <!--   Annotation Context Class entry to declare that spring annotated config class should be used   -->
+    <context-param>
+        <param-name>contextClass</param-name>
+        <param-value>
+            org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+        </param-value>
+    </context-param>
+    <context-param>
+        <param-name>javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <!--    <context-param>
+        <param-name>org.jboss.jbossfaces.WAR_BUNDLES_JSF_IMPL</param-name>
+        <param-value>true</param-value>
+    </context-param>-->
+    <!-- Entry for spring config class -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>com.argusoft.armms.web.config.WebApplicationConfig</param-value>
+    </context-param>
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.xhtml</url-pattern>
+    </servlet-mapping>
+   
+    <listener>
+        <listener-class>com.sun.faces.config.ConfigureListener</listener-class>
+    </listener>
+ 
+    <!-- pretty filter -->
+    <filter>
+        <filter-name>Pretty Filter</filter-name>
+        <filter-class>com.ocpsoft.pretty.PrettyFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>Pretty Filter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
+    
+    <listener>
+        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <filter>
+        <filter-name>loginFilter</filter-name>
+        <filter-class>com.argusoft.armms.web.filter.LoginFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>loginFilter</filter-name>
+        <url-pattern>/</url-pattern>   
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>    
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>loginFilter</filter-name>
+        <url-pattern>/pages/login.xhtml</url-pattern>   
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>    
+    </filter-mapping>
+    <filter>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+   	
+    <!-- Allow login pages with JSF which redirects to security check, therefore we have to add the forward entry here -->
+    <filter-mapping>
+        <filter-name>springSecurityFilterChain</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+   
+    <error-page>
+        <exception-type>java.lang.Exception</exception-type>
+        <location>/pages/errorPage.xhtml</location>
+    </error-page>
+    <error-page>
+        <exception-type>java.lang.Throwable</exception-type>
+        <location>/pages/errorPage.xhtml</location>
+    </error-page>
+    
+    <error-page>
+        <exception-type>javax.faces.FacesException</exception-type>
+        <location>/pages/errorPage.xhtml</location>
+    </error-page>
+	     
+    <error-page>
+        <exception-type>javax.faces.application.ViewExpiredException</exception-type>
+        <location>/pages/login.xhtml</location>
+    </error-page>
+    
+</web-app>

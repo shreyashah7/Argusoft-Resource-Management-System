@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+    <h:head>
+        <title>Structure</title>
+        <meta name="viewport" content="width=device-width"/>      
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml" >
+            <ui:define name="content" >  
+                <style>
+                    .para1
+                    {
+                        position : absolute;top: 180px;left:60%
+                    } 
+                    .para2
+                    {
+                        position :fixed; top: 10px;left:60%
+                    } 
+                </style>
+                <script>
+
+                    $(document).ready(function() {
+                        $(window).scroll(function() {
+                            var s = $('body,html').scrollTop();
+                            if (s > 180)
+                            {
+                                document.getElementById("changearea").className = "para2";
+                            }
+                            else
+                            {
+                                document.getElementById("changearea").className = "para1";
+                            }
+                        });
+                    });
+                </script>
+                <link href="../css/dashboard.css" rel="stylesheet" type="text/css" /> 
+                <h:form prependId="false">                    
+                    <a href="#{request.getHeader('referer')}" class="mybutton" style="text-decoration: none;position: relative;float: right">Back</a>                                        
+                    <h2>Path Changed</h2>
+                    <hr/>
+                    <div id ="changearea" class="para1">
+                        <h:outputLabel>
+                            <h:outputText value="Added" style="margin-left: 20px;color: green"/>
+                            <h:outputText value="Modified" style="margin-left: 20px;color: blue"/>
+                            <h:outputText value="Deleted" style="margin-left: 20px;color: red"/>
+                            <h:outputText value="Replaced" style="margin-left: 20px;color: orange"/>
+                        </h:outputLabel>                            
+                    </div>
+                    <div>     
+                        <f:event type="preRenderComponent" listener="#{folderServiceBean.populateList()}"/>                     
+                        <rich:dataTable style="border: none ; margin-top: 40px" value="#{systemResultViewUtil.dataList}" var="item">
+                            <rich:column style="border: none">    
+                                <h:outputLabel style="margin-left: #{item.level}px">
+                                    <h:graphicImage url="#{item.keyType eq 'dir' ?'images/folder.jpeg':'images/file.png'}" style="height: 10px ; width: 10px"></h:graphicImage>                                
+                                    <h:outputText value="#{item.key}" style="margin-left: 10px;color: #{item.type eq 'Deleted' ? 'red' : item.type eq 'Added' ? 'green' : item.type eq 'Modified' ? 'blue' :item.type eq 'Replaced' ? 'orange' : 'black'}"/>  
+                                </h:outputLabel>
+                            </rich:column>
+                        </rich:dataTable>  
+                    </div>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

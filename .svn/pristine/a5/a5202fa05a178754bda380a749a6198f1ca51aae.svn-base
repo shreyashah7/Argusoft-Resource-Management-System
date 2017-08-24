@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="employeePerformance" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="70f47bc1-d83c-454f-b392-c4b4674cb203">
+    <property name="ireport.zoom" value="1.0"/>
+    <property name="ireport.x" value="0"/>
+    <property name="ireport.y" value="0"/>
+    <field name="taskName" class="java.lang.String"/>
+    <field name="projectName" class="java.lang.String"/>
+    <field name="taskStatus" class="java.lang.String"/>
+    <field name="performance" class="java.lang.String"/>
+    <field name="taskStartDate" class="java.lang.String"/>
+    <field name="taskActualEndDate" class="java.util.Date"/>
+    <background>
+        <band/>
+    </background>
+    <title>
+        <band height="72">
+            <frame>
+                <reportElement mode="Opaque" x="-20" y="-20" width="595" height="92" backcolor="#006699" uuid="55c220d1-e24f-49bb-b8d9-d946be70730a"/>
+                <staticText>
+                    <reportElement x="20" y="20" width="234" height="43" forecolor="#FFFFFF" uuid="d3b5ad4a-a53b-49ba-a9e1-8a32df456f2e"/>
+                    <textElement>
+                        <font size="34" isBold="true"/>
+                    </textElement>
+                    <text><![CDATA[ARMMS]]></text>
+                </staticText>
+                <staticText>
+                    <reportElement x="395" y="43" width="180" height="20" forecolor="#FFFFFF" uuid="36f7184c-4b9f-486b-a691-b59760810c0e"/>
+                    <textElement textAlignment="Right">
+                        <font size="14" isBold="false"/>
+                    </textElement>
+                    <text><![CDATA[Employee Performance]]></text>
+                </staticText>
+            </frame>
+        </band>
+    </title>
+    <pageHeader>
+        <band height="13"/>
+    </pageHeader>
+    <columnHeader>
+        <band height="64">
+            <line>
+                <reportElement x="-20" y="20" width="595" height="1" forecolor="#666666" uuid="976b0571-5a74-493c-8914-c4e709a875e2"/>
+            </line>
+            <staticText>
+                <reportElement x="8" y="34" width="70" height="20" uuid="e56a9c90-5ea9-413b-b7e5-fdf50033f991"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Task Name]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="89" y="34" width="80" height="20" uuid="7cc38c17-b1e4-4d80-9a61-4acae18ab134"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Project Name]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="375" y="34" width="82" height="20" uuid="ab2dd0fa-ace2-45ba-953e-7ac1be57facb"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Task Status]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="469" y="34" width="100" height="20" uuid="e6ee4258-acc9-4908-9960-017d776f4753"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Performance]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="280" y="34" width="84" height="20" uuid="ab60a290-1d75-46dc-9124-c25cff95a457"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Task Actual End Date]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+    <detail>
+        <band height="68">
+            <line>
+                <reportElement positionType="FixRelativeToBottom" x="0" y="19" width="555" height="1" uuid="02a9edc4-0a56-402d-a04b-fbb45fe708b2"/>
+            </line>
+            <textField>
+                <reportElement x="9" y="33" width="70" height="20" uuid="d7a2df8c-c336-4fba-b48e-abadb2307e5b"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{taskName}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="90" y="33" width="80" height="20" uuid="07022fb1-cc22-4328-ae2b-b0e1eff3b2d8"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{projectName}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="375" y="33" width="82" height="20" uuid="bd99d2be-9506-453a-9526-3850499eeca3"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{taskStatus}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="469" y="33" width="70" height="20" uuid="f7e1dddf-533c-422e-80e6-fe68e2aff53b"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{performance}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="280" y="33" width="84" height="20" uuid="287311a5-8a65-408b-b4e0-535814a35f41"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{taskActualEndDate}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+    <columnFooter>
+        <band/>
+    </columnFooter>
+    <pageFooter>
+        <band height="17">
+            <textField>
+                <reportElement mode="Opaque" x="0" y="4" width="515" height="13" backcolor="#E6E6E6" uuid="5ae3f796-211a-4c7b-b85e-1aa8f99ced32"/>
+                <textElement textAlignment="Right"/>
+                <textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of"]]></textFieldExpression>
+            </textField>
+            <textField evaluationTime="Report">
+                <reportElement mode="Opaque" x="515" y="4" width="40" height="13" backcolor="#E6E6E6" uuid="578da963-9cc8-4e7f-8427-4bc2b2581324"/>
+                <textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+            <textField pattern="EEEEE dd MMMMM yyyy">
+                <reportElement x="0" y="4" width="100" height="13" uuid="6da3fba8-9a7d-4abb-864d-99f4cb7e54d4"/>
+                <textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+    <summary>
+        <band/>
+    </summary>
+</jasperReport>

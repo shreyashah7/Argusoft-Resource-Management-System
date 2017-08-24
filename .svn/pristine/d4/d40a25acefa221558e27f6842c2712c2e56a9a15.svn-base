@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>Create Tasks</title>
+        <meta name="viewport" content="width=device-width"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <link rel="stylesheet" href="/css/jquery-ui.css"/>
+
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml"
+                        xmlns:s="http://jboss.com/products/seam/taglib">
+            <ui:define name="content">
+                <div>
+                    <script type="text/javascript" src="./scripts/armms.js"></script>
+
+                    <style>
+                        .box{
+                            padding: 6px;
+                            margin-bottom: 10px;
+                            background-color: #f6f6f6;
+                            color: #505050;
+                            line-height: 1.5em;
+                            border: 1px solid #e4e4e4;
+                        }
+                        .p{
+                            display: block;
+                            -webkit-margin-before: 1em;
+                            -webkit-margin-after: 1em;
+                            -webkit-margin-start: 0px;
+                            -webkit-margin-end: 0px;
+                        }
+                    </style>
+                    <style type="text/css">
+                        .rf-fu, .rf-fu-hdr {
+                            float: left;
+                            width: auto;
+                            border: none;
+                            background: none;
+                            padding: 0;
+                            margin: 0;
+                        }
+
+                        .rf-fu-btn-cnt-add {
+                            paddin-left: 0;
+                            cursor: pointer;
+                        }
+
+                        .rf-fu-btn-add {
+                            margin: 0;
+                        }
+
+                        .rf-fu-btns-rgh, .rf-fu-lst {
+                            display: none;
+                        }
+
+                        .rf-fu-btns-lft {
+                            width: 100%;
+                        }
+                        .selection tr {
+                            float: left;
+                            width: 33%;
+                        } 
+                        .technology tr {
+                            float: left;
+                            width: 25%;
+                        } 
+                    </style>
+
+                    <script>
+                        $(document).ready(function() {
+                            getDatePickerForRangeWithFormat('startDate', 'endDate');
+                        });
+                        function rendermsg() {
+                            document.getElementById("msg").style.display = "none";
+                        }
+                    </script>
+
+
+                    <h2>Create Task</h2>
+                    <hr/>
+                    <br/>
+                    <f:view>
+                        <f:event id="init" type="preRenderComponent" listener="#{taskServiceBean.init()}"/>
+                        <f:event type="preRenderComponent" listener="#{taskServiceBean.retrieveTaskAndTechnologiesAndResourcesOfProject()}" />
+                    </f:view>
+
+                    <h:form prependId="false"> 
+                        <a4j:outputPanel id="msg">
+                            <ui:include src="../common/message.xhtml" />
+                        </a4j:outputPanel>
+                        &nbsp;<br/>
+
+
+                        <a4j:outputPanel id="addTaskOutputPanal">
+                            <script>
+
+                                $(document).ready(function() {
+                                    getDatePickerForRangeWithFormat('startDate', 'endDate');
+                                });</script>
+
+                            <table border="0" class="form-table" style="width: 100%">
+                                <tbody>
+                                    <tr>
+                                        <th style="float: right;position: relative;top: 5px">Project</th>
+                                        <td> 
+                                            <h:selectOneMenu class="required" value="#{taskDataBean.projectId}" id="project_name" required="true" requiredMessage='#{msg.EnterProjectName}'>
+                                                <f:selectItem itemValue="-1" itemLabel="Select" />
+                                                <f:selectItems value="#{systemResultSessionUtil.userProjects}" var="project" itemValue="#{project.projectId}" itemLabel="#{project.projectAlias}"/>
+                                                <f:ajax id="project_name_ajax" execute="project_name" listener="#{taskServiceBean.retrieveTaskAndTechnologiesAndResourcesOfProject()}" render="parentTask task_technology_outputPanal assignee_name milestone_name task_assignee_watch"/>
+                                                <f:ajax event="blur" render="project_name_msg"/>
+                                            </h:selectOneMenu>
+                                            <br/>
+                                            <h:message id="project_name_msg" for="project_name" style="color: red"/>
+                                        </td>
+                                        <th style="float: right;position: relative;top: 5px">Milestone</th><td> 
+                                            <h:selectOneMenu  value="#{taskDataBean.milestoneId}" id="milestone_name">
+                                                <f:selectItem itemValue="#{null}" itemLabel="Select" />
+                                                <f:selectItems value="#{systemResultViewUtil.milestoneList}" var="milestone" itemValue="#{milestone.projectMilestoneId}" itemLabel="#{milestone.milestoneName}"/>
+                                            </h:selectOneMenu>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <th style="float: right;position: relative;top: 5px">Name</th>
+                                        <td><h:inputText class="required" id="task_name" value="#{taskDataBean.taskName}"  required="true" requiredMessage="#{msg.EnterName}" validatorMessage="#{msg.UserValidation}" onclick="rendermsg()" >
+                                                <f:validateRegex pattern="^[a-zA-Z0-9\.\-]+[a-zA-Z0-9\.\- \s]*$"/>
+                                                <f:ajax event="blur" render="task_name_msg " />
+                                            </h:inputText>
+                                            <br/>
+                                            <h:message id="task_name_msg" for="task_name" style="color: red"/></td>
+                                        <th style="float: right;position: relative;top: 5px">Priority</th>
+                                        <td> 
+                                            <h:selectOneMenu class="required" value="#{taskDataBean.priority}" id="priority" required="true" requiredMessage='#{msg.EnterPriority}'>
+                                                <f:selectItem itemValue="" itemLabel="Select" />
+                                                <f:selectItem itemValue="1" itemLabel="High" />
+                                                <f:selectItem itemValue="2" itemLabel="Medium" />
+                                                <f:selectItem itemValue="3" itemLabel="Low" />
+                                                <f:ajax event="blur" render="priority_msg" />
+                                            </h:selectOneMenu>
+                                            <br/>
+                                            <h:message id="priority_msg" for="priority" style="color: red"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th style="float: right;position: relative;top: 5px">Status</th>
+                                        <td><h:selectOneMenu class="required" id="status" value="#{taskDataBean.status}" required="true" requiredMessage="#{msg.EnterStatus}">
+                                                <!--<f:selectItem itemValue="" itemLabel="Select" />-->
+                                                <f:selectItem itemValue="New" itemLabel="New" />
+                                                <f:selectItem itemValue="In Progress" itemLabel="In Progress" />
+                                                <f:selectItem itemValue="Resolved" itemLabel="Resolved" />
+                                                <f:selectItem itemValue="Completed" itemLabel="Completed" />
+                                                <f:selectItem itemValue="Closed" itemLabel="Closed" />
+                                                <f:ajax event="blur" render="status_msg " />
+                                            </h:selectOneMenu>
+                                            <br></br>
+                                            <h:message id="status_msg" for="status" style="color: red"/></td>
+                                        <th style="float: right;position: relative;top: 5px">Parent Task</th>
+                                        <td> 
+                                            <h:selectOneMenu value="#{taskDataBean.parentTask}" id="parentTask" >
+                                                <f:selectItem itemLabel="Select" />
+                                                <f:selectItems value="#{systemResultViewUtil.taskDataBeanList}" var="task" itemValue="#{task.taskId}" itemLabel="#{task.taskName}"/>
+                                            </h:selectOneMenu>
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <th style="float: right;position: relative;top: 5px">Start Date</th>
+                                        <td> <h:inputText value="#{taskDataBean.startDate}"  id="startDate"  >
+                                                <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                            </h:inputText>
+                                            <br/> 
+                                        </td>
+                                        <th style="float: right;position: relative;top: 5px">End Date</th>
+                                        <td> <h:inputText value="#{taskDataBean.endDate}"  id="endDate" >
+                                                <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                            </h:inputText>
+                                            <br/> 
+                                        </td>
+                                    </tr>
+                                    <tr>
+
+                                        <th style="float: right;position: relative;top: 5px">Duration</th>
+                                        <td><h:inputText id="duration" value="#{taskDataBean.duration}" validatorMessage="#{msg.EnterValidDuration}">
+                                                <f:validateRegex pattern="^[0-9]{0,2}[.]*[0-9]{0,2}$"/>
+                                                <f:ajax event="blur" render="duration_msg " />
+                                            </h:inputText>Hours
+                                            <h:outputText value="(ex. 0 Hours 30 min -> 0.5 Hours)"/>
+                                            <br></br>
+                                            <h:message id="duration_msg" for="duration" style="color: red"/>
+                                        </td>
+                                        <th style="float: right;position: relative;top: 5px">Attachment</th>
+
+                                        <td>
+                                            <a4j:commandLink id="add_new_file" style="display: block" onclick="#{rich:component('attachmentPanel')}.show(); showDiv();"  render="out add_image">
+                                                <h:graphicImage id="add_image" value="#{facesContext.externalContext.requestContextPath}/images/add-more-btn.jpg" rendered="#{empty systemResultViewUtil.tempTaskAttachmentList}" title="Click here to Add Attachment"/>
+                                                <h:graphicImage id="edit_image" value="#{facesContext.externalContext.requestContextPath}/images/edit.jpg" rendered="#{not empty systemResultViewUtil.tempTaskAttachmentList}" title="Click here to View And Edit Attachment" />
+                                            </a4j:commandLink>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table border="0">
+                                <tbody>
+                                    <tr>
+                                        <td style="position: relative;left: 30px">  
+                                            <h:outputText value="Technology" />
+                                        </td>
+                                        <script>
+                                                    function showlink()
+                                                    {
+                                                        document.getElementById("skills").style.display = "block";
+                                                    }
+                                        </script>                                        
+                                        <td style="position: relative;left: 35px">
+                                            <a4j:outputPanel id="task_technology_outputPanal"   >
+                                                <h4><h:outputText value="N/A" rendered="#{empty systemResultViewUtil.technologyList}"  /></h4>
+                                                <h:selectManyCheckbox  id="task_technology" onchange="showlink()" value="#{taskDataBean.taskTechnologies}" converter="javax.faces.Long" rendered="#{not empty systemResultViewUtil.technologyList}" style="margin-top: -8px">
+                                                    <f:selectItems value="#{systemResultViewUtil.technologyList}" var="technology" itemValue="#{technology.techId}" itemLabel="#{technology.name}"/>
+                                                    <a4j:ajax render="assignee_name" event="change" listener="#{taskServiceBean.populateUserListBySkills()}"/>
+                                                </h:selectManyCheckbox>
+
+                                                <a4j:outputPanel id="skills" style="display: none" rendered="#{not empty systemResultViewUtil.technologyList and not empty systemResultViewUtil.userList}" >
+                                                    <a4j:commandLink action="#{taskServiceBean.populateUserListBySkills()}" render="viewdetails" value="show suggestions" oncomplete="#{rich:component('viewdetails')}.show(); return false;">                                                                                                                                                  
+                                                    </a4j:commandLink>
+                                                </a4j:outputPanel>   
+                                            </a4j:outputPanel>
+
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="position: relative;left:30px">Assign To</td>
+                                        <td style="position: relative;left: 35px;top: 5px"> 
+                                            <h:selectOneMenu value="#{taskDataBean.assignedTo}" id="assignee_name" >
+                                                <f:selectItem itemValue="" itemLabel="Select" />
+                                                <f:selectItems value="#{systemResultViewUtil.userList}" var="user" itemValue="#{user.userId}" itemLabel="#{user.firstName} #{user.lastName}"/>
+                                                <f:ajax event="blur" render="assignee_name_msg " />
+                                            </h:selectOneMenu>
+                                            <br/><br/>
+                                            <h:message id="assignee_name_msg" for="assignee_name" style="color: red"/>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table> 
+                            <br/><br/>
+                        </a4j:outputPanel>
+                        <table style=" width: 100%;height: 310px" >
+                            <tr>
+                                <td style="float: right">Description</td>
+                                <td>
+                                    <rich:editor id="editor" value="#{taskDataBean.taskDescription}" >
+                                        <f:facet name="config">
+                                            toolbar: 'custom',
+                                            toolbar_custom:
+                                            [
+                                            { name: 'clipboard', items : [ 'Undo','Redo' ] },
+                                            { name: 'editing', items : [ 'Find','Replace','-','SelectAll','-','Scayt' ] },
+                                            { name: 'insert', items : [ 'Table','HorizontalRule','Smiley','SpecialChar','PageBreak'
+                                            ,'Iframe' ] },
+                                            '/',
+                                            { name: 'styles', items : [ 'Styles','Format' ] },
+                                            { name: 'basicstyles', items : [ 'Bold','Italic','Strike','-','RemoveFormat' ] },
+                                            { name: 'paragraph', items : [ 'NumberedList','BulletedList','-','Outdent','Indent','-','Blockquote' ] },
+                                            { name: 'links', items : [ 'Link','Unlink','Anchor' ] },
+                                            { name: 'tools', items : [ 'Maximize' ] }
+                                            ]
+                                        </f:facet>    
+
+                                    </rich:editor>
+                                </td>
+                            </tr> 
+                            <tr>
+                                <td style="position: relative;left:40px">  
+                                    <h:outputText value="Watchers" />
+                                </td>
+                                <td style="position: relative;left: 35px">
+                                    <h:panelGroup id="task_assignee_watch" styleClass="selection">
+                                        <h4><h:outputText value="&nbsp;&nbsp;&nbsp;Not Available" rendered="#{empty systemResultViewUtil.userList}"/></h4>
+                                        <h:selectManyCheckbox layout="pageDirection" converter="javax.faces.Long" value="#{taskDataBean.watcherList}">
+                                            <f:selectItems value="#{systemResultViewUtil.userList}" var="watchUser" itemValue="#{watchUser.userId}" itemLabel="#{watchUser.firstName} #{watchUser.lastName} &nbsp; &nbsp; &nbsp; &nbsp;"/>
+                                        </h:selectManyCheckbox>
+                                    </h:panelGroup>
+
+
+                                </td>
+                            </tr>
+                        </table>
+
+
+                        <br/><center>
+                            <table  width="40%">
+                                <tr>
+                                    <td width="10%">
+                                        <a4j:commandButton value="Create"  action="#{taskServiceBean.addTask()}" styleClass="mybutton" render="project_name milestone_name task_name priority status assignee_name startDate endDate duration addTaskOutputPanal msg project_name_msg task_name_msg description_msg priority_msg status_msg assignee_name_msg  parentTask  duration_msg project_name editor task_technology  uploadList" >
+                                            <f:setPropertyActionListener target="#{taskDataBean.continue}" value="false"/>
+                                        </a4j:commandButton></td>
+                                    <td width="20%">   <a4j:commandButton value="Create And Continue" styleClass="mybutton" action="#{taskServiceBean.addTask()}" render="project_name milestone_name task_name priority status assignee_name startDate endDate duration addTaskOutputPanal msg project_name_msg task_name_msg description_msg priority_msg status_msg assignee_name_msg  parentTask  duration_msg project_name editor task_technology uploadList" >
+                                            <f:setPropertyActionListener target="#{taskDataBean.continue}" value="true"/>
+                                        </a4j:commandButton></td>
+                                    <td width="10%">
+                                        <a4j:commandButton value="Cancel" styleClass="mybutton" action="pretty:ViewMultipleTask" immediate="true"/>
+
+                                    </td>
+                                </tr>
+                            </table>
+                        </center>
+                    </h:form>
+                    <rich:popupPanel id="viewdetails" autosized="true" width="300" height="310">
+                        <f:facet name="controls">
+                            <h:outputLink value="#" onclick="#{rich:component('viewdetails')}.hide()">
+                                <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/close-btn.png" style="width: 20px;height: 15px ;top: 1px" >
+                                </h:graphicImage>
+                            </h:outputLink>
+                        </f:facet>
+                        <h:form prependId="false">
+                            <h:panelGroup id="popup">
+                                <h2>User Skills</h2><hr/>                                
+                                <div style="position: relative;top: 0px">
+                                    <rich:dataTable id="data" value="#{systemResultViewUtil.userList}" var="user" 
+                                                    style="width: 100%">    
+                                        <rich:column>
+                                            <f:facet name="header">
+                                                <h:outputText value="Name" />                                                
+                                            </f:facet>
+                                            <h:outputText style="text-transform: lowercase" value="#{user.firstName} #{user.lastName}"/>                                              
+                                        </rich:column>
+                                        <rich:column>
+                                            <f:facet name='header'>                                            
+                                                <h:outputText value="Total Experience" />                                            
+                                            </f:facet>                                            
+                                            <h:outputText value="#{user.totalExperience} months"/>                                            
+                                            <rich:tooltip direction="bottomRight" rendered="#{user.totalExperience gt 0}" >       
+                                                <rich:dataTable value='#{user.expList}' var='exp'>
+                                                    <rich:column >
+                                                        <f:facet name="header">
+                                                            <h:outputText value="Technology"/>
+                                                        </f:facet>
+                                                        <h:outputText value="#{exp.techname}"/>                                                    
+                                                    </rich:column>
+                                                    <rich:column>
+                                                        <f:facet name="header">
+                                                            <h:outputText value="Experience"/>
+                                                        </f:facet>
+                                                        <h:outputText value="#{exp.experience} months"/>
+                                                    </rich:column>
+                                                </rich:dataTable>                                            
+                                            </rich:tooltip>
+                                        </rich:column>                                             
+                                    </rich:dataTable>       
+                                </div>
+                            </h:panelGroup>
+
+                        </h:form>
+                    </rich:popupPanel>
+
+
+                    <rich:popupPanel id="attachmentPanel" modal="true" autosized="true" width="770" height="310" >
+                        <h2>Upload Documents</h2><br/><br/>
+                        <f:facet name="controls">
+                            <h:outputLink value="#" onclick="#{rich:component('attachmentPanel')}.hide()">
+                                <h:graphicImage value="/images/close-btn.png" style="width: 20px;height: 15px ;top: 1px" >
+                                </h:graphicImage>
+                            </h:outputLink>
+                        </f:facet>
+                        <h:form prependId="false">
+                            <div id="new_files">
+                                <div class="box">
+                                    <h3>New File</h3><br/>
+                                    <a4j:outputPanel id="uploadList">
+                                        <rich:dataTable rowKeyVar="rowId" rowClass="#{rowId%2 == 0 ? 'alt-row1':'alt-row'}" id="UploadTable" value="#{systemResultViewUtil.tempTaskAttachmentList}"  rendered="#{not empty systemResultViewUtil.tempTaskAttachmentList}" var="tempTaskAttachments">
+                                            <h:column>
+                                                <h:outputText value="#{tempTaskAttachments.fileName}" style="text-align: left;padding-right: 120px" />
+                                            </h:column >
+                                            <h:column>
+                                                <a4j:commandLink title="Delete" action="#{taskServiceBean.deleteTaskAttachmentToList()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"  render="uploadList">
+                                                    <img src="#{facesContext.externalContext.requestContextPath}/images/delete.png" style="border: none"/>
+                                                    <f:setPropertyActionListener target="#{systemResultViewUtil.rowIndex}" value="#{rowId}"/>
+                                                </a4j:commandLink>
+                                            </h:column>
+                                        </rich:dataTable>
+                                    </a4j:outputPanel><br/>
+
+
+
+                                    <table>
+                                        <tr>
+
+                                            <td>
+                                                <rich:fileUpload fileUploadListener="#{taskServiceBean.fileUploadListener}" 
+                                                                 render=" picComp uploadList"
+                                                                 addLabel="Choose File"
+                                                                 style="height: 20px; width: 122px;"
+                                                                 acceptedTypes="jpg, gif, png, bmp,pdf,odt,doc,docx,xls,ppt,pptx"
+                                                                 ontyperejected="alert('Only JPG, GIF,XLS,DOC,DOCX,ODT,PDF,PNG,PPT,PPTX and BMP files are accepted');" 
+                                                                 id="picComp"
+                                                                 clearLabel="clear">
+                                                    <f:ajax event="uploadcomplete" listener="#{taskServiceBean.addTaskAttachmentToList()}" render="uploadList"/>
+                                                </rich:fileUpload>
+
+                                            </td>
+
+                                        </tr>
+                                    </table>
+
+                                </div>
+                                <a4j:commandButton id="addFiles" styleClass="mybutton"  value="Add Files" onclick="#{rich:component('attachmentPanel')}.hide()" render="listOfUploads add_new_file "/>
+                            </div>
+                        </h:form>
+                    </rich:popupPanel>
+                </div>
+
+            </ui:define>
+        </ui:composition>
+
+    </h:body>
+</html>

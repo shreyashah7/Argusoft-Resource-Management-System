@@ -1,0 +1,201 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"          
+
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+    <h:head>
+        <script type="text/javascript" src="./scripts/jquery/jquery.js"></script>
+        <link href="./css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="./scripts/jquery/jquery.dataTables.min.js"></script>
+        <script src="./scripts/jquery/jquery.dataTables.js"></script>
+        <style>
+
+            .project-master-table-odd-row{
+                text-align:center;
+
+            }
+
+            .project-master-table-even-row{
+                text-align:center;
+
+            }
+        </style>
+    </h:head>
+
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">                  
+            <ui:define name="content"><br/>
+                <f:event type="preRenderComponent" listener="#{projectServiceBean.retrieveProjectById()}"/>
+                <h2> Edit Project  </h2>
+                <script>
+
+                    $(document).ready(function() {
+                        getDatePickerForRangeWithFormat('p_startDate', 'p_endDate');
+                    });
+
+                    $(document).ready(function() {
+                        getDatePickerForRangeWithFormat('p_startDate', 'p_actualEndDate');
+                    });
+
+                </script>
+                <script type="text/javascript" src="./scripts/armms.js"></script>
+                <hr> </hr>
+                <h:form prependId="false" styleClass="form-table">
+
+
+                    <table class="form-table"  border="0" cellspacing="0" cellpadding="0" >
+                        <br></br>
+
+                        <tr>
+                            <td>
+                                <h:outputText value="Project name"/>
+                            </td>
+                            <td>
+                                <h:inputText id="p_name" value="#{projectDataBean.projectName}" required="true" class="required" requiredMessage='#{msg.EnterProjectName}'>
+                                </h:inputText>
+                                <br/>
+                                <h:message for="p_name" style="color: red"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <h:outputText value="Project alias "/>
+
+                            </td>
+                            <td>
+                                <h:inputText id="p_alias" value="#{projectDataBean.projectAlias}" class="required" required="true" requiredMessage='#{msg.EnterAlias}'>
+                                    <f:ajax event="blur" render="edit_alias-err" />
+                                </h:inputText>
+                                <br/>
+                                <h:message id="edit_alias-err" for="p_alias" style="color: red"/>
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <h:outputText value="Description"/>
+                            </td>
+                            <td>
+                                <h:inputTextarea id="p_desc" value="#{projectDataBean.projectDescription}" >
+                                </h:inputTextarea>
+                                <br/>
+                                <h:message for="p_desc" style="color: red"/>
+                            </td>
+
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <h:outputText value="Priority"/>
+                            </td>
+                            <td> 
+
+                                <h:selectOneMenu value="#{projectDataBean.projectPriority}" class="required" id="p_priority" required="true" requiredMessage='#{msg.EnterPriority}'>
+                                    <f:selectItem itemValue="" itemLabel="Select" />
+                                    <f:selectItems value="#{systemResultViewUtil.priorityList}" var="priority"/>
+                                    <f:ajax event="blur" render="edit_priority-err" />
+
+                                </h:selectOneMenu>
+                                <br/>
+                                <h:message id="edit_priority-err" for="p_priority" style="color: red"/>
+                            </td>
+
+                        </tr>
+                        <!--                        <tr>
+                        
+                                                    <td>Status</td>
+                        
+                                                    <td><h:selectOneMenu id="p_projectstatus" value="#a{projectDataBean.status}" required="true" requiredMessage="">
+                                                            <f:selectItem itemValue="Active" itemLabel="Active" />
+                                                            <f:selectItem itemValue="Inactive" itemLabel="Inactive" />
+                                                        </h:selectOneMenu></td>
+                                                </tr>-->
+                        <tr>
+
+                            <td><h:outputText value="Start Date"/>  </td>
+                            <td> <h:inputText value="#{projectDataBean.startDate}" id="p_startDate" >
+                                    <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy" timeZone="#{systemPropertyUtil.serverTimeZone}"/>
+                                </h:inputText>
+                                <br/>
+                                <h:message for="p_startDate" style="color:red"/>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td><h:outputText value="End Date"/> </td>
+                            <td> <h:inputText value="#{projectDataBean.estimatedEndDate}" id="p_endDate" >
+                                    <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy" timeZone="#{systemPropertyUtil.serverTimeZone}"/>
+                                </h:inputText>
+                                <br/>
+                                <h:message for="p_endDate" style="color:red"/>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td><h:outputText value="Actual End Date "/> 
+                            </td>
+
+                            <td> <h:inputText value="#{projectDataBean.actualEndDate}" id="p_actualEndDate" >
+                                    <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy" timeZone="#{systemPropertyUtil.serverTimeZone}"/>
+                                </h:inputText>
+                                <br/>
+                                <h:message for="p_actualEndDate" style="color:red"/>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td>
+                                <h:outputText value="Svn Url "/>
+                            </td>
+                            <td>
+                                <h:inputText id="svnurl" value="#{projectDataBean.svnUrl}" >
+                                </h:inputText>
+                                <br/>
+                                <h:message for="svnurl" style="color: red"/>
+                            </td>
+
+                        </tr>
+                        <!-- Project manager commented for future use -->
+                        <!--                        <tr>
+                                                    <td>
+                                                        <h:outputText value="Project Manager:"/>
+                                                        <font color="red">* </font>
+                                                    </td>
+                                                    <td>    
+                                                        <h:selectOneMenu value="{projectDataBean.assignedTo}" id="p_assignedTo" class="required" required="true" requiredMessage='{msg.EnterAssignedTo}'>
+                                                            <f:selectItem itemLabel="Select " itemValue="{null}"/>
+                                                            <f:selectItems value="{systemResultViewUtil.userList}" var="users" itemLabel="{users.userName}" itemValue="{users.userId}"/>
+                                                            <f:ajax event="blur" render="edit_manager_err" />
+                                                        </h:selectOneMenu>
+                                                        <br/>
+                                                        <h:message id="edit_manager_err" for="p_assignedTo" style="color: red"/>
+                                                    </td>
+                        
+                                                </tr>-->
+                        <tr>
+
+                            <td colspan="2">
+
+                                <h:panelGrid columns="3" style="margin-left: 70px "> 
+
+                                    <h:commandButton id="UpdateData" value="Update" styleClass="mybutton" action="#{projectServiceBean.updateProject()}"  >
+                                    </h:commandButton>
+                                    <a4j:commandButton value="Cancel" styleClass="mybutton" action="pretty:manageProject" immediate="true" />
+
+
+
+                                </h:panelGrid>
+
+                            </td>
+                        </tr>
+                    </table>
+
+
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

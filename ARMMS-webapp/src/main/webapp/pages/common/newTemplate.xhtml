@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+    <ui:composition>         
+
+        <h:form> 
+            <f:event listener="#{projectServiceBean.retieveAllActiveProjectsOfUser()}" type="preRenderComponent"/>
+
+            <div style="margin-top: 10px;margin-left: 2%;"> 
+                <table border="0">
+                    <tr>
+                        <td>
+                            <a4j:outputPanel>
+                                <h:graphicImage url="images/log_time.png" style="height: 20px;width: 20px;vertical-align: -40%"/>
+                                <h:outputText value="Spent Time"/> <br/><br/>                                
+                            </a4j:outputPanel>                                           
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a4j:commandLink action="pretty:spentTime" style="color: #0084ff;margin-left: 20px;font-size: 12px">                    
+                                <h:outputText value="Log Time" style=""/>
+                            </a4j:commandLink>
+                       
+                            &nbsp;&nbsp;<h:outputText value=" | "/>&nbsp;&nbsp;
+                            <a4j:commandLink action="pretty:logTimeDetails" style="color: #0084ff;font-size: 12px">                    
+                                <h:outputText value="Log Time Details" style=""/>
+                            </a4j:commandLink>
+                        </td>
+                    </tr>
+                </table>
+
+                <h3>My Projects</h3>
+                <br/>
+                <rich:dataTable style="border: #ffffff;margin-top: -20px"  styleClass="meal-plans" id="projectList" value="#{systemResultSessionUtil.userProjects}" var="projectdisplay" >
+                    <h:column>
+                        <div>
+                            <a4j:commandLink style="color: #0084ff;text-decoration: none;font-weight: normal;cursor: pointer;"  action="#{activityServiceBean.projectSummaryOutcome(projectdisplay.projectId)}" render="activityDisplay homelabel out">
+                                <img src="#{facesContext.externalContext.requestContextPath}/images/project_bullet.jpg" style="border: none;"/>&nbsp;&nbsp;
+                                <h:outputLabel style="cursor: pointer;" value="#{projectdisplay.projectAlias}"/>
+                                &nbsp;
+                                (<h:outputLabel style="font-weight: normal;cursor: pointer;" value="#{projectdisplay.createdOn}">
+                                    <f:convertDateTime pattern="dd-MMM-yyyy"/>
+                                </h:outputLabel>)
+                            </a4j:commandLink>
+                        </div>
+                    </h:column>
+                </rich:dataTable>
+
+
+            </div>                
+
+        </h:form> 
+
+    </ui:composition>
+</html>
+

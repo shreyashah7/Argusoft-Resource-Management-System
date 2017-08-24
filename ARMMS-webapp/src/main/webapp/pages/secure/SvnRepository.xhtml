@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+
+    <head>
+        <title>Repository</title>	
+
+    </head>
+    <body>
+        <ui:composition template="../layout/homeLayout.xhtml" >
+            <ui:define name="content" >                
+                <f:event listener="#{svnServiceBean.populateRepository()}" type="preRenderComponent" />
+                <f:event listener="#{svnServiceBean.populateSvnDataList()}" type="preRenderComponent" />
+                <h2>Repository</h2>
+                <hr/>
+                <link href="css/dashboard.css" rel="stylesheet" type="text/css" /> 
+                <h:form prependId="false" >                                                             
+                    <a4j:outputPanel rendered="#{systemResultViewUtil.svnDataList!=null}">
+                    </a4j:outputPanel>                                            
+                    <h:panelGroup layout="block" style="float: right;height: 40px">
+                        <h:selectOneMenu id = "projectSelection" value="#{systemResultSessionUtil.projectIdForSvnRepository}" style="position: relative;width: 100px" rendered="#{systemResultSessionUtil.userProjects!= null and not empty systemResultSessionUtil.userProjects}">
+                            <f:selectItem itemLabel="Select" itemValue=""/>             
+                            <f:selectItems value="#{systemResultSessionUtil.userProjects}" var="project" itemLabel="#{project.projectAlias}" itemValue="#{project.projectId}"/>               
+                            <a4j:ajax event="change" render="tablepanel repopanel selectedProject" listener="#{svnServiceBean.populateSvnDataList()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+                        </h:selectOneMenu>
+                    </h:panelGroup>
+                    <h:panelGroup id="tablepanel">
+                        <h3 class="norecordfound"><h:outputText rendered="#{empty systemResultViewUtil.svnDataList}" value="No Data In Repository"/></h3>
+                        <rich:dataTable id="data" style="position: relative;width: 100%" value="#{systemResultViewUtil.svnDataList}" 
+                                        var="item" rendered="#{systemResultViewUtil.svnDataList != null and not empty systemResultViewUtil.svnDataList}">			 
+                            <rich:column style="text-align: center" sortBy="#{item.revisionNo}" sortOrder="descending">
+                                <f:facet name="header">
+                                    <h:outputText value="Revision" />
+                                </f:facet>                                
+                                <a4j:commandLink value="#{item.revisionNo}" action="pretty:folderStructure" style="font-size: 13px;text-align: center ; text-decoration: none">
+                                    <f:setPropertyActionListener target="#{systemResultSessionUtil.svnDetailId}" value="#{item.id}"/>
+                                </a4j:commandLink>
+                            </rich:column>
+
+                            <rich:column style="text-align: center;font-size: 13px">
+                                <f:facet name="header" >
+                                    <h:outputText value="Task Id" />
+                                </f:facet> 
+                                <a4j:commandLink value="#{item.taskId}" action="pretty:TaskViewAndUpdate">
+                                    <f:setPropertyActionListener target="#{systemResultSessionUtil.taskIdForTaskView}" value="#{item.taskId}"/>
+                                </a4j:commandLink>
+                            </rich:column>
+
+                            <rich:column style="width: 80px; text-align: center;font-size: 13px">
+                                <f:facet name="header">
+                                    <h:outputText value="Date"/>
+                                </f:facet> 
+                                <h:outputText value="#{item.commitedOn}" style="font-size: 13px">
+                                    <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                </h:outputText>
+                            </rich:column>
+
+                            <rich:column>
+                                <f:facet name="header">
+                                    <h:outputText value="User"/>
+                                </f:facet> 
+                                <h:outputText value="#{item.commiter}" style="font-size: 13px"></h:outputText>
+                            </rich:column>
+
+                            <rich:column>
+                                <f:facet name="header">
+                                    <h:outputText value="Message"/>
+                                </f:facet>
+                                <h:outputText value="#{item.comments}" style="font-size: 13px"></h:outputText>
+                            </rich:column>
+                        </rich:dataTable>
+                        <script type="text/javascript">
+                            var table = $('#data').DataTable({
+                                "iDisplayLength": 10,
+                                "aLengthMenu": [[10, 20, 30, 40, -1], [10, 20, 30, 40, "All"]],
+                                "bSort": false,
+                                "bStateSave": true                                                                
+                            });
+                            $(document).ready(function() {
+                                setRightDivHeight();
+                            });
+
+
+                        </script>
+                    </h:panelGroup> 
+                </h:form>
+            </ui:define>
+        </ui:composition> 
+    </body>
+</html>

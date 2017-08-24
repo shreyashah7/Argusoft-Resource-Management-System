@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>Assign Resources</title>
+        <meta name="viewport" content="width=device-width"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+                <div>
+
+                    <script type="text/javascript" src="./scripts/armms.js"></script>
+                    <script type="text/javascript">
+
+                        function retrieveResources() {
+                            document.getElementById("resourceData").click();
+                        }
+
+                        function rendermsg() {
+
+                            document.getElementById("msg").style.display = "none";
+                        }
+
+
+                    </script>
+
+                    <h2>Manage Resources</h2>
+                    <hr></hr>
+                    <br></br>
+                    <br></br>
+                    <h:panelGroup id="msg">
+                        <a4j:outputPanel>
+                            <ui:include src="../common/message.xhtml"/>
+                        </a4j:outputPanel>
+                    </h:panelGroup>
+                    <f:event type="preRenderComponent" listener="#{projectResourceServiceBean.init()}"/>
+                    <f:event type="preRenderComponent" listener="#{projectResourceServiceBean.retrieveAllProjectRoles()}"/>
+                    <f:event type="preRenderComponent" listener="#{technologyServiceBean.retrieveTechByCategory()}" />
+                    <f:event type="preRenderComponent" listener="#{projectResourceServiceBean.retrieveProjectResources()}" />
+
+                    <h:form  prependId="false" class="form-table" >
+                        <a4j:outputPanel id="temp">
+
+                            <table  align="left" cellpadding="2" cellspacing="4" style="width: 100%" >
+
+                                <tr>
+                                    <td>
+                                        <h:outputText value="Project :"/>
+
+                                    </td>
+                                    <td>
+                                        <h:selectOneMenu  class="required" id="project"  value="#{systemResultViewUtil.projectId}" required="true" requiredMessage="Select project." onchange="retrieveResources()"  >
+                                            <f:selectItem itemValue="-1" itemLabel="Select" />
+                                            <f:selectItems value="#{systemResultSessionUtil.userProjects}" var="project" itemValue="#{project.projectId}" itemLabel="#{project.projectAlias}"/>
+                                            <f:ajax event="blur" render="project_name_msg" />
+                                        </h:selectOneMenu><br></br>
+                                        <rich:message id="project_name_msg" for="project" style="color: red"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <h:outputText value="Role Type :"/>
+
+                                    </td>
+                                    <td>
+                                        <h:selectOneMenu  class="required" id="role_type"  value="#{systemResultViewUtil.roleType}" required="true" onchange=" retrieveResources()" requiredMessage="Select Role Type."  onmousemove="rendermsg()">
+                                            <f:selectItem itemValue="-1" itemLabel="Select"/>
+                                            <f:selectItems value="#{systemResultViewUtil.projectRolesDataBeanList}" var="projectRoles" itemValue="#{projectRoles.projectRolesId}" itemLabel="#{projectRoles.projectRolesDescription}">
+                                            </f:selectItems>
+                                            <f:ajax event="blur" render="role_type_msg" />
+                                        </h:selectOneMenu><br></br>
+                                        <h:message id="role_type_msg" for="role_type" style="color: red"/>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a4j:commandButton id="resourceData" style="display: none" action="#{projectResourceServiceBean.retrieveProjectResources()}"  render="retrieveUser technologies tool server operatingsys browser selectedProject">
+                                            <f:setPropertyActionListener target="#{systemResultSessionUtil.selectedProjectId}" value="#{systemResultViewUtil.projectId}"/>
+                                        </a4j:commandButton>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <h:outputText value="Users :"/>
+
+                                    </td>
+                                    <td>
+                                        <a4j:outputPanel id="retrieveUser">
+                                            <script type="text/javascript">
+                                                $(function()
+                                                {
+                                                    $("#user").pickList({
+                                                        sourceListLabel: "Available Users",
+                                                        targetListLabel: "Selected Users",
+                                                        //                                                    addAllLabel: "Add All",
+                                                        //                                                    addLabel: "Add",
+                                                        //                                                    removeAllLabel: "Remove All",
+                                                        //                                                    removeLabel: "Remove"
+                                                    });
+                                                });
+
+                                            </script>
+
+                                            <rich:panel id="users" style="width:380px;">
+                                                <h:selectManyMenu id="user" value="#{projectResourceDataBean.userIds}" converter="javax.faces.Long">
+                                                    <f:selectItems value="#{systemResultViewUtil.allProjectResources}" var="user"
+                                                                   itemValue="#{user.userId}" itemLabel="#{user.userName}" /> 
+                                                </h:selectManyMenu>
+                                            </rich:panel>
+                                        </a4j:outputPanel>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <h:outputText value="Technologies :"/>
+
+                                    </td>
+                                    <td>
+                                        <a4j:outputPanel id="retrieveTech">
+                                            <rich:panel id="technologies" style="width:380px;">
+                                                <script type="text/javascript">
+                                                    $(function()
+                                                    {
+                                                        $("#tech").pickList({
+                                                            sourceListLabel: "Available Technologies",
+                                                            targetListLabel: "Selected Technologies",
+                                                        });
+                                                    });
+                                                </script>
+
+                                                <h:selectManyMenu id="tech" value="#{projectResourceDataBean.techIds}" converter="javax.faces.Long">
+                                                    <f:selectItems value="#{systemResultViewUtil.projectResourceTech}" var="technology"
+                                                                   itemValue="#{technology.techId}" itemLabel="#{technology.technologyName}" /> 
+                                                </h:selectManyMenu>
+                                            </rich:panel>
+                                        </a4j:outputPanel>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <h:outputText value="Tools :"/>
+
+                                    </td>
+                                    <td>
+                                        <h4><h:outputText value="N/A" rendered="#{empty systemResultViewUtil.projectResourceTool}"/></h4>
+
+                                        <h:selectManyCheckbox id="tool" value="#{projectResourceDataBean.toolIds}" converter="javax.faces.Long" rendered="#{not empty systemResultViewUtil.projectResourceTool}">
+                                            <f:selectItems value="#{systemResultViewUtil.projectResourceTool}" var="tools"
+                                                           itemValue="#{tools}" itemLabel="#{tools}" /> 
+                                        </h:selectManyCheckbox>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <h:outputText value="Server :"/>
+
+                                    </td>
+                                    <td>
+                                        <h4><h:outputText value="N/A" rendered="#{empty systemResultViewUtil.projectResourceServer}" /></h4>
+                                        <h:selectManyCheckbox id="server" value="#{projectResourceDataBean.serverIds}" converter="javax.faces.Long" rendered="#{not empty systemResultViewUtil.projectResourceServer}">
+                                            <f:selectItems value="#{systemResultViewUtil.projectResourceServer}" var="server"
+                                                           itemValue="#{server}" itemLabel="#{server}" />   
+                                        </h:selectManyCheckbox>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <h:outputText value="Operating System :"/>
+
+                                    </td>
+                                    <td>
+                                        <h4><h:outputText value="N/A" rendered="#{empty systemResultViewUtil.projectResourceOS}"/></h4>
+                                        <h:selectManyCheckbox id="operatingsys" value="#{projectResourceDataBean.osIds}"  converter="javax.faces.Long" rendered="#{not empty systemResultViewUtil.projectResourceOS}">
+                                            <f:selectItems value="#{systemResultViewUtil.projectResourceOS}" var="os"
+                                                           itemValue="#{os}" itemLabel="#{os}" />   
+                                        </h:selectManyCheckbox>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <h:outputText value="Browser :"/>
+
+                                    </td>
+                                    <td>
+                                        <h4><h:outputText value="N/A" rendered="#{empty systemResultViewUtil.projectResourceBrowser}" /></h4>
+                                        <h:selectManyCheckbox id="browser" value="#{projectResourceDataBean.browserIds}" converter="javax.faces.Long" rendered="#{not empty systemResultViewUtil.projectResourceBrowser}">
+                                            <f:selectItems value="#{systemResultViewUtil.projectResourceBrowser}" var="browser"
+                                                           itemValue="#{browser}" itemLabel="#{browser}" />   
+                                        </h:selectManyCheckbox>
+                                    </td>
+                                </tr>
+                                <tr><td colspan="2">
+                                        <h:panelGrid columns="2" > 
+                                            <a4j:commandButton  value="Assign" styleClass="mybutton" action="#{projectResourceServiceBean.assignResourcesOfProject()}" render="retrieveTech project msg retriveUser temp " style="margin-left: 260px">
+                                            </a4j:commandButton>
+                                            <h:button value="Cancel" styleClass="mybutton" outcome="pretty:projectResources" />
+                                        </h:panelGrid>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </a4j:outputPanel>
+                    </h:form>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

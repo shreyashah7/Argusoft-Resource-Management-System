@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>Log Details</title>
+        <meta name="viewport" content="width=device-width"/>
+    </h:head>
+    <h:body>       
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+                <h2>Log Details</h2>
+                <hr/>
+                <div style="position: relative;width: 100% ">
+
+                    <h:form prependId="false" style="position: relative">     
+                        <f:event type="preRenderComponent" listener="#{calServiceBean.populateListOfUsers()}"/>          
+                        <f:event type="preRenderComponent" listener="#{taskServiceBean.populateTaskTrack()}"/>
+
+                        <div style="position: relative;height: 80px;left:15px;width:98%;top:1%"> 
+                            <h:selectOneMenu id = "userSelection" value="#{systemResultViewUtil.userId}" style="float: right;position: relative;width: 100px">
+                                <f:selectItems value="#{systemResultViewUtil.listOfUsers}" var="user" itemLabel="#{user.firstName}" itemValue="#{user.userId}"/>               
+                                <a4j:ajax event="change" render="table" listener="#{taskServiceBean.populateTaskTrack()}"/>
+                            </h:selectOneMenu>                 
+                        </div>
+
+                        <div style="position: relative;top: -35px; width: 98%">
+                            <a4j:outputPanel id="table">        
+                                <script>
+                                    $(document).ready(function() {
+                                        var table = $('#data').DataTable({
+                                            "iDisplayLength": 10,
+                                            "aLengthMenu": [[10, 20, 30, 40, -1], [10, 20, 30, 40, "All"]],
+                                            "bSort": false
+                                        });
+                                    });
+                                </script>                                
+                                <h3 class="norecordfound"><h:outputText rendered="#{empty systemResultViewUtil.taskTrkDataList}" id="message" value="No logs available" style="margin-top: 30px"/></h3>                        
+                                <rich:dataTable id="data" value="#{systemResultViewUtil.taskTrkDataList}" rendered="#{not empty systemResultViewUtil.taskTrkDataList}" var="taskTrack" style="width: 100%;margin-top: 50px">                                                                                            
+                                    <rich:column>
+                                        <f:facet name="header">
+                                            <h:outputText value="Project" />
+                                        </f:facet>
+                                        <h:outputText value="#{taskTrack.projectAlias}" style="text-transform: capitalize"/>
+                                    </rich:column>
+                                    <rich:column>
+                                        <f:facet name="header">
+                                            <h:outputText value="TaskId" />
+                                        </f:facet>
+                                        <a4j:commandLink value="#{taskTrack.taskId}" action="pretty:TaskViewAndUpdate">
+                                            <f:setPropertyActionListener target="#{systemResultSessionUtil.taskIdForTaskView}" value="#{taskTrack.taskId}"/>
+                                        </a4j:commandLink>
+                                    </rich:column>
+                                    <rich:column>
+                                        <f:facet name="header">
+                                            <h:outputText value="Logged By" />
+                                        </f:facet>
+                                        <h:outputText value="#{taskTrack.loggedByName}"/>
+                                    </rich:column>
+                                    <rich:column>
+                                        <f:facet name="header">
+                                            <h:outputText value="Date" />
+                                        </f:facet>
+                                        <h:outputText value="#{taskTrack.startDate}">
+                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                        </h:outputText>
+                                    </rich:column>
+                                    <rich:column>
+                                        <f:facet name="header">
+                                            <h:outputText value="Duration(in Hours)" />
+                                        </f:facet>
+                                        <h:outputText value="#{taskTrack.duration}"/>
+                                    </rich:column>
+                                </rich:dataTable>                            
+                            </a4j:outputPanel>
+                        </div>                            
+                    </h:form>
+
+
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

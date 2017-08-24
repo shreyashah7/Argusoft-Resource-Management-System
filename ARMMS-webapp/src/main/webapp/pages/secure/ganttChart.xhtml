@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <title>Gantt Chart</title>
+        <meta name="viewport" content="width=device-width"/>              
+    </h:head>
+    <h:body>       
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+                <h2>Gantt Chart</h2>
+                <hr/>           
+                <style>
+                    .para1
+                    {
+                        position : absolute;top: 180px;left:54%
+                    } 
+                    .para2
+                    {
+                        position :fixed; top: 10px;left:54%
+                    } 
+                </style>
+                <script>
+
+                    $(document).ready(function() {
+                        $(window).scroll(function() {
+                            var s = $('body,html').scrollTop();
+                            if (s > 180)
+                            {
+                                document.getElementById("changearea").className = "para2";
+                            }
+                            else
+                            {
+                                document.getElementById("changearea").className = "para1";
+                            }
+                        });
+                    });
+                </script>
+                <div id ="changearea" class="para1" style="float: right;">
+                    <h:outputLabel>
+                        <h:outputText value="Before Time" style="margin-left: -125px;background-image:url('/images/blue.png')"/>
+                        <h:outputText value="On Time" style="margin-left: 20px;background-image:url('/images/green.png')"/>
+                        <h:outputText value="Delayed" style="margin-left: 20px;background-image:url('/images/red.png')"/>
+                        <h:outputText value="Queued" style="margin-left: 20px;background-image:url('/images/grey.png')"/>
+                    </h:outputLabel>                            
+                </div>
+                <div style="width: 100%">
+                    <h:form prependId="false" style="position: relative">                                                                 
+                        <f:event type="preRenderComponent" listener="#{ganttServiceBean.populateListOfUsers()}"/>          
+                        <f:event type="preRenderComponent" listener="#{ganttServiceBean.populateGanttChart()}"/>
+                        <div style="width: 98%"> 
+                            <div style="position: relative">           
+                                <h:panelGroup style="position: relative" rendered="#{loginDataBean.itemAttributes.contains('view others gantt')}">
+                                    <h:selectOneMenu id = "userSelection" value="#{systemResultViewUtil.userIdForCalendar}" style="float: left;margin-top: 1%;width: 12%" >
+                                        <f:selectItems value="#{systemResultViewUtil.listOfUsers}" var="user" itemLabel="#{user.firstName}" itemValue="#{user.userId}"/>               
+                                        <a4j:ajax event="change" render="cal" listener="#{ganttServiceBean.populateGanttChart()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+                                    </h:selectOneMenu>
+                                </h:panelGroup>       
+                                <a4j:commandButton id="hiddenButton" value="submit" style="display: none" render="cal" action="#{ganttServiceBean.populateGanttChart()}">                        
+                                </a4j:commandButton>
+                            </div>     
+                            <div style="padding-top: 5%">
+                                <a4j:commandButton id="prev" render="month year cal prev next" action="#{ganttServiceBean.populateGanttChart()}" value="#{systemResultViewUtil.prevMonthName}" style="float: left;width: 10%" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();">
+                                    <f:setPropertyActionListener value="#{ganttServiceBean.prevMonth()}" target="#{calDataBean.month}"/>                                    
+                                </a4j:commandButton>
+                                <h:selectOneMenu id="month" value="#{calDataBean.month}"  style="position: absolute;left: 30%;width: 12%">
+                                    <f:selectItem itemValue="0" itemLabel="January" />
+                                    <f:selectItem itemValue="1" itemLabel="Fabruary" />
+                                    <f:selectItem itemValue="2" itemLabel="March" />
+                                    <f:selectItem itemValue="3" itemLabel="April" />                
+                                    <f:selectItem itemValue="4" itemLabel="May" />
+                                    <f:selectItem itemValue="5" itemLabel="June" />
+                                    <f:selectItem itemValue="6" itemLabel="July" />
+                                    <f:selectItem itemValue="7" itemLabel="August" />
+                                    <f:selectItem itemValue="8" itemLabel="September"/>
+                                    <f:selectItem itemValue="9" itemLabel="October"/>
+                                    <f:selectItem itemValue="10" itemLabel="November"/>
+                                    <f:selectItem itemValue="11" itemLabel="December"/>                
+                                    <a4j:ajax event="change" render="prev next month cal" listener="#{ganttServiceBean.populateGanttChart()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+
+                                    <rich:tooltip value="" rendered="#{calDataBean.month gt 12}"/>
+
+                                </h:selectOneMenu>
+                                <h:selectOneMenu id = "year" value="#{calDataBean.year}" style="position: absolute;left: 43%;width: 12%">
+                                    <f:selectItems value="#{systemResultViewUtil.listOfyears}" var="item" itemLabel="#{item}" itemValue="#{item}"/>                
+                                    <a4j:ajax event="change" render="prev next year cal" listener="#{ganttServiceBean.populateGanttChart()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+                                </h:selectOneMenu>            
+                                <a4j:commandButton id="next" render="month year cal next prev" action="#{ganttServiceBean.populateGanttChart()}" value="#{systemResultViewUtil.nextMonthName}" style="position: relative;left: 80%;width: 10%" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();">
+  
+                                    <f:setPropertyActionListener value="#{ganttServiceBean.nextMonth()}" target="#{calDataBean.month}"/>                                    
+                                </a4j:commandButton>
+                            </div>
+                        </div>
+
+                        <center>
+                            <div style="width: 98%;padding-top: 2%;float: left;">
+                                <a4j:outputPanel  id="cal">                                
+                                    <h3 class="norecordfound"><h:outputText value = "No Task For This Month " style="position: relative;float: left" rendered="#{ganttServiceBean.ganttDataList.size()==0}"/>
+                                    </h3>                               
+                                    <rich:dataTable value="#{ganttServiceBean.ganttDataList}" var="task" 
+                                                    style="width: 100%" rendered="#{not empty ganttServiceBean.ganttDataList}">                                                    
+<!--                                       <rich:column style="width: max-content">
+                                            <f:facet name="header">
+                                                <h:outputText value="Task Id"/>
+                                            </f:facet>    
+                                            <h:outputText value="{task.taskId}"/>
+                                        </rich:column>
+                                        
+                                         <rich:column style="width: max-content">
+                                            <f:facet name="header">
+                                                <h:outputText value="bool"/>
+                                            </f:facet>    
+                                            <h:outputText value="{task.show}"/>
+                                        </rich:column>-->
+                                        
+<!-- 
+                                        <rich:column style="width: max-content">
+                                            <f:facet name="header">
+                                                <h:outputText value="Task Status"/>
+                                            </f:facet>                                                
+                                            <h:outputText value="{task.status}"/>
+                                        </rich:column>-->
+
+                                        <c:forEach items="#{ganttServiceBean.listOfDates}" var="day">           
+
+                                            <rich:column style="height: 10px; border-right-style: #{day.time eq ganttServiceBean.currentDate.time ? 'solid':'none'};border-left-style: #{day.time eq ganttServiceBean.currentDate.time ? 'solid':'none'};border-left-color: black;border-right-color: black;border-width: 1px">                        
+                                                <f:facet name="header">
+                                                    <h:outputText value="#{day.date}"/>
+                                                </f:facet>                                               
+                                                <div id = "#{task.taskId}#{day.date}" style="z-index: 10;margin-left: -4px;margin-right: -4px;height: 90% ;background-image:  url('#{task.startDate.time le day.time and task.endDate.time ge day.time and ganttServiceBean.currentDate.time ge day.time ? (task.actualEndDate.time lt day.time ? '/images/blue.png': ('/images/green.png') ):  (task.startDate.time le day.time and task.endDate.time ge day.time and ganttServiceBean.currentDate.time le day.time ? ('/images/grey.png'): (task.actualEndDate.time ge day.time and task.endDate.time le day.time and ganttServiceBean.currentDate.time ge day.time ? ('/images/red.png'): (task.actualEndDate.time gt day.time and task.endDate.time lt day.time and ganttServiceBean.currentDate.time lt day.time ? ('/images/grey.png'):(day.time eq task.startDate.time)? ganttServiceBean.currentDate.time le day.time  ? ('/images/grey.png'):('/images/green.png'):('/images/white.png'))))}') ;background-repeat: repeat">
+                                                    <rich:tooltip value="#{task.taskId}" direction="bottomRight" rendered="#{(day.time le task.actualEndDate.time and day.time gt task.startDate.time) or (day.time le task.endDate.time and day.time gt task.startDate.time) or (day.time eq task.startDate.time)}">    
+                                                        <h:outputLabel value="Task id : " />
+                                                        <h:outputText value="#{task.taskId}"/> 
+                                                        <br/>
+                                                        <h:outputLabel value="Task Name : " />
+                                                        <h:outputText value="#{task.taskName}"/>
+                                                        <br/>
+                                                        <h:outputLabel value="StartDate : "/>
+                                                        <h:outputText value="#{task.startDate}">
+                                                            <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                                        </h:outputText>
+                                                        <br/>
+                                                        <h:outputLabel value="EndDate : " />
+                                                        <h:outputText value="#{task.endDate}">
+                                                            <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                                        </h:outputText>
+                                                        <br/>
+                                                        <h:outputLabel value="ActualEndDate : " rendered="#{task.show eq 'TRUE'}"/>
+                                                        <h:outputText value="#{task.actualEndDate}" rendered="#{task.show eq 'TRUE'}">
+                                                            <f:convertDateTime pattern="dd-MM-yyyy"/>
+                                                        </h:outputText>
+                                                    </rich:tooltip>
+                                                </div>
+                                            </rich:column>     
+                                        </c:forEach>     
+                                    </rich:dataTable>
+                                </a4j:outputPanel>
+                            </div>                            
+                            <script>
+                                $(document).ready(function() {
+                                    $('#hiddenButton').click();
+                                });
+                            </script>
+                        </center>
+                    </h:form> 
+                </div>   
+
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

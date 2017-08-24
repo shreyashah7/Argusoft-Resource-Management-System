@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+    <h:head>
+
+        <meta name="viewport" content="width=device-width"/>
+        <title>Features</title>
+
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content"><br/>
+                <h:panelGroup id="cssJs">
+                    <link rel="stylesheet" href="./css/jquery.treeview.css" />
+                    <!--<link rel="stylesheet" href="./css/screen.css" />-->
+                    <script type="text/javascript" src="./scripts/jquery/jquery.js"></script>
+                    <script type="text/javascript" src="./scripts/jquery.cookie.js"></script>
+                    <script src="./scripts/jqueryTree.js" type="text/javascript"></script>
+                    <script type="text/javascript" src="./scripts/demo.js"></script>
+                    <script type="text/javascript" src="./scripts/armms.js"></script>
+                    <script type="text/javascript">
+                        function enableform() {
+                            $("#permissionForm").show();
+                        }
+                        function disableform() {
+                            $("#permissionForm").hide();
+                        }
+                        function disableTextBox() {
+                            var selectmenu = document.getElementById("permissionNameMenu");
+                            if ((selectmenu.options[selectmenu.selectedIndex].text).toUpperCase() === "MINIMUM" || (selectmenu.options[selectmenu.selectedIndex].text).toUpperCase() === "MAXIMUM") {
+                                $(document.getElementById('name')).prop("disabled", true);
+                            } else {
+                                $(document.getElementById('name')).prop("disabled", false);
+                            }
+                        }
+
+                    </script>
+                </h:panelGroup>
+                <f:view>
+                    <f:event id="getfeatures" type="preRenderComponent" listener="#{featureServiceBean.retrieveAllFeatures()}"/>
+                </f:view>
+                <h2>Feature</h2>
+                <hr/>
+                <div class="active-div" style="padding-bottom: 22px">
+                    <h:panelGroup layout="block" id="notificationMessage">
+                        <ui:include src="../common/message.xhtml" />
+                    </h:panelGroup>
+                    <h:form style="float: right">
+                        <a4j:commandLink action="#{featureServiceBean.prepareToAdd()}" render="featureForm permissionManage cssJs featuretree notificationMessage" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide(); disableform();">
+                            <h:graphicImage value="images/add-more-btn.jpg"  />
+                        </a4j:commandLink>
+                    </h:form>
+                </div>
+                <div id="treeforfeature" style="float: left; width: 25%">
+
+                    <h:form>
+                        <h:panelGroup id="featuretree">
+                            <h3 class="norecordfound"><h:outputText value="No features are there in database" rendered="#{systemResultViewUtil.listOfFeatures.size() eq 0}"/></h3>
+                            <h:outputText value="Select feature:" rendered="#{!(systemResultViewUtil.listOfFeatures.size() eq 0)}"/>
+                            <ul id="browser" class="filetree">
+                                <ui:repeat value="#{systemResultViewUtil.listOfFeatures}" var="feature">
+                                    <li class="closed"><span class="folder"><a4j:commandLink action="#{featureServiceBean.retrievePermissions(feature.id,true)}"  onclick="enableform();" value="#{feature.name}" render="featureForm permissionManage" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/></span>
+                                        <ul>
+                                            <ui:repeat value="#{featureTransformerBean.retrieveAllChildFeatures(feature.id)}" var="childFeature">
+                                                <li class="closed"><span class="#{childFeature.menuType eq 'Item Attribute' ? 'file' : 'folder'}"><a4j:commandLink action="#{featureServiceBean.retrievePermissions(childFeature.id, true)}" onclick="enableform();"  render="featureForm permissionManage" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();">#{childFeature.name}</a4j:commandLink></span>
+                                                    <ul>
+                                                        <ui:repeat value="#{featureTransformerBean.retrieveAllChildFeatures(childFeature.id)}" var="itemAttributes">
+                                                            <li><span class="file"><a4j:commandLink action="#{featureServiceBean.retrievePermissions(itemAttributes.id, false)}" render="featureForm"  onclick="disableform();" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();">#{itemAttributes.name}</a4j:commandLink></span></li>
+                                                        </ui:repeat>
+                                                    </ul>
+                                                </li>
+                                            </ui:repeat>
+                                        </ul>
+                                    </li>
+                                </ui:repeat>
+                            </ul>
+                        </h:panelGroup>
+                    </h:form>
+                </div>
+
+                <div id="content" style="float: left;width: 50%">
+                    <h:form>
+                        <h:panelGroup id="featureForm">
+                            <table style=""> 
+                                <tr>
+                                    <td>Parent</td>
+                                    <td>
+                                        <h:selectOneMenu id="parent" value="#{featureDataBean.parent}">
+                                            <f:selectItem itemLabel="Root" itemValue="#{null}" />
+                                            <f:selectItems  value="#{systemResultViewUtil.listOfMenuMenuItemFeatures}" var="features" itemValue="#{features.id}" itemLabel="#{features.name}" />
+                                        </h:selectOneMenu>
+                                    </td>
+                                </tr>
+                                <tr style="height: 10px !important;"></tr>
+                                <tr>
+                                    <td>Feature Name</td>
+                                    <td>
+                                        <h:inputText class="required" value="#{featureDataBean.name}" id="featurename" required="true" requiredMessage="#{msg.feature_name_required}">
+                                            <f:ajax event="blur" render="featurenameErr" />
+                                        </h:inputText>
+                                        <h:message id="featurenameErr" for="featurename" style="color: red"/>
+                                    </td>
+                                </tr>
+                                <tr style="height: 10px !important;"></tr>
+                                <tr>
+                                    <td>Menu Label</td>
+                                    <td>
+                                        <h:inputText value="#{featureDataBean.menuLable}" id="menuLabel" />
+                                    </td>
+                                </tr>
+                                <tr style="height: 10px !important;"></tr>
+                                <tr>
+                                    <td>Description</td>
+                                    <td>
+                                        <h:inputTextarea value="#{featureDataBean.description}" id="description" />
+                                    </td>
+                                </tr>
+                                <tr style="height: 10px !important;"></tr>
+                                <tr>
+                                    <td>Precedence</td>
+                                    <td>
+                                        <h:selectOneMenu class="required" id="precedence" value="#{featureDataBean.precedence}" required="true" requiredMessage="#{msg.precedenceRequired}">
+                                            <f:selectItem itemLabel="----Select-----" itemValue="#{null}"/>
+                                            <f:selectItem itemLabel="1" itemValue="1"/>
+                                            <f:selectItem itemLabel="2" itemValue="2"/>
+                                            <f:selectItem itemLabel="3" itemValue="3"/>
+                                            <f:selectItem itemLabel="4" itemValue="4"/>
+                                            <f:selectItem itemLabel="5" itemValue="5"/>
+                                            <f:selectItem itemLabel="6" itemValue="6"/>
+                                            <f:selectItem itemLabel="7" itemValue="7"/>
+                                            <f:selectItem itemLabel="8" itemValue="8"/>
+                                            <f:ajax event="blur" render="precedenceErr"/>
+                                        </h:selectOneMenu>
+                                        <h:message id="precedenceErr" for="precedence" style="color: red"/>
+                                    </td>
+                                </tr>
+                                <tr style="height: 10px !important;"></tr>
+                                <tr>
+                                    <td>Menu Type</td>
+                                    <td>
+                                        <h:selectOneMenu class="required" id="menuType" value="#{featureDataBean.menuType}" required="true" requiredMessage="#{msg.menuType}">
+                                            <f:selectItem itemLabel="----Select-----" itemValue="#{null}"/>
+                                            <f:selectItem itemLabel="Menu" itemValue="Menu"/>
+                                            <f:selectItem itemLabel="Menu Item" itemValue="MenuItem"/>
+                                            <f:selectItem itemLabel="Extra Item" itemValue="ExtraItem"/>
+                                            <f:selectItem itemLabel="Item Attribute" itemValue="Item Attribute"/>
+                                            <f:ajax event="blur" render="menuTypeErr"/>
+                                        </h:selectOneMenu>
+                                        <h:message id="menuTypeErr" for="menuType" style="color: red"/>
+                                    </td>
+                                </tr>
+                                <tr style="height: 10px !important;"></tr>
+                                <tr>
+                                    <td>Feature URL</td>
+                                    <td>
+                                        <h:inputText id="featureURL" value="#{featureDataBean.featureURL}"/>
+                                    </td>
+                                </tr>
+                                <tr style="height: 10px !important;"></tr>
+                                <br/>
+                                <tr>
+                                    <td>Webservice URL</td>
+                                    <td>
+                                        <h:inputTextarea id="webserviceURL" value="#{featureDataBean.webserviceURL}"/>
+                                    </td>
+                                </tr>
+                                <tr style="height: 10px !important;"></tr>
+                                <tr>
+                                    <td>Sequence number</td>
+                                    <td>
+                                        <h:selectOneMenu id="seqNo" value="#{featureDataBean.seqNo}" >
+                                            <f:selectItem itemLabel="----Select-----" itemValue="#{null}"/>
+                                            <f:selectItem itemLabel="0" itemValue="0"/>
+                                            <f:selectItem itemLabel="1" itemValue="1"/>
+                                            <f:selectItem itemLabel="2" itemValue="2"/>
+                                            <f:selectItem itemLabel="3" itemValue="3"/>
+                                            <f:selectItem itemLabel="4" itemValue="4"/>
+                                            <f:selectItem itemLabel="5" itemValue="5"/>
+                                        </h:selectOneMenu>
+                                    </td>
+                                </tr>
+                                <tr style="height: 10px !important;"></tr>
+                                <tr>
+                                    <td>Crud</td>
+                                    <td>
+                                        <h:selectBooleanCheckbox id="crud" value="#{featureDataBean.crud}"/>
+                                    </td>
+                                </tr>
+                                <tr style="height: 10px !important;"></tr>
+                                <tr>
+                                    <td>Active</td>
+                                    <td>
+                                        <h:selectBooleanCheckbox id="active" value="#{featureDataBean.active}"/>
+                                    </td>
+                                </tr>
+                                <tr style="height: 10px !important;"></tr>
+                            </table>
+                        </h:panelGroup>
+                        <a4j:commandButton id="addButton" styleClass="mybutton" value="Save" action="#{featureServiceBean.addFeature()}" render="cssJs featuretree featureForm notificationMessage " onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+                    </h:form>
+                </div>
+
+                <div style="float: left;width: 25%">
+                    <h:form prependId="false">
+                        <h:panelGroup id="permissionManage">
+                            <fieldset id="permissionForm">
+                                <legend>Permission set</legend>
+                                <table style="margin: 15px">
+                                    <tr>
+                                        <td>Permission name:</td>
+                                        <td>
+                                            <h:selectOneMenu id="permissionNameMenu" value="#{permissionDataBean.ID}">
+                                                <f:selectItem itemLabel="Add new" itemValue="#{null}"/>
+                                                <f:selectItems value="#{systemResultViewUtil.listOfPermissionForFeature}" var="permission" itemLabel="#{permission.name}" itemValue="#{permission.ID}"/>
+                                                <a4j:ajax event="change" listener="#{permissionServiceBean.retrievePermissionById()}" render="permissionManage" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+                                            </h:selectOneMenu>
+
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Name</td> 
+                                        <td>
+                                            <h:inputText class="required" value="#{permissionDataBean.name}" id="name" required="true" requiredMessage="Enter permission name" readonly="#{(permissionDataBean.name ne 'minimum') and (permissionDataBean.name ne 'maximum') ? false : true}">
+                                                <f:ajax event="blur" render="nameErr" />
+                                            </h:inputText> 
+                                            <h:message for="name" id="nameErr" style="color: red"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Permissions:</td> 
+                                        <td>
+                                            <h:selectManyCheckbox layout="pageDirection" value="#{permissionDataBean.attributes}">
+                                                <f:selectItems value="#{systemResultViewUtil.listOfChildFeature}" var="child" itemLabel="#{child.name}" itemValue="#{child.id}"/>
+                                            </h:selectManyCheckbox>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" ><a4j:commandButton value="Save" action="#{permissionServiceBean.addOrUpdatePermission()}" render="notificationMessage permissionManage" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/></td>
+                                    </tr>
+                                </table>
+                                <h:outputText style="color: red" value="NOTE: create minimum and maximum permission set if it is not there"/>
+                            </fieldset>
+                        </h:panelGroup>
+                    </h:form>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

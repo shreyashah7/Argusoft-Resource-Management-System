@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <h:head>
+        <title>ARMMS</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+                <f:event type="preRenderView" listener="#{activityServiceBean.retrieveActivityById()}"/>
+                
+                <h:outputLabel style="font-size: 16px;font-weight: normal" value="#{systemResultSessionUtil.activityType}-Id:"/>&nbsp;
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{taskDataBean.taskId}" rendered="#{not empty taskDataBean.taskId}"/>
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectDataBean.projectId}" rendered="#{not empty projectDataBean.projectId}"/>
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectMilestoneDataBean.projectMilestoneId}" rendered="#{not empty projectMilestoneDataBean.projectMilestoneId}"/>
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectResourceDataBean.id}" rendered="#{not empty projectResourceDataBean.id}"/>
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{technologyDataBean.techId}" rendered="#{not empty technologyDataBean.techId}"/>
+                <br/><br/>
+                <h:outputLabel style="font-size: 16px;font-weight: normal" value="#{systemResultSessionUtil.activityType}-Name:"/>&nbsp;
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{taskDataBean.taskName}" rendered="#{not empty taskDataBean.taskName}"/>
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectDataBean.projectName}" rendered="#{not empty projectDataBean.projectName}"/>
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectMilestoneDataBean.milestoneName}" rendered="#{not empty projectMilestoneDataBean.milestoneName}"/>
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectResourceDataBean.name}" rendered="#{not empty projectResourceDataBean.name}"/>
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{technologyDataBean.name}" rendered="#{not empty technologyDataBean.name}"/>
+                <br/><br/>
+                <h:outputLabel style="font-size: 16px;font-weight: normal" value="#{systemResultSessionUtil.activityType}-Description:"/>&nbsp;
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{taskDataBean.taskDescription}" rendered="#{not empty taskDataBean.taskDescription}"/>
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectDataBean.projectDescription}" rendered="#{not empty projectDataBean.projectDescription}"/>
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectMilestoneDataBean.milestoneDesc}" rendered="#{not empty projectMilestoneDataBean.milestoneDesc}"/>
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectResourceDataBean.resourceDesc}" rendered="#{not empty projectResourceDataBean.resourceDesc}"/>
+                <h:outputText style="font-size: 16px;font-weight: normal" value="#{technologyDataBean.description}" rendered="#{not empty technologyDataBean.description}"/>
+            </ui:define>
+        </ui:composition>
+
+    </h:body>
+</html>
+

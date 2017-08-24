@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>Login Page</title>        
+    </h:head>
+    <h:body>
+
+        <ui:composition template="./layout/homeLayout.xhtml">
+            <ui:define name="content">
+                <div>
+                    <h2 style="position: relative;left: 285px;width: 50%">Login</h2>
+                    <hr style="position: relative;left: 285px;width: 350px" />
+                    <br/>
+
+                    <h:form prependId="false"  >                  
+
+                        <h:panelGroup id="msg">
+                            <ui:include src="./common/message.xhtml" />
+                        </h:panelGroup>
+                        <f:metadata>
+                            <f:event listener="#{springSecurityLoginServiceBean.checkCookie()}" type="preRenderComponent"/>
+                        </f:metadata>
+                        <h:inputHidden id="errorMsg" /><h:message id="errorMsgSpan" for="errorMsg" style="color:red;font-size: 12px;position: relative; left: 285px"/>
+
+                        <table width="60%" border="0" style="position: relative;left: 235px" class="form-table" cellpadding="20" cellspacing="0" >
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                    </td></tr>
+                                <tr>
+                                    <th style="height: 50px">Username</th>
+                                    <td>
+                                        <h:inputText id="j_username"  p:placeholder="Enter Userid" value="#{loginDataBean.userId}"
+                                                     required="true" requiredMessage="#{msg.EnterUserName}" style="height: 30px;width:200px" >
+
+                                            <f:ajax event="blur" render="username_msg" />
+                                        </h:inputText><br/>
+                                        <h:message id="username_msg" for="j_username" style="color: red;" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th style="height: 50px">Password</th>
+                                    <td> <h:inputSecret id="j_password" p:placeholder="Enter Password"  value="#{loginDataBean.password}" 
+                                                        redisplay="true" required="true" requiredMessage="#{msg.EnterPassword}"  style="height: 30px;width:200px" >
+                                            <f:ajax event="blur" render="password_msg" />
+                                        </h:inputSecret><br/>
+                                        <h:message id="password_msg" for="j_password" style="color: red "/>
+                                    </td>
+                                </tr> 
+                                <tr>
+                                    <td style="width: 100px"></td>
+                                    <td>
+                                        <h:selectBooleanCheckbox  id="_spring_security_remember_me" value="#{loginDataBean.rememberMe}" /><h:outputText value="Remember Me" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td>
+                                        <h:commandButton value="Login" class="mybutton"  type="submit" action="#{springSecurityLoginServiceBean.doLogin}"  >
+
+                                        </h:commandButton>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </h:form>
+                </div>
+            </ui:define>
+        </ui:composition> 
+    </h:body>
+</html>
+

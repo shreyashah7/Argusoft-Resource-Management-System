@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:a4j="http://richfaces.org/a4j">
+    <h:head>
+        <title>Add User</title>
+        <meta name="viewport" content="width=device-width"/>
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+
+                <script type="text/javascript" src="./scripts/armms.js"></script>
+                <h2>Manage User </h2>
+                <hr/>
+                <br></br><br></br>
+                <h:form id="addUser" prependId="false" class="form-table" style="border-right: #585858">
+                    <a4j:outputPanel id="formDiv">
+                        <f:event listener="#{userServiceBean.roleList()}" type="preRenderComponent"/>
+                        <table cellspacing="5" border="0" cellpadding="0">
+                            <tr valign="top" align="left">
+                                <td>
+                                    <table  align="left" cellpadding="2" cellspacing="4"  >
+                                        <tr> <td>
+                                                <tr>
+                                                    <td>
+                                                        <h:outputText value="First Name  " />
+                                                    </td>
+                                                    <td>
+                                                        <h:inputText id="fst_name" class="required" required="true" value="#{userDataBean.firstName}" validatorMessage="#{msg.EnterValidFirstName}" requiredMessage="#{msg.FirstName}">
+                                                            <f:validateRegex pattern="^[a-zA-Z ]+$"/>   
+                                                            <f:ajax event="blur" render="reqd-err" />
+                                                        </h:inputText>
+                                                        <br></br>
+                                                        <h:message for="fst_name" id="reqd-err" style="color: red"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <h:outputText value="Last Name  "/>
+                                                    </td>
+                                                    <td>
+                                                        <h:inputText id="last_name" class="required" required="true" value="#{userDataBean.lastName}" validatorMessage="#{msg.EnterValidLastName}" requiredMessage="#{msg.LastName}">
+                                                            <f:validateRegex pattern="^[a-zA-Z]+$"/>   
+                                                            <f:ajax event="blur" render="lst_name" />
+                                                        </h:inputText>
+                                                        <br></br>
+                                                        <h:message for="last_name" id="lst_name" style="color: red"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <h:outputText value="Role"/>
+
+                                                    </td>
+                                                    <td>
+                                                        <h:selectOneMenu id="role" value="#{userDataBean.roleId}" class="required" required="true" requiredMessage="Assign Role." >
+                                                            <f:selectItem itemValue="#{null}" itemLabel="Select"/>
+
+
+                                                            <f:selectItems value="#{systemResultViewUtil.roleList}" var="role"
+                                                                           itemValue="#{role.id}" itemLabel="#{role.name}" >
+                                                            </f:selectItems>
+
+                                                            <f:ajax event="blur" render="reqd_role" />
+                                                        </h:selectOneMenu>
+
+                                                        <br></br>
+                                                        <h:message for="role" id="reqd_role" style="color: red"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <h:outputText value="Username  "/>
+                                                    </td>
+                                                    <td>
+                                                        <h:inputText id="user_name" class="required" required="true" value="#{userDataBean.userName}" requiredMessage="#{msg.UserName}">
+                                                            <f:ajax event="blur" render="reqd_username uname" />
+                                                        </h:inputText>
+                                                        <br></br>
+                                                        <h:message for="user_name" id="reqd_username" style="color: red"/>
+                                                        <a4j:outputPanel id="uname">
+                                                            <h:outputText style="color: red" value="#{systemResultViewUtil.userNameUnavailable}"/>
+                                                        </a4j:outputPanel>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <h:outputText value="Password  "/>
+                                                    </td>
+                                                    <td>
+                                                        <h:inputSecret id="password" class="required" required="true" value="#{userDataBean.password}" validatorMessage="#{msg.PasswordInvalid}" requiredMessage="#{msg.Password}">
+                                                            <f:validateLength minimum="8" for="pwd"/>
+                                                            <f:ajax event="blur" render="reqd_password" />
+                                                        </h:inputSecret>
+                                                        <br></br>
+                                                        <h:message for="password" id="reqd_password" style="color: red"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+
+                                                    <td>
+                                                        <h:outputText value="Confirm Password  "/>
+                                                    </td>
+                                                    <td>
+                                                        <h:inputSecret id="confirm" class="required" required="true" value="#{userDataBean.confirmPassword}" requiredMessage="#{msg.ConfirmPassword}">
+                                                            <f:ajax event="blur" render="reqd_confirmpassword" />
+                                                        </h:inputSecret>
+                                                        <br></br>
+                                                        <h:message for="confirm" id="reqd_confirmpassword" style="color: red"/>
+                                                        <br></br>
+                                                        <a4j:outputPanel id="pwdmatch">
+                                                            <h:outputText style="color: red" value="#{systemResultViewUtil.confirmpassword}"/>
+                                                        </a4j:outputPanel>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <h:outputText value="Email Id  "/>
+                                                    </td>
+                                                    <td>
+                                                        <h:inputText id="email_id" class="required" value="#{userDataBean.emailId}" required="true" validatorMessage="#{msg.EnterValidEmail}" requiredMessage="#{msg.Email}" >
+                                                            <f:validateRegex pattern="(\w[-._\w]*\w@\w[-._\w]*\w\.\w{2,3})"/>
+                                                            <f:ajax event="blur" render="reqd_email" />
+                                                        </h:inputText>
+                                                        <br></br>
+                                                        <h:message for="email_id" id="reqd_email" style="color: red"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <h:outputText value="Contact number "/>
+                                                    </td>
+                                                    <td>
+                                                        <h:inputText id="phone_num"  value="#{userDataBean.phoneNum}" validatorMessage="#{msg.PhoneNum}" >
+                                                            <f:validateRegex pattern="^([0-9]{10,10}+)?"/>
+                                                            <f:ajax event="blur" render="number" />
+                                                        </h:inputText>
+                                                        <br></br>
+                                                        <h:message for="phone_num" id="number" style="color: red"/>
+                                                    </td>
+                                                </tr>
+
+                                                <tr>
+
+                                                    <td colspan="2">
+
+                                                        <h:panelGrid columns="3" style="margin-left: 60px "> 
+
+                                                            <a4j:commandButton value="Add" styleClass="mybutton"  action="#{userServiceBean.addNewUser()}" render="pwdmatch uname formDiv" >
+                                                            </a4j:commandButton>
+                                                            <a4j:commandButton value="Cancel" styleClass="mybutton" action="pretty:userManagement" immediate="true" />
+
+                                                        </h:panelGrid>
+
+                                                    </td>
+
+                                                </tr>
+
+                                            </td></tr></table></td>
+
+                                <td><hr style="width:.25em; height:35em; background: #444;"></hr> </td>
+
+                                <td width="400" valign="top" align="left">
+                                    <br></br>
+                                    <b><h:outputText value="Email Notifications"/></b>
+                                    <br/><br/>
+
+                                    <h:selectBooleanCheckbox value="#{userDataBean.tskAllocation}"  />
+                                    <h:outputText value="Task Assigned to me" /> <br/>
+                                    <h:selectBooleanCheckbox value="#{userDataBean.tskUpdate}"/>
+                                    <h:outputText value="Task Assigned to me has been changed" /> <br/>
+                                    <h:selectBooleanCheckbox value="#{userDataBean.tskDeadline}"/>
+                                    <h:outputText value="Deadline for task Assigned to me is due" /> <br/>
+                                    <h:selectBooleanCheckbox value="#{userDataBean.tskEnd}"/>
+                                    <h:outputText value="Task which I created has been updated" /> <br/>
+                                    <h:selectBooleanCheckbox value="#{userDataBean.watcherFlag}"/>
+                                    <h:outputText value="Task in which I am a watcher" /> <br/>
+                                </td>
+                            </tr>
+                        </table>
+                    </a4j:outputPanel>
+
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

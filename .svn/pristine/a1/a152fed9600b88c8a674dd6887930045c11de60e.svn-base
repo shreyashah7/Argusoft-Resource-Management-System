@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core" 
+      xmlns:ui="http://java.sun.com/jsf/facelets" 
+      xmlns:a4j="http://richfaces.org/a4j">
+    <head>
+        <title>Project Summary</title>
+        <meta name="viewport" content="width=device-width"/>
+    </head>
+    <link rel="stylesheet" type="text/css" href="chartfx.css" />
+    <body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content" class="content-admin-dashboard">
+                <div>
+
+                    <f:event id="init" type="preRenderComponent" listener="#{projectSummaryServiceBean.init()}"/> 
+                    <f:event listener="#{projectSummaryServiceBean.calculatePercentageCompletionOfProject()}" type="preRenderComponent" />
+                    <script type="text/javascript" language="javascript">
+                        $(document).ready(function() {
+                            loadResourceStatusChart();
+                            loadChart();
+                            projectStatusCharts();
+                        });
+                        var projectStatusChart;
+                        var resourceStatusChart;
+                        var barchart;
+
+
+                        function drawChart() {
+
+                            var projectName = document.getElementById("project_name").value;
+                            document.getElementById("drawchart").click();
+                        }
+
+                    </script>
+
+
+                    <h:form prependId="false">
+
+                        <h:selectOneMenu value="#{taskDataBean.projectId}" onchange="drawChart()" id="project_name"  style="float: right" >     
+                            <f:selectItem itemValue="#{null}" itemLabel="Select" />
+                            <f:selectItems value="#{systemResultSessionUtil.userProjects}" var="project" itemValue="#{project.projectId}" itemLabel="#{project.projectAlias}"/>                        
+                        </h:selectOneMenu>
+                        <a4j:commandButton id="drawchart" style="display: none" action="#{projectSummaryServiceBean.drawChart()}"  oncomplete="loadResourceStatusChart();loadChart();projectStatusCharts();" render="barchart_function displayResourceChart diplay_barchart_panal projectstatuschart selectedProject ">
+                            <f:setPropertyActionListener target="#{systemResultSessionUtil.selectedProjectId}" value="#{taskDataBean.projectId}"/>
+                        </a4j:commandButton>
+                        <br></br>
+                        <br></br>
+
+
+                        <a4j:outputPanel id="barchart_function">
+                            <script>
+                                function projectStatusCharts()
+                                {
+                                    if (#{messageDataBean.isSuccess != null and messageDataBean.isSuccess==true})
+                                    {
+                                        projectStatusChart = new cfx.Chart();
+                                        projectStatusChart.getData().setSeries(0);
+                                        var series1 = projectStatusChart.getSeries().getItem(0);
+                                        series1.setGallery(cfx.Gallery.Lines);
+                                        projectStatusChart.setGallery(cfx.Gallery.Bar);
+                                        projectStatusChart.getAxisY().setMax(1);
+                                        projectStatusChart.getAllSeries().setHorizontal(true);
+                                        projectStatusChart.getAxisX().getTitle().setText("Projects");
+                                        projectStatusChart.getAxisX().getTitle().setTextColor("#000000");
+                                        projectStatusChart.getAxisY().getTitle().setText("% Completion");
+                                        projectStatusChart.getAxisY().getTitle().setTextColor("#000000");
+                                        var data = jQuery.parseJSON('#{systemResultViewUtil.projectDataForChart}');
+                                        projectStatusChart.getAxisY().getLabelsFormat().setFormat(cfx.AxisFormat.Percentage);
+                                        projectStatusChart.setDataSource(data);
+                                        projectStatusChart.getAllSeries().setVolume(40);
+                                        projectStatusChart.getAllSeries().setMultipleColors(true);
+                                        projectStatusChart.setBackColor("#ffffff");
+                                        projectStatusChart.getLegendBox().setVisible(true);
+                                        var allSeries = projectStatusChart.getAllSeries();
+                                        var pointLabels = allSeries.getPointLabels();
+                                        pointLabels.setVisible(true);
+                                        pointLabels.setFormat("%v");
+                                        pointLabels.setTextColor("#000000");
+                                        projectStatusChart.getView3D().setEnabled(true);
+                                        projectStatusChart.getToolTips().setEnabled(false);
+                                        var divHolder = document.getElementById('projectDiv');
+                                        projectStatusChart.create(divHolder);
+                                    }
+
+
+                                }
+                                function loadChart()
+                                {
+                                    barchart = new cfx.Chart();
+                                    barchart.getData().setSeries(0);
+                                    var series1 = barchart.getSeries().getItem(0);
+                                    series1.setGallery(cfx.Gallery.Lines);
+                                    barchart.setGallery(cfx.Gallery.Bar);
+                                    barchart.getAxisY().setMin(0);
+                                    barchart.getAxisY().setMax(#{systemResultViewUtil.maxYAxis});
+                                    if (#{systemResultViewUtil.maxYAxis} !== 0) {
+                                        var data = jQuery.parseJSON('#{systemResultViewUtil.taskSummary}');
+                                        barchart.setDataSource(data);
+                                        barchart.getView3D().setEnabled(true);
+                                        barchart.getAllSeries().setMultipleColors(true);
+                                        barchart.setBackColor("#ffffff");
+                                        var divHolder = document.getElementById('ChartDiv');
+                                        barchart.create(divHolder);
+                                    }
+                                    barchart.getAllSeries().setVolume(40);
+
+                                }
+                                function loadResourceStatusChart() {
+                                    if (#{systemResultViewUtil.messageProjectSummary ==null or empty systemResultViewUtil.messageProjectSummary})
+                                    {
+                                        resourceStatusChart = new cfx.Chart();
+                                        resourceStatusChart.setBackColor("#ffffff");
+                                        resourceStatusChart.getData().setSeries(1);
+                                        var allSeries = resourceStatusChart.getAllSeries();
+                                        var series = resourceStatusChart.getSeries().getItem(0);
+                                        series.setGallery(cfx.Gallery.Lines);
+                                        resourceStatusChart.setGallery(cfx.Gallery.Bar);
+                                        resourceStatusChart.getAxisY().setMin(0);
+                                        resourceStatusChart.getAxisY().setMax(10);
+                                        var data = [
+                                            {"Status": "Overbooked", "Users": #{projectDataBean.overBooked}},
+                                            {"Status": "Normal", "Users": #{projectDataBean.normal}},
+                                            {"Status": "Underbooked", "Users": #{projectDataBean.underbooked}},
+                                            {"Status": "Unavailable", "Users": #{projectDataBean.unavailable}}
+                                        ];
+                                        resourceStatusChart.setDataSource(data);
+                                        resourceStatusChart.getAllSeries().setVolume(40);
+                                        resourceStatusChart.getAllSeries().setMultipleColors(true);
+                                        resourceStatusChart.getView3D().setEnabled(true);
+                                        //                                    resourceStatusChart.setToolTipFormat("users:%v");
+
+                                        var divHolder = document.getElementById('resourceChart');
+                                        resourceStatusChart.create(divHolder);
+                                    }
+                                }
+                            </script>
+                        </a4j:outputPanel>
+
+                        <table>
+                            <tr>
+
+                                <td>
+                                    <a4j:outputPanel id="projectstatuschart">
+                                        <div style="width:500px;height:30px;border:3px solid #444;background-color: #E5E5E5 "><center><font face="Cambria" size="5" > Project Status</font></center></div>
+                                        <div id="projectDiv" style="width:500px;height:300px ;display:inline-block">
+                                            <h3 class='norecordfound'>  <h:outputLabel value= "#{systemResultViewUtil.projectErrorMessage} "  rendered="#{messageDataBean.isSuccess != null and messageDataBean.isSuccess==false}">
+                                                </h:outputLabel> </h3>
+                                        </div>
+
+                                    </a4j:outputPanel>
+                                </td>
+                                <td>
+                                    <a4j:outputPanel id="diplay_barchart_panal">
+
+                                        <div style="width:500px;height:30px;border:3px solid #444;background-color: #E5E5E5"><center><font face="Cambria" size="5" >Task Summary For Current Month</font></center></div>
+                                        <div id="ChartDiv" style="width: 500px;height:300px;display: inline-block ;">
+                                            <h3 class="norecordfound">   <h:outputLabel value="#{msg.NoTaskCreatedForSelectedProject}"   rendered="#{systemResultViewUtil.maxYAxis==0?'true':'false'}"/></h3>
+                                        </div>
+                                    </a4j:outputPanel> 
+                                </td>
+                            </tr>
+                            <tr><td>
+                                    <a4j:outputPanel id="displayResourceChart">
+                                        <div style="width:500px;height:30px;border:3px solid #444;background-color: #E5E5E5"><center><font face="Cambria" size="5" >Resource Status</font></center></div>
+                                        <h3 class='norecordfound'><div>#{systemResultViewUtil.messageProjectSummary}</div></h3>
+                                        <h:panelGroup rendered="#{systemResultViewUtil.messageProjectSummary ==null or empty systemResultViewUtil.messageProjectSummary}">
+
+                                            <div id="resourceChart" style="width:500px;height:300px ;display:inline-block;background-color: whitesmoke"></div>
+                                        </h:panelGroup> 
+                                    </a4j:outputPanel>
+                                </td></tr>
+                        </table>
+
+                    </h:form>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </body>
+</html>

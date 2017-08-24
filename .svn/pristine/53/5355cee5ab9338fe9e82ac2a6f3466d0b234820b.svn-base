@@ -1,0 +1,139 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
+    <h:head>
+        <title>Spent Time</title>
+
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css"/>
+        <link rel="stylesheet" href="/resources/demos/style.css"/>
+
+    </h:head>
+    <h:body style="font-family: 'Times New Roman'">
+        <ui:composition template="../layout/homeLayout.xhtml" >
+            <ui:define name="content">                                
+                <f:event type="preRenderComponent" listener="#{taskServiceBean.retrieveTaskByUser()}"/>     
+                <f:event type="preRenderComponent" listener="#{projectServiceBean.retieveAllActiveProjectsOfUser(loginDataBean.id)}"/>     
+                <script>
+                    $(function() {
+                        $("#tabs").tabs();
+                    });</script>  
+                <script type="text/javascript">
+                    $(document).ready(function() {
+                        getDatePickerForRangeWithFormat('startDate', 'endDate');
+                        var temp = $('#propertyId').val();
+                        temp = temp.substring(1, temp.length - 1);
+                        var arr;
+                        arr = temp.split(",");
+                        $("#autoTaskId").autocomplete({
+                            source: arr
+                        });
+                    });
+
+                    function selOnChange() {
+                        document.getElementById("demo").innerHTML = $('#autoTaskId').val();
+
+                        if ($('#autoTaskId').val() !== "") {
+                            document.getElementById("project_name").value = "";
+                            document.getElementById("project_name").disabled = true;
+                        }
+                        else {
+                            document.getElementById("project_name").disabled = false;
+                        }
+                    }
+                    function rendermsg() {
+
+                        document.getElementById("notificationMessage").style.display = "none";
+                    }
+                </script>                
+
+
+                <h:inputText id="propertyId" value="#{systemResultViewUtil.mapOfTasksForUser.keySet()}" style="display:none"/>                
+                <h2>Log Time</h2>
+                <hr/>
+                <a4j:outputPanel id="notificationMessage">
+                    <ui:include src="../common/message.xhtml" />
+                </a4j:outputPanel>
+                <!--                <a href="#panel4" style="float: right">
+                                    <h:graphicImage url="/images/search_button.jpg" height="15px" width="15px" style="margin-bottom: -3px;"/>
+                                    <h:outputText value="logtime" style="font-size: 15px"/>
+                                </a>-->
+
+                <h:form prependId="false" style="margin-top: 6%">          
+                    <a4j:outputPanel id="taskTrack" onclick="rendermsg()">
+                        <table border="0" width="98%" style="padding-left: 20px;padding: 20px 10px 10px 10px;background-color: gainsboro;border-radius: 5px">
+                            <tr>
+                                <td width="10%">                                        
+                                    <h:outputText value="Task"/>
+                                </td>
+                                <td width="20%">
+                                    <h:inputText id="autoTaskId" value="#{taskTrackDataBean.taskKey}" onblur="selOnChange()"/>
+                                </td>
+                                <td width="70%">        
+                                    <div id="demo"> </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>                                        
+                                    <h:outputText value="Project"/>
+                                </td>
+                                <td>  
+                                    <h:selectOneMenu value="#{taskTrackDataBean.projectId}" id="project_name">                                            
+                                        <f:selectItem itemValue="" itemLabel="select"/>  
+                                        <f:selectItems value="#{systemResultSessionUtil.userProjects}" var="project" itemValue="#{project.projectId}" itemLabel="#{project.projectAlias}"/>                                            
+                                    </h:selectOneMenu>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>                                        
+                                    <h:outputText value="Date"/>
+                                </td>
+                                <td>  
+                                    <h:inputText value="#{taskTrackDataBean.startDate}" p:placeholder="select"  id="startDate">                                
+                                        <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                    </h:inputText>
+                                    <h:outputText value="#{taskTrackDataBean.currentDate}" p:placeholder="End Date" id="endDate" style="display: none">
+                                        <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                    </h:outputText>      
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>                                        
+                                    <h:outputText value="Hours"/><label style="color: red">*</label>
+                                </td>
+                                <td>  
+                                    <h:inputText id="hours" value="#{taskTrackDataBean.duration}" required="true" validatorMessage="enter hours in proper format like (1.5) " requiredMessage="please Enter hours">                                            
+                                        <f:validateRegex pattern="^\d*\.?\d*$"/>  
+                                        <f:ajax event="blur" render="hour_msg"/>
+                                    </h:inputText>
+                                </td>
+                                <td>
+                                    <h:message id="hour_msg" for="hours" style="color: red"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>                                        
+                                    <h:outputText value="Comment"/>
+                                </td>
+                                <td colspan="2">  
+                                    <h:inputText id="comment" value="#{taskTrackDataBean.comments}" style="width: 90%"/>
+                                </td>
+                            </tr>                                
+                            <tr>
+                                <td>  
+                                    <a4j:commandButton value="create" styleClass="mybutton" action="#{taskServiceBean.addTaskTrack()}" render="notificationMessage hour_msg taskTrack"/>                                                                                                                                                 
+                                </td>
+                            </tr>                                
+                        </table>                                
+                    </a4j:outputPanel>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

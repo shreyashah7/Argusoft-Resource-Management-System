@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+                <h:form prependId="false"> 
+                    <script type="text/javascript" src="../scripts/armms.js"></script>
+                    <f:event listener="#{projectRolesServiceBean.retrieveRoleOfProjectByType()}" type="preRenderComponent" />
+                    <h2>Manage Project Roles</h2>
+                    <hr/>
+                    <div class="active-div">
+                        <h:panelGroup layout="block" id="msg">
+                            <ui:include src="../common/message.xhtml" />
+                        </h:panelGroup>
+                        <h:selectOneMenu  id="showtype" value="#{systemResultViewUtil.projectRolesStatus}" >
+                            <f:selectItem itemValue="Active" itemLabel="Active" />
+                            <f:selectItem itemValue="Inactive" itemLabel="InActive" />
+                            <f:selectItem itemValue="Show All" itemLabel="All" />
+                            <f:ajax event="change" listener="#{projectRolesServiceBean.retrieveRoleOfProjectByType()}" render="datatablepanal msg"   />
+                        </h:selectOneMenu>
+                        <a4j:commandLink id="addProjectRoles" onclick="#{rich:component('addProjectRolesPopup')}.show();" render="datatablepanal,addProjectRolesOutputPanal,msg" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();" style="float: right">
+                            <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/add-more-btn.jpg" rendered="#{loginDataBean.itemAttributes.contains('add project role')}"/>
+                        </a4j:commandLink>
+                    </div>
+
+                    <!--                    OutputPanel for rich:DataTable-->
+                    <a4j:outputPanel id="datatablepanal">
+                        <h3 class="norecordfound"><h:outputLabel value="#{msg.NoRecordFound}"  style="font-size: 14px;font-weight: bold;" rendered="#{empty systemResultViewUtil.projectRolesDataBeanList}"/></h3>
+                        <rich:dataTable id="datatable" value="#{systemResultViewUtil.projectRolesDataBeanList}" var="projectRoles" rendered="#{not empty systemResultViewUtil.projectRolesDataBeanList}"                             
+                                        rowKeyVar="rowId"  style="width: 100%;" rowClass="#{rowId%2 == 0 ? 'alt-row1':'alt-row'}">
+                            <rich:column>
+                                <f:facet name="header">Name</f:facet>
+                                <a4j:commandLink  oncomplete="#{rich:component('editProjectRolesPopup')}.show();" action="#{projectRolesServiceBean.retrieveRoleOfProjectById()}" render="editOutputPanal"> 
+                                    <f:setPropertyActionListener target="#{projectRolesDataBean.projectRolesId}" value="#{projectRoles.projectRolesId}" />
+                                    <h:outputText value="#{projectRoles.projectRolesName}" style="text-align: left;font-size: 12px"/>     
+                                </a4j:commandLink>
+                            </rich:column>
+                            <rich:column>
+                                <f:facet name="header">Description</f:facet>
+                                <h:outputText value="#{projectRoles.projectRolesDescription}" style="text-align: left;border: 0;font-size: 12px"/>    
+                            </rich:column>
+                            <rich:column rendered="#{loginDataBean.itemAttributes.contains('update project role')}">
+                                <f:facet name="header">Action</f:facet>
+                                <center> 
+                                    <a4j:outputPanel rendered="#{loginDataBean.itemAttributes.contains('update project role')}">
+                                        <a4j:commandLink  oncomplete="#{rich:component('editProjectRolesPopup')}.show();" action="#{projectRolesServiceBean.retrieveRoleOfProjectById()}" render="editOutputPanal,msg" onbegin="#{rich:component('waitPanel')}.show();#{rich:component('waitPanel')}.hide();" > 
+                                            <f:setPropertyActionListener target="#{projectRolesDataBean.projectRolesId}" value="#{projectRoles.projectRolesId}" />
+                                            <h:graphicImage value="/images/edit.jpg"  />
+                                        </a4j:commandLink>
+                                    </a4j:outputPanel>
+                                </center>
+                            </rich:column>
+                            <rich:column rendered="#{loginDataBean.itemAttributes.contains('delete project role')}">
+                                <f:facet name="header">Status</f:facet>
+                                <center> 
+                                    <a4j:outputPanel rendered="#{loginDataBean.itemAttributes.contains('delete project role')}">
+                                        <a4j:commandLink id="status"  action="#{projectRolesServiceBean.changeStatus(projectRoles)}" render="datatablepanal,msg" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();">
+                                            <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/active.png" rendered="#{projectRoles.isActive eq true}" >
+                                            </h:graphicImage>
+                                            <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/inactive.png" rendered="#{projectRoles.isActive eq false}" >
+                                            </h:graphicImage>
+                                            <f:setPropertyActionListener target="#{projectRolesDataBean.projectRolesId}" value="#{projectRoles.projectRolesId}"/>
+                                            <f:setPropertyActionListener target="#{projectRolesDataBean.status}" value="#{projectRoles.status}"/>
+                                        </a4j:commandLink>
+                                    </a4j:outputPanel>
+                                </center>
+                            </rich:column>
+                        </rich:dataTable>
+                        <script type="text/javascript">
+                            $('#datatable').DataTable({
+                            });</script>
+                    </a4j:outputPanel>
+
+                </h:form>
+
+
+                <!--Pop up panel for Add Project Roles-->
+                <rich:popupPanel id="addProjectRolesPopup" modal="true" autosized="true" width="770" height="300" >
+
+                    <h2>Add Role To Project</h2>
+                    <hr/>
+                    <br/>
+                    <br/>
+                    <f:facet name="controls">
+                        <h:outputLink value="#" onclick="#{rich:component('addProjectRolesPopup')}.hide()">
+                            <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/close-btn.png" style="width: 20px;height: 15px ;top: 1px" >
+                            </h:graphicImage>
+                        </h:outputLink>
+                    </f:facet>
+                    <h:form prependId="false">
+                        <a4j:outputPanel id="addProjectRolesOutputPanal">
+                            <script type="text/javascript" src="./scripts/armms.js"></script>
+                            <table class="form-table">
+                                <tbody>
+                                    <tr>
+                                        <th style="float: right;width: 100px">Name</th>
+                                        <td><h:inputText class="required" id="name" value="#{projectRolesDataBean.projectRolesName}" required="true" requiredMessage="#{msg.EnterName}" validatorMessage="#{msg.UserValidation}">
+                                                <f:ajax event="blur" render="name_msg" />
+                                            </h:inputText>
+
+                                            <br></br>
+                                            <h:message id="name_msg" for="name" style="color: red"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th style="float: right;width: 100px">Description</th>
+                                        <td ><h:inputTextarea id="description" value="#{projectRolesDataBean.projectRolesDescription}" validatorMessage="#{msg.UserValidation}">
+                                                <f:ajax event="blur" render="description_msg" />
+                                            </h:inputTextarea>
+
+                                            <br></br>
+                                            <h:message id="description_msg"  for="description" style="color: red"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </a4j:outputPanel>
+                        <br></br>
+                        <a4j:commandButton  value="Add" styleClass="mybutton" action="#{projectRolesServiceBean.createRolesOfProject()}" oncomplete="if(#{messageDataBean.isSuccess != null}){#{rich:component('addProjectRolesPopup')}.hide();}" render=" msg name_msg type_msg description_msg datatablepanal"  >
+                        </a4j:commandButton>
+                    </h:form>
+                </rich:popupPanel>
+
+                <!--Pop up panel for edit Project Roles-->
+                <rich:popupPanel id="editProjectRolesPopup" modal="true" autosized="true" width="770" height="310" >
+
+                    <h2>Edit Project Roles</h2>
+                    <hr/>
+                    <br/>
+                    <br/>
+                    <f:facet name="controls">
+                        <h:outputLink value="#" onclick="#{rich:component('editProjectRolesPopup')}.hide()">
+                            <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/close-btn.png" style="width: 20px;height: 15px ;top: 1px" >
+                            </h:graphicImage>
+                        </h:outputLink>
+                    </f:facet>
+
+                    <h:form prependId="false" id="editform">
+                        <a4j:outputPanel id="editOutputPanal">
+                            <table class="form-table">
+                                <tbody>
+                                    <tr>
+                                        <th style="float: right">Name</th>
+                                        <td><h:inputText class="required" id="edit_name" value="#{projectRolesDataBean.projectRolesName}" required="true" requiredMessage="#{msg.EnterName}" validatorMessage="#{msg.UserValidation}">
+                                                <f:ajax event="blur" render="edit_name_msg" />
+                                            </h:inputText>
+
+                                            <br></br>
+                                            <h:message id="edit_name_msg" for="edit_name" style="color: red"/></td>
+                                    </tr>
+                                    <tr>
+                                        <th style="float: right">Description </th>
+                                        <td><h:inputTextarea id="edit_description" value="#{projectRolesDataBean.projectRolesDescription}" validatorMessage="#{msg.UserValidation}">
+                                                <f:ajax event="blur" render="edit_description_msg" />
+                                            </h:inputTextarea>
+
+                                            <br></br>
+                                            <h:message id="edit_description_msg" for="edit_description" style="color: red"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <br></br>
+                            <a4j:commandButton value="Update" style="float: left" styleClass="mybutton" action="#{projectRolesServiceBean.updateRolesOfProject()}" oncomplete="if(#{messageDataBean.isSuccess != null}){#{rich:component('editProjectRolesPopup')}.hide();}" render=" msg edit_name_msg edit_description_msg datatablepanal edit_type_msg"  >
+                                <f:setPropertyActionListener target="#{projectRolesDataBean.projectRolesId}" value="#{projectRolesDataBean.projectRolesId}"/>
+                            </a4j:commandButton> 
+                        </a4j:outputPanel>
+                    </h:form>
+                </rich:popupPanel>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

@@ -1,0 +1,668 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+    <h:head>
+        <title>Task Details</title>
+
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css"/>
+        <link rel="stylesheet" href="/resources/demos/style.css"/>
+
+    </h:head>
+    <h:body style="font-family: 'Times New Roman'">
+        <ui:composition template="../layout/homeLayout.xhtml" >
+            <ui:define name="content">                
+                <f:event type="preRenderComponent" listener="#{taskServiceBean.retrieveTaskById()}"/>
+                <f:event type="preRenderComponent" listener="#{svnServiceBean.populateRepository()}"/>
+                <f:event type="preRenderComponent" listener="#{svnServiceBean.populateSvnDataListForTask()}"/>
+                <f:event type="preRenderComponent" listener="#{taskServiceBean.retrieveTaskAttachmentsById()}"/>
+                <f:event type="preRenderComponent" listener="#{taskServiceBean.init()}"/>
+                <f:event type="preRenderComponent" listener="#{taskServiceBean.retrieveWatcherListByTaskId()}"/>
+                <f:event type="preRenderComponent" listener="#{taskServiceBean.retrieveCommentListByTaskId()}"/>
+                <f:event type="preRenderComponent" listener="#{taskServiceBean.retrieveUsersOfProjectByProjectId()}"/>
+                <f:event type="preRenderComponent" listener="#{taskServiceBean.retrieveMilestonesOfProjectByProjectId()}"/>
+
+                <script>
+                    $(function() {
+                        $("#tabs").tabs();
+                    });
+                    $(document).ready(function() {
+                        var table = $('#data').DataTable({
+                            "iDisplayLength": 5,
+                            "aLengthMenu": [[5, 10, 15, 20, -1], [5, 10, 15, 20, "All"]],
+                            "bSort": false});
+//                        getDatePickerForRangeWithFormat('startDateUpdate', 'endDateUpdate');
+//                        getDatePickerForRangeWithFormat('startDateUpdate', 'actualEndDateUpdate');
+                    });
+                    function rendermsg() {
+
+                        document.getElementById("notificationMessage").style.display = "none";
+                    }
+                    function displayCancel(id) {
+                        document.getElementById(id).style.display = "block";
+                    }
+                    function hideCancel(id) {
+                        document.getElementById(id).style.display = "none";
+                    }
+                </script>  
+                <style>
+                    .selection tr {
+                        float: left;
+                        width: 33%;
+                    } 
+                </style>
+                <h:form prependId="false"> 
+                    <!--                    <a4j:commandLink action="pretty:repository" value="BACK" class="mybutton" style="text-decoration: none;position: relative;float: right"/>                    -->
+                    <h2>Task Details</h2>
+                    <hr/>
+
+                    <h:panelGroup layout="block" id="notificationMessage">
+                        <ui:include src="../common/message.xhtml" />
+                    </h:panelGroup>
+                    <div>
+                        <table border="0" style="float: right;margin-right: 4%">
+                            <tr>                               
+                                <td>
+                                    <a4j:commandLink action="pretty:spentTime" style=";text-decoration: none;font-size: 16px;alignment-adjust: ">
+                                        <h:graphicImage url="images/log_time.png" style="height: 20px;width: 20px;vertical-align: -15%"/>
+                                        <h:outputText value="Log Time" style="color: black"/>
+                                    </a4j:commandLink>
+                                </td>                                
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div style="margin-top: 3%">                                                                                                                                          
+                        <div id="tabs">
+                            <ul>
+                                <li><a href="#panel1">
+                                        <h:outputText style="color: #ffffff;text-decoration: none" value="Basic Details" />
+                                    </a>
+                                </li>
+
+                                <li><a href="#panel2"> 
+                                        <h:outputText style="color: #ffffff;text-decoration: none" value="Svn Details"/>
+                                    </a>
+                                </li>
+                                <li><a4j:outputPanel rendered="#{loginDataBean.itemAttributes.contains('update tasks') or loginDataBean.itemAttributes.contains('update limited fields')}">
+                                        <a href="#panel3"> 
+                                            <h:outputText style="color: #ffffff;text-decoration: none" value="Edit Details"/>
+                                        </a>
+                                    </a4j:outputPanel>
+                                </li>                                
+                            </ul> 
+                            <div id="panel1" style="border-radius: 10px" onclick="rendermsg()">                                                                 
+                                <b><h:outputText value="#{systemResultViewUtil.taskDataBean.taskId}" style="font-size: 30px"/></b>
+                                <h3 class="norecordfound"><h:outputText rendered="#{systemResultViewUtil.taskDataBean.taskName ==null}" value="No Such Task Exist" style="color: black;margin-top: 30px"/></h3>                               
+                                <a4j:outputPanel id="BasicDetails" style="height: 100px;width: 100px;border-radius: 10px" rendered="#{systemResultViewUtil.taskDataBean.taskName !=null}">
+                                    <table border="0" width="98%" style="border-radius: 5px;padding-left: 20px;padding: 10px 10px 10px 10px;background-color: gainsboro">
+                                        <tr>
+                                            <td colspan="2">
+                                                <b><h:outputText value="#{systemResultViewUtil.taskDataBean.taskName}" style="font-size: 20px"/></b> 
+                                                <h:outputText style="font-size: 15px" value="#{systemResultViewUtil.taskDataBean.modifiedByName!=null ? ' last modified by ': ' Created By '}"/> 
+                                                <h:outputText style="font-size: 15px" value="#{systemResultViewUtil.taskDataBean.modifiedByName!=null ? systemResultViewUtil.taskDataBean.modifiedByName : systemResultViewUtil.taskDataBean.createdByName}"/> 
+                                                on 
+                                                <h:outputText style="font-size: 15px" value="#{systemResultViewUtil.taskDataBean.modifiedOn!=null ? systemResultViewUtil.taskDataBean.modifiedOn : systemResultViewUtil.taskDataBean.createdOn}">
+                                                    <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                                </h:outputText>
+                                            </td>
+                                        </tr>     
+                                        <tr>
+                                            <td width="40%">  
+                                                <h:outputText style="font-size: 15px;text-transform: lowercase" value="Assignee : #{systemResultViewUtil.taskDataBean.assignedToName eq null ? 'N/A' : systemResultViewUtil.taskDataBean.assignedToName}"/>
+                                            </td>
+                                            <td width="60%">  
+                                                <h:outputText style="font-size: 15px" value="Milestone : #{systemResultViewUtil.taskDataBean.milestoneId eq null ? 'N/A' : taskServiceBean.retrieveMilestoneById(systemResultViewUtil.taskDataBean.milestoneId)}"/>
+                                            </td>   
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <h:outputText style="font-size: 15px" value="Status : #{systemResultViewUtil.taskDataBean.status}"/>
+                                            </td>
+                                            <td>
+                                                <a4j:outputPanel rendered="#{systemResultViewUtil.taskDataBean.startDate!=null}">
+                                                    <h:outputText style="font-size: 15px" value="Start Date :"/> 
+                                                    <h:outputText style="font-size: 15px" value="#{systemResultViewUtil.taskDataBean.startDate}">
+                                                        <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>                                                        
+                                                    </h:outputText>
+                                                </a4j:outputPanel>
+                                                <a4j:outputPanel rendered="#{systemResultViewUtil.taskDataBean.startDate==null and systemResultViewUtil.taskDataBean.duration!='' and systemResultViewUtil.taskDataBean.duration!=null}">
+                                                    <h:outputText style="font-size: 15px" value="Task Duration :"/>
+                                                    <h:outputText style="font-size: 15px" value="#{systemResultViewUtil.taskDataBean.duration}">                                                            
+                                                    </h:outputText>
+                                                </a4j:outputPanel>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <h:outputText style="font-size: 15px" value="Priority : #{systemResultViewUtil.taskDataBean.priority eq 1 ? 'High' : systemResultViewUtil.taskDataBean.priority eq 2 ? 'Medium':'Low' }"/>
+                                            </td>
+                                            <td>
+                                                <a4j:outputPanel style="font-size: 15px" rendered="#{systemResultViewUtil.taskDataBean.endDate!=null}">
+                                                    <h:outputText style="font-size: 15px" value="End Date :"/>
+                                                    <h:outputText style="font-size: 15px" value="#{systemResultViewUtil.taskDataBean.endDate}">
+                                                        <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                                    </h:outputText>
+                                                </a4j:outputPanel>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <h:outputText style="font-size: 15px" value="Completion :"/>
+                                                <progress value="#{systemResultViewUtil.taskDataBean.taskProgress}" max="100">
+                                                </progress>#{systemResultViewUtil.taskDataBean.taskProgress}%
+                                            </td>                                            
+                                            <td>
+                                                <a4j:outputPanel style="font-size: 15px" rendered="#{systemResultViewUtil.taskDataBean.actualEndDate!=null}">
+                                                    <h:outputText style="font-size: 15px" value="Actual End Date :"/>
+                                                    <h:outputText style="font-size: 15px" value="#{systemResultViewUtil.taskDataBean.actualEndDate}">
+                                                        <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                                    </h:outputText>
+                                                </a4j:outputPanel>
+                                            </td>
+                                        </tr>                                        
+                                    </table>            
+                                    <table border="0" width="98%" style="margin-top: 20px;   border-radius: 5px; padding-left: 20px;padding: 10px 10px 10px 10px;background-color: gainsboro ">
+                                        <tr>
+                                            <td colspan="2">
+                                                <b><h:outputText style="font-size: 15px" value="Task Description"/> </b>
+                                                <br/><br/>
+                                                <h3 class="norecordfound"><h:outputText style="font-size: 15px" value="Description not available" rendered="#{empty systemResultViewUtil.taskDataBean.taskDescription}"/></h3>
+                                                <h:outputText style="font-size: 15px;word-break:break-all;" escape="false" value="#{systemResultViewUtil.taskDataBean.taskDescription}"/>
+                                            </td>
+                                        </tr>            
+                                    </table>
+                                    <table border="0" width="98%" style="margin-top: 20px;    border-radius: 5px;padding-left: 20px;padding: 10px 10px 10px 10px;background-color: gainsboro ">
+                                        <tr>
+                                            <td colspan="2">
+                                                <b><h:outputText style="font-size: 15px" value="Task Attachments"/> </b>
+                                                <br/><br/>
+                                                <h3 class="norecordfound"><h:outputText style="font-size: 15px" value="No Attachments for this task." rendered="#{empty systemResultViewUtil.taskAttachments}"/></h3>
+                                                <rich:dataTable id="data1" value="#{systemResultViewUtil.taskAttachments}" style=";border: none" var="attachment" rowKeyVar="rowid">
+                                                    <rich:column style="font-size: 15px;background-color: gainsboro;border: none">
+                                                        <h:commandLink value="#{attachment.taskAttachmentName}" action="#{systemResultViewUtil.downloadFile()}">
+                                                            <f:setPropertyActionListener target="#{systemResultViewUtil.filePath}" value="#{attachment.attachmentPath}"/>
+                                                            <f:setPropertyActionListener target="#{systemResultViewUtil.fileName}" value="#{attachment.taskAttachmentName}"/>                      
+                                                        </h:commandLink>        
+                                                    </rich:column>
+                                                    <rich:column style="font-size: 15px;background-color: gainsboro;border: none">
+                                                        <h:outputText value=" Uploaded By #{attachment.uploadedByName} on"/>
+                                                    </rich:column>
+                                                    <rich:column style="font-size: 15px;background-color: gainsboro;border: none">
+                                                        <h:outputText value="#{attachment.createdOn}">
+                                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                                        </h:outputText>
+                                                    </rich:column>
+                                                </rich:dataTable>
+                                            </td>
+                                        </tr>                                            
+                                    </table>
+                                    <a4j:outputPanel id="watcher">
+                                        <table border="0" width="98%" style="margin-top: 20px;   border-radius: 5px; padding-left: 20px;padding: 10px 10px 10px 10px;background-color: gainsboro ">
+                                            <tr>
+                                                <td>
+                                                    <b><h:outputText style="font-size: 15px" value="Watchers (#{systemResultViewUtil.listOfWatchers.size()})"/> </b>
+                                                </td>
+                                                <td>
+                                                    <a4j:commandLink immediate="true" value="Add" style="float: right;font-size: 15px;text-decoration: none;color: #0078D0" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();#{rich:component('addWatcherPopup')}.show();" render="addWatcherOutputPanel" action="#{taskServiceBean.retrieveWatcherListForTask()}">
+                                                        <f:setPropertyActionListener target="#{taskDataBean.projectId}" value="#{systemResultViewUtil.taskDataBean.projectId}"/>
+                                                        <f:setPropertyActionListener target="#{systemResultViewUtil.projectId}" value="#{systemResultViewUtil.taskDataBean.projectId}"/>
+                                                    </a4j:commandLink>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2">
+                                                    <br/>
+                                                    <h:panelGroup layout="block" styleClass="selection">
+                                                        <h3 class="norecordfound"><h:outputText style="font-size: 15px" value="No watchers available for the current Task" rendered="#{empty systemResultViewUtil.listOfWatchers}"/></h3>
+                                                        <rich:dataTable  id="watcherData" style="width: 100%;background-color: gainsboro;border: none" value="#{systemResultViewUtil.listOfWatchers}" var="watcherList" rowKeyVar="rowId">
+                                                            <rich:column style="font-size: 15px;background-color: gainsboro;border: none;">
+                                                                <div style="width: 100% ;background-color: gainsboro" onmouseover="displayCancel('watcherData:' +#{rowId} + ':cancelWatch')" onmouseout="hideCancel('watcherData:' +#{rowId} + ':cancelWatch')">
+                                                                    <img src="#{facesContext.externalContext.requestContextPath}/images/shsh.png" style="border: none;"/>&nbsp;&nbsp;
+                                                                    <h:commandLink style="text-decoration: none;" value="#{watcherList.watcherName}" action="pretty:userProfile">
+                                                                        <f:setPropertyActionListener target="#{systemResultSessionUtil.userId}" value="#{watcherList.watcherId}"/>
+                                                                    </h:commandLink>  
+                                                                    <a4j:commandLink immediate="true" style="display: none;background-color: gainsboro;border: none;float: right;margin-top: 10px;margin-left: 5px"  id="cancelWatch" action="#{taskServiceBean.deleteWatcherList()}" render="watcher" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();">
+                                                                        <h:graphicImage style="height: 14px" value="#{facesContext.externalContext.requestContextPath}/images/inactive.png"/>
+                                                                        <f:setPropertyActionListener target="#{systemResultSessionUtil.watchId}" value="#{watcherList.watchId}"/>
+                                                                    </a4j:commandLink>
+                                                                </div>
+                                                            </rich:column>&nbsp;&nbsp;
+                                                        </rich:dataTable>
+                                                    </h:panelGroup>
+                                                </td>
+
+                                            </tr>            
+                                        </table>
+                                    </a4j:outputPanel>
+
+                                    <table border="0" width="98%" style="margin-top: 20px;   border-radius: 5px; padding-left: 20px;padding: 10px 10px 10px 10px;background-color: gainsboro ">
+
+                                        <tr>
+                                            <td colspan="2">
+                                                <h:panelGroup id="editBox">
+                                                    <b><h:outputText style="font-size: 15px" value="Comments(#{systemResultViewUtil.listOfComments.size()})"/> </b>
+                                                    <br/><br/>
+                                                    <h:inputTextarea id="desc" value="#{taskCommentDataBean.description}">
+                                                        <f:ajax event="keyup" render="Comment" />
+                                                    </h:inputTextarea>
+                                                </h:panelGroup>
+                                            </td>
+                                            <td>
+                                                <h:panelGroup id="Comment">
+                                                   
+                                                    <h:commandButton  value="Submit" action="#{taskServiceBean.addCommentForTask()}" disabled="#{empty taskCommentDataBean.description}" style="float: right;font-size: 15px;text-decoration: none;"  />
+                                                </h:panelGroup>
+                                            </td>
+                                        </tr> 
+
+                                        <tr>
+
+                                            <rich:dataTable  id="datatbl" value="#{systemResultViewUtil.listOfComments}" style="width: 98%;background-color: gainsboro;border: none" var="comments"  rendered="#{(systemResultViewUtil.listOfComments ne null) and (systemResultViewUtil.listOfComments.size() gt 0)}"
+                                                             rowKeyVar="row">
+                                                <rich:column>
+                                                    <b><h:outputText value="Comment(#{row+1})" style="margin-top: 20px;  font-size: 15px; border-radius: 5px; padding-left: 20px;padding: 10px 10px 10px 10px;background-color: gainsboro "/> </b>
+                                                    <br></br>
+                                                    <h:outputText style=" font-size: 15px; border-radius: 5px; padding-left: 20px;background-color: gainsboro " value="#{comments.description} -- by #{comments.name}" />
+<!--                                                    <a4j:commandLink  action="{taskServiceBean.editComment()}"  style="float:right" render="  editBox" >
+                                                        <f:setPropertyActionListener target="{systemResultSessionUtil.commentId}" value="{comments.commentId}"/>
+                                                        <h:graphicImage value="{facesContext.externalContext.requestContextPath}/images/edit.jpg" title="Click here to edit" />
+                                                    </a4j:commandLink>-->
+                                                </rich:column>
+                                            </rich:dataTable>
+                                        </tr>
+                                    </table>
+                                </a4j:outputPanel>                                                                                                                                   
+                            </div>
+                            <div id="panel2" style="padding-bottom: 30px" onclick="rendermsg()">          
+                                <b><h:outputText value="#{systemResultViewUtil.taskDataBean.taskId}" style="font-size: 30px"/></b>
+                                <h:outputLabel style="float: right;margin-top: -4%">
+                                    <h:outputText value="Added" style="margin-left: 20px;color: green"/>
+                                    <h:outputText value="Modified" style="margin-left: 20px;color: blue"/>
+                                    <h:outputText value="Deleted" style="margin-left: 20px;color: red"/>
+                                    <h:outputText value="Replaced" style="margin-left: 20px;color: orange"/>
+                                </h:outputLabel>             
+                                <br/>
+                                <h:panelGroup id="tablepanel">
+                                    <h3 class="norecordfound"><h:outputText rendered="#{empty systemResultViewUtil.svnDataList}" value="No Data In Repository" style="margin-top: 30px"/></h3>
+                                    <rich:dataTable id="data" styleClass="a" style="position: relative;background-color: gainsboro;word-break: break-all" value="#{systemResultViewUtil.svnDataList}" 
+                                                    var="item" rendered="#{systemResultViewUtil.svnDataList != null and not empty systemResultViewUtil.svnDataList}">			 
+                                        <rich:column styleClass="a" style="width: 10%;font-size: 15px;background-color: gainsboro" sortBy="#{item.revisionNo}" sortOrder="descending">
+                                            <f:facet name="header">
+                                                <h:outputText style="font-size: 15px;text-align: center" value="Revision"/>
+                                            </f:facet>                                
+                                            <a4j:commandLink value="#{item.revisionNo}" action="pretty:folderStructure" style="font-size: 15px">
+                                                <f:setPropertyActionListener target="#{systemResultSessionUtil.svnDetailId}" value="#{item.id}"/>
+                                            </a4j:commandLink>
+                                        </rich:column>
+
+                                        <rich:column styleClass="a" style="width: 15%;font-size: 15px;background-color: gainsboro">
+                                            <f:facet name="header">
+                                                <h:outputText style="font-size: 15px" value="Date"/>
+                                            </f:facet> 
+                                            <h:outputText value="#{item.commitedOn}" style="font-size: 15px">
+                                                <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                            </h:outputText>
+                                        </rich:column>
+
+                                        <rich:column styleClass="a" style="background-color: gainsboro">
+                                            <f:facet name="header">
+                                                <h:outputText style="font-size: 15px" value="User"/>
+                                            </f:facet> 
+                                            <h:outputText value="#{item.commiter} : " style="font-size: 15px"></h:outputText>
+                                            <!--                                        </rich:column>
+                                            
+                                                                                    <rich:column class="a" style="background-color: gainsboro">
+                                                                                        <f:facet name="header">
+                                                                                            <h:outputText style="font-size: 15px" value="Message"/>
+                                                                                        </f:facet>-->
+                                            <h:outputText value="#{item.comments}" style="font-size: 15px"></h:outputText>
+                                        </rich:column>                                        
+                                        <rich:column styleClass="a" style="background-color: gainsboro">
+                                            <f:facet name="header">
+                                                <h:outputText style="font-size: 15px" value="Paths Changed"/>
+                                            </f:facet>        
+                                            <rich:column style="border: none;background-color: gainsboro">                                                    
+                                                <ui:repeat value="#{item.svnFileDataBeans}" var="file">                                                                                                      
+                                                    <div style="top: 50%">
+                                                        <div style="height: 7px;width: 7px;float: left;vertical-align: bottom;background-color: #{file.changeType eq 'Added'?'green':file.changeType eq 'Modified'?'blue':file.changeType eq 'Replaced'?'orange':'red'}} "/>
+                                                        <div style="position: relative;top: -3px;left:5px">
+                                                            <rich:column style="border: none;background-color: gainsboro;margin-left: 15px">                                                                                                            
+                                                                <h:outputText value="#{file.filePath}" style="font-size: 13px">
+                                                                </h:outputText>
+                                                            </rich:column>
+                                                        </div>
+                                                    </div>
+                                                </ui:repeat>    
+                                            </rich:column>
+                                        </rich:column>
+                                    </rich:dataTable>
+                                </h:panelGroup>                                
+                            </div>   
+                            <div id="panel3" onclick="rendermsg()">   
+                                <a4j:outputPanel rendered="#{loginDataBean.itemAttributes.contains('update tasks')}">
+                                    <b><h:outputText value="#{systemResultViewUtil.taskDataBean.taskId}" style="font-size: 30px"/></b>
+                                    <h3 class="norecordfound"><h:outputText rendered="#{systemResultViewUtil.taskDataBean.taskName ==null}" value="No Such Task Exist" style="color: black;margin-top: 30px"/></h3>                                  
+                                    <a4j:outputPanel id="wrapperPanel">
+                                        <script>
+                                            $(document).ready(function() {
+                                                getDatePickerForRangeWithFormat('startDateUpdate', 'endDateUpdate');
+                                            });
+                                        </script>
+                                        <a4j:outputPanel style="height: 100px;width: 100px" rendered="#{systemResultViewUtil.taskDataBean.taskName !=null}">
+                                            <table border="0" width="98%" style="padding-left: 20px;padding: 10px 10px 10px 10px;background-color: gainsboro;border-radius: 5px">
+                                                <tr>
+                                                    <td colspan="4">
+                                                        <b><h:inputText class="required" style="font-size:20px" id="task_name" value="#{systemResultViewUtil.taskDataBean.taskName}"  required="true" requiredMessage="#{msg.EnterName}" validatorMessage="#{msg.UserValidation}" onclick="rendermsg()">
+                                                                <f:validateRegex pattern="^[a-zA-Z0-9\.\-]+[a-zA-Z0-9\.\- \s]*$"/>
+                                                                <f:ajax event="blur" render="task_name_msg " />
+                                                            </h:inputText></b>                                                                                                                                                   
+                                                        <h:outputText style="font-size: 15px" value="#{systemResultViewUtil.taskDataBean.modifiedByName!=null ? ' last modified by ': ' Created By '}"/> 
+                                                        <h:outputText style="font-size: 15px" value="#{systemResultViewUtil.taskDataBean.modifiedByName!=null ? systemResultViewUtil.taskDataBean.modifiedByName : systemResultViewUtil.taskDataBean.createdByName}"/> 
+                                                        on 
+                                                        <h:outputText style="font-size: 15px" value="#{systemResultViewUtil.taskDataBean.modifiedOn!=null ? systemResultViewUtil.taskDataBean.modifiedOn : systemResultViewUtil.taskDataBean.createdOn}">
+                                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                                        </h:outputText>
+                                                        <br/>
+                                                        <h:message id="task_name_msg" for="task_name" style="color: red"/>    
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="12%">Milestone</td>
+                                                    <td width="20%"> 
+                                                        <h:selectOneMenu  value="#{systemResultViewUtil.taskDataBean.milestoneId}" id="milestone_name" style="background-color:white;">
+                                                            <f:selectItem itemValue="#{null}" itemLabel="Select" />
+                                                            <f:selectItems value="#{systemResultViewUtil.milestoneList}" var="milestone" itemValue="#{milestone.projectMilestoneId}" itemLabel="#{milestone.milestoneName}"/>
+                                                        </h:selectOneMenu>
+                                                    </td>
+                                                    <td width="12%">Assignee</td>
+                                                    <td width="20%"> 
+                                                        <h:selectOneMenu value="#{systemResultViewUtil.taskDataBean.assignedTo}" id="assignee_name" style="background-color:white;">
+                                                            <f:selectItem itemValue="" itemLabel="Select" />
+                                                            <f:selectItems value="#{systemResultViewUtil.userList}" var="user" itemValue="#{user.userId}" itemLabel="#{user.firstName} #{user.lastName}"/>
+                                                            <f:ajax event="blur" render="assignee_name_msg " />
+                                                        </h:selectOneMenu>
+
+                                                        <h:message id="assignee_name_msg" for="assignee_name" style="color: red"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td width="12%">
+                                                        <h:outputText value="Status :"/> 
+                                                    </td>
+                                                    <td width="20%">
+                                                        <h:selectOneMenu style="background-color:white;" value="#{systemResultViewUtil.taskDataBean.status}" required="true">                                                        
+                                                            <f:selectItem itemValue="New" itemLabel="New" />
+                                                            <f:selectItem itemValue="In Progress" itemLabel="In Progress" />
+                                                            <f:selectItem itemValue="Resolved" itemLabel="Resolved" />
+                                                            <f:selectItem itemValue="Completed" itemLabel="Completed" />
+                                                            <f:selectItem itemValue="Closed" itemLabel="Closed" />                                                    
+                                                        </h:selectOneMenu>
+                                                    </td>
+                                                    <td width="12%">                                               
+                                                        <h:outputText value="Start Date :"/> 
+                                                    </td>
+                                                    <td width="45%">
+                                                        <h:inputText value="#{systemResultViewUtil.taskDataBean.startDate}"  id="startDateUpdate" >
+                                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                                        </h:inputText>                                                         
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        Priority : 
+                                                    </td>
+                                                    <td>
+                                                        <h:selectOneMenu value="#{systemResultViewUtil.taskDataBean.priority}" required="true" style="background-color:white">                                                        
+                                                            <f:selectItem itemValue="1" itemLabel="High" />
+                                                            <f:selectItem itemValue="2" itemLabel="Medium" />
+                                                            <f:selectItem itemValue="3" itemLabel="Low" />                                                    
+                                                        </h:selectOneMenu>
+                                                    </td>
+                                                    <td>                                                
+                                                        <h:outputText value="End Date :"/>
+                                                    </td>
+                                                    <td> 
+                                                        <h:inputText value="#{systemResultViewUtil.taskDataBean.endDate}"  id="endDateUpdate">
+                                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                                        </h:inputText>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <h:outputText value="Completion :"/>
+                                                    </td>
+                                                    <td>  
+                                                        <h:inputText id="completion" maxlength="3" value="#{systemResultViewUtil.taskDataBean.taskProgress}"  converterMessage="Please enter digits only." validatorMessage="Max 3 Digits">
+                                                            <f:validateLength minimum="0" maximum="3" />                                             
+                                                            <f:ajax event="blur" render="percent_msg" />
+                                                        </h:inputText>%
+                                                        <br/>
+                                                        <h:message id="percent_msg" for="completion" style="color: red"/>
+                                                    </td>
+                                                    <td>      
+                                                        <h:outputText value="Duration :"/>
+                                                    </td>
+                                                    <td>
+                                                        <h:inputText id="duration" value="#{systemResultViewUtil.taskDataBean.duration}"  validatorMessage="#{msg.EnterValidDuration}">
+                                                            <f:validateRegex pattern="^[0-9]{0,2}[.]*[0-9]{0,2}$"/>   
+                                                            <f:ajax event="blur" render="duration_msg " />
+                                                        </h:inputText>Hours   
+                                                        <br/>
+                                                        <h:message id="duration_msg" for="duration" style="color: red"/>
+                                                    </td>
+                                                </tr>
+                                            </table>    
+                                            <table border="0" width="98%" style="margin-top: 20px;border-radius: 5px;padding-left: 20px;padding: 10px 10px 10px 10px;background-color: gainsboro ">
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <b><h:outputText style="font-size: 15px;" value="Task Description"/> </b>
+                                                        <br/><br/>
+                                                        <rich:editor id="editor" value="#{systemResultViewUtil.taskDataBean.taskDescription}" >
+                                                            <f:facet name="config">
+                                                                toolbar: 'custom',
+                                                                toolbar_custom:
+                                                                [
+                                                                { name: 'clipboard', items : [ 'Undo','Redo' ] },
+                                                                { name: 'editing', items : [ 'Find','Replace','-','SelectAll','-','Scayt' ] },
+                                                                { name: 'insert', items : [ 'Table','HorizontalRule','Smiley','SpecialChar','PageBreak'
+                                                                ,'Iframe' ] },
+                                                                '/',
+                                                                { name: 'styles', items : [ 'Styles','Format' ] },
+                                                                { name: 'basicstyles', items : [ 'Bold','Italic','Strike','-','RemoveFormat' ] },
+                                                                { name: 'paragraph', items : [ 'NumberedList','BulletedList','-','Outdent','Indent','-','Blockquote' ] },
+                                                                { name: 'links', items : [ 'Link','Unlink','Anchor' ] },
+                                                                { name: 'tools', items : [ 'Maximize' ] }
+                                                                ]
+                                                            </f:facet>    
+
+                                                        </rich:editor>
+                                                        <!--<h:inputTextarea style="font-size: 15px;width:100%" p:placeholder="No description Available" value="{systemResultViewUtil.taskDataBean.taskDescription}"/>-->
+                                                    </td>                                                    
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <a4j:outputPanel style="margin-top:10px" rendered="#{systemResultViewUtil.taskDataBean.taskName!=null}">
+                                                            <a4j:commandButton style="float:right" action="#{taskServiceBean.updateTask()}" value="Submit" styleClass="mybutton" render="wrapperPanel notificationMessage BasicDetails" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>                            
+                                                        </a4j:outputPanel>  
+                                                    </td>
+                                                </tr>
+                                            </table>   
+                                        </a4j:outputPanel>                                         
+                                    </a4j:outputPanel>
+                                </a4j:outputPanel>    
+                                <a4j:outputPanel rendered="#{loginDataBean.itemAttributes.contains('update limited fields') and !loginDataBean.itemAttributes.contains('update tasks')}">
+                                    <b><h:outputText value="#{systemResultViewUtil.taskDataBean.taskId}" style="font-size: 30px"/></b>
+                                    <h3><h:outputText rendered="#{systemResultViewUtil.taskDataBean.taskName ==null}" value="No Such Task Exist" style="color: black;margin-top: 30px"/></h3>                                  
+                                    <a4j:outputPanel id="wrapperPanelforLimited">
+                                        <a4j:outputPanel style="height: 100px;width: 100px" rendered="#{systemResultViewUtil.taskDataBean.taskName !=null}">
+                                            <table border="0" width="98%" style="padding-left: 20px;padding: 10px 10px 10px 10px;background-color: gainsboro;border-radius: 5px">
+                                                <tr>
+                                                    <td colspan="4">
+                                                        <b><h:outputText style="font-size:20px" value="#{systemResultViewUtil.taskDataBean.taskName}">                                                                
+                                                            </h:outputText></b>                                                                                                                                                   
+                                                        <h:outputText style="font-size: 15px" value="#{systemResultViewUtil.taskDataBean.modifiedByName!=null ? ' last modified by ': ' Created By '}"/> 
+                                                        <h:outputText style="font-size: 15px" value="#{systemResultViewUtil.taskDataBean.modifiedByName!=null ? systemResultViewUtil.taskDataBean.modifiedByName : systemResultViewUtil.taskDataBean.createdByName}"/> 
+                                                        on 
+                                                        <h:outputText style="font-size: 15px" value="#{systemResultViewUtil.taskDataBean.modifiedOn!=null ? systemResultViewUtil.taskDataBean.modifiedOn : systemResultViewUtil.taskDataBean.createdOn}">
+                                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                                        </h:outputText>
+                                                        <br/>  
+                                                    </td>
+                                                </tr>         
+                                                <tr>
+                                                    <td width="8%">
+                                                        <h:outputText value="Milestone :"/>
+                                                    </td>
+                                                    <td width="15%">  
+                                                        <h:outputText style="margin-left:5px" value="#{systemResultViewUtil.taskDataBean.milestoneId eq null ? 'N/A' : taskServiceBean.retrieveMilestoneById(systemResultViewUtil.taskDataBean.milestoneId)}"/>
+                                                    </td>   
+                                                    <td width="10%">
+                                                        <h:outputText value="Assignee :"/>
+                                                    </td>
+                                                    <td> 
+                                                        <h:selectOneMenu value="#{systemResultViewUtil.taskDataBean.assignedTo}" id="assignee_nm" style="background-color:white; margin-left:5px">
+                                                            <f:selectItem itemValue="" itemLabel="Select" />
+                                                            <f:selectItems value="#{systemResultViewUtil.userList}" var="user" itemValue="#{user.userId}" itemLabel="#{user.firstName} #{user.lastName}"/>
+                                                            <f:ajax event="blur" render="assignee_nm_msg " />
+                                                        </h:selectOneMenu>
+
+                                                        <h:message id="assignee_nm_msg" for="assignee_name" style="color: red"/>
+                                                    </td>                                                  
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <h:outputText value="Start Date :"/> 
+                                                    </td>
+                                                    <td>
+                                                        <h:outputText value="#{systemResultViewUtil.taskDataBean.startDate eq null ? 'N/A' : systemResultViewUtil.taskDataBean.startDate}"  style="margin-left:5px">
+                                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                                        </h:outputText> 
+                                                    </td>
+
+                                                    <td>                                                
+                                                        <h:outputText value="Status : "/> 
+                                                    </td>
+                                                    <td>
+                                                        <h:selectOneMenu style="background-color:white;margin-left:5px" value="#{systemResultViewUtil.taskDataBean.status}" required="true">                                                        
+                                                            <f:selectItem itemValue="New" itemLabel="New" />
+                                                            <f:selectItem itemValue="In Progress" itemLabel="In Progress" />
+                                                            <f:selectItem itemValue="Resolved" itemLabel="Resolved" />
+                                                            <f:selectItem itemValue="Completed" itemLabel="Completed" />
+                                                            <f:selectItem itemValue="Closed" itemLabel="Closed" />                                                    
+                                                        </h:selectOneMenu>      
+                                                    </td>
+
+                                                </tr>                                                
+                                                <tr>
+                                                    <td>
+                                                        <h:outputText value="End Date :"/>                                                                                                                                                           
+                                                    </td>
+                                                    <td>
+                                                        <h:outputText value="#{systemResultViewUtil.taskDataBean.endDate eq null ? 'N/A' : systemResultViewUtil.taskDataBean.endDate}" style="margin-left:5px">
+                                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                                        </h:outputText>    
+                                                    </td>
+                                                    <td>
+                                                        <h:outputText value="Completion :"/>
+                                                    </td>
+                                                    <td>                                                        
+                                                        <h:inputText value="#{systemResultViewUtil.taskDataBean.taskProgress}" style="margin-left:5px"/>%   
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <h:outputText value="Priority :"/> 
+                                                    </td>
+                                                    <td>
+                                                        <h:outputText value="#{taskdata.priority eq 1 ? 'High' : taskdata.priority eq 2 ? 'Medium':'Low' }" style="margin-left:5px"/>                                                        
+                                                    </td>                                                
+                                                    <td>      
+                                                        <h:outputText value="Duration :"/>                                                                                                                                                                                                         
+                                                    </td>
+                                                    <td>
+                                                        <h:inputText value="#{systemResultViewUtil.taskDataBean.duration}" style="margin-left:5px">
+                                                            <f:validateRegex pattern="^[0-9]{0,2}[.]*[0-9]{0,2}$"/>                                                    
+                                                        </h:inputText>Hours   
+                                                    </td>
+                                                </tr>
+                                            </table>    
+                                            <table border="0" width="98%" style="margin-top: 20px;border-radius: 5px;padding-left: 20px;padding: 10px 10px 10px 10px;background-color: gainsboro ">
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <b><h:outputText style="font-size: 15px" value="Task Description"/> </b>
+                                                        <br/><br/>
+                                                        <h:outputText style="font-size: 15px" value="Description not available" rendered="#{empty systemResultViewUtil.taskDataBean.taskDescription}"/>
+                                                        <h:outputText style="font-size: 15px;word-break:break-all;" escape="false" value="#{systemResultViewUtil.taskDataBean.taskDescription}"/>
+                                                    </td>
+                                                </tr>            
+                                                <tr>
+                                                    <td>
+                                                        <a4j:outputPanel style="margin-top:10px" rendered="#{systemResultViewUtil.taskDataBean.taskName!=null}">
+                                                            <a4j:commandButton style="float:right" action="#{taskServiceBean.updateTask()}" value="Update" styleClass="mybutton" render="wrapperPanelforLimited notificationMessage BasicDetails" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>                            
+                                                        </a4j:outputPanel>  
+                                                    </td>
+                                                </tr>
+                                            </table>   
+                                        </a4j:outputPanel> 
+                                    </a4j:outputPanel>
+                                </a4j:outputPanel>
+                            </div>
+                        </div>
+                    </div>
+                </h:form>
+                <rich:popupPanel id="addWatcherPopup" modal="true" autosized="true" width="300" height="400">
+                    <h2>Add Watchers</h2>
+                    <f:facet name="controls">
+                        <h:outputLink value="#" onclick="#{rich:component('addWatcherPopup')}.hide()">
+                            <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/close-btn.png" style="width: 20px;height: 15px ;top: 1px" >
+                            </h:graphicImage>
+                        </h:outputLink>
+                    </f:facet>
+                    <h:form prependId="false">
+                        <a4j:outputPanel id="addWatcherOutputPanel">
+                            <div>
+                                <h:outputText style="font-size: 14px" value="Search for the user: "/>
+                            </div><br/>
+                            <div style="float:left">
+                                &nbsp;&nbsp;&nbsp;
+                                <h:graphicImage url="/images/search_button.jpg" height="25px" width="25px" style="margin-left: -8px"/>
+                            </div>
+                            <div style="float:left">
+                                <h:inputText id="expr" value="#{taskDataBean.expr}">
+                                    <a4j:ajax execute="expr" event="keyup" listener="#{taskServiceBean.retrieveWatcherNameByString()}" render="try"/>
+                                </h:inputText>
+                            </div> 
+                            <br/><br/><br/>
+                            <a4j:outputPanel id="try">
+                                <div id="userList" style="height:200px;width:250px;overflow: auto;">
+                                    <h:selectManyCheckbox id="userss" value="#{taskDataBean.watcherList}" converter="javax.faces.Long" layout="pageDirection">
+                                        <f:selectItems value="#{systemResultViewUtil.userList}" var="users"
+                                                       itemValue="#{users.userId}" itemLabel="#{users.firstName} #{users.lastName}" /> 
+                                    </h:selectManyCheckbox>
+                                </div>
+                            </a4j:outputPanel>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <a4j:commandButton value="Add"  styleClass="mybutton" style="float: left;margin-left: 50px;margin-right: 20px" action="#{taskServiceBean.addWatchersList()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();if(#{messageDataBean.isSuccess != null}){#{rich:component('addWatcherPopup')}.hide();}" render="watcher notificationMessage"/>
+                                    </td>
+                                    <td>
+                                        <a4j:commandButton type="reset" value="Cancel" styleClass="mybutton" onclick="#{rich:component('addWatcherPopup')}.hide()"/>
+
+                                    </td>
+                                </tr>
+                            </table>
+                        </a4j:outputPanel>
+                    </h:form>
+                </rich:popupPanel>
+
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

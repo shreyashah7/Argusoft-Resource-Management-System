@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:p="http://xmlns.jcp.org/jsf/passthrough">
+    <link rel="stylesheet" href="/css/jquery-ui.css"/>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">                
+                <f:event type="preRenderComponent" listener="#{activityServiceBean.searchString()}"/>
+                <link href="css/dashboard.css" rel="stylesheet" type="text/css" /> 
+                <h2>Search</h2>
+                <hr/>
+                <h:form prependId="false">                                                                     
+                    <div style="margin-top: 5%">
+                        <h:panelGroup layout="block" id="notificationMessage">
+                            <ui:include src="../common/message.xhtml" />
+                        </h:panelGroup>
+                        <a4j:outputPanel id="table">                                                        
+                            <rich:dataTable id="activityList" style="float: left;margin-bottom: 5%;width: 100%" styleClass="meal-planes" value="#{systemResultViewUtil.activityDataBeanList}" var="activityListDisplay" rendered="#{not empty systemResultViewUtil.activityDataBeanList}">
+                                <rich:column sortBy="#{activityListDisplay.activityId}" sortOrder="descending">
+                                    <div>
+                                        <img src="#{facesContext.externalContext.requestContextPath}/images/project_bullet.jpg" style="border: none"/>&nbsp;                                        
+                                        <h:outputLabel value="#{activityListDisplay.activityType}" style="font-size: 14px;cursor: pointer;text-transform: capitalize"/>&nbsp;
+                                        <h:outputLabel value="#{activityListDisplay.activityId}" style="font-size: 14px;cursor: pointer;text-transform: uppercase"/>:&nbsp;
+                                        <h:outputLabel value="#{activityListDisplay.activityName}" style="font-size: 14px;cursor: pointer;text-transform: uppercase"/>&nbsp;&nbsp;                                           
+                                    </div>
+                                    <div style="margin-top: 10px;margin-left: 15px">
+                                        <b>                                            
+                                            <h:outputText value="#{activityListDisplay.createdByName}" rendered="#{activityListDisplay.activityType=='SvnDetail'}" style="font-size: 14px;text-transform: lowercase"/>
+                                        </b>
+                                        <h:outputText value="#{activityListDisplay.activityDesc}" escape="false" style="font-size: 14px;text-transform: lowercase;word-break:break-all;"/>
+                                    </div>
+                                </rich:column>
+                            </rich:dataTable>
+                        </a4j:outputPanel>
+                    </div>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+
+</html>
+

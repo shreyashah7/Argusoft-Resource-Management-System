@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+    <h:head>
+        <script src="./scripts/common/scope.js"></script>
+        <meta name="viewport" content="width=device-width"/>
+        <title>Role Editor</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+
+                <link rel="stylesheet" href="./css/jquery.ui.all.css"/>
+                <script type="text/javascript" src="./scripts/jquery/jquery.js"></script>
+                <script src="./scripts/jquery.ui.core.js"></script>
+                <script src="./scripts/jquery.ui.widget.js"></script>
+                <script src="./scripts/jquery.ui.mouse.js"></script>
+                <script src="./scripts/jquery.ui.selectable.js"></script>
+                <link href="./css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+                <script type="text/javascript" src="./scripts/jquery/jquery.dataTables.min.js"></script>
+                <script src="./scripts/jquery/jquery.dataTables.js"></script>
+                <script src="./scripts/armms.js"></script>
+                <style>
+                    /*#feedback { font-size: 1.4em; }*/
+                    /*#selectable .ui-selecting { background: #FECA40; }*/
+                    #selectable .ui-selecting { background: #999; }
+                    /*#selectable .ui-selected { background: #F39814; color: white; }*/
+                    #selectable .ui-selected { background: #999; color: white; }
+                    #selectable { list-style-type: none; margin: 0; padding: 0; }
+                    #selectable li { margin: 3px; padding: 0.4em; font-size: 1.4em; height: 45px}
+                </style>
+                <script>
+                    $(function() {
+                        $("#selectable").selectable();
+                        var selectmenu = document.getElementById("permissionNAme");
+                        if ((selectmenu.options[selectmenu.selectedIndex].text).toUpperCase() === "MINIMUM" || (selectmenu.options[selectmenu.selectedIndex].text).toUpperCase() === "MAXIMUM" || (selectmenu.options[selectmenu.selectedIndex].text).toUpperCase() === "ADD NEW") {
+                            $(document.getElementById("delButton")).hide();
+                        } else {
+                            $(document.getElementById("delButton")).show();
+                        }
+                    });
+                    function deleteButtonStatus() {
+                        var selectmenu = document.getElementById("permissionNAme");
+                        if ((selectmenu.options[selectmenu.selectedIndex].text).toUpperCase() === "MINIMUM" || (selectmenu.options[selectmenu.selectedIndex].text).toUpperCase() === "MAXIMUM" || (selectmenu.options[selectmenu.selectedIndex].text).toUpperCase() === "ADD NEW") {
+                            $(document.getElementById("delButton")).hide();
+                        } else {
+                            $(document.getElementById("delButton")).show();
+                        }
+                    }
+                </script>
+
+                <f:view>
+                    <f:event id="getfeatures" type="preRenderComponent" listener="#{roleServiceBean.retrieveAllFeatures()}"/>
+                </f:view>
+                <f:view>
+                    <f:event id="getfeatures" type="preRenderComponent" listener="#{roleServiceBean.retrieveAllActiveRoles()}"/>
+                </f:view>
+                <h2>Role Editor</h2>
+                <hr/>
+                <br/>
+                <h:panelGroup layout="block" id="notificationMessage">
+                    <ui:include src="../common/message.xhtml" />
+                </h:panelGroup>
+
+                <h:form prependId="false"> 
+                    <div style="float: left;width: 17%">
+                        <h3>Select Feature:</h3>
+                        <br/>
+                        <h:selectOneListbox style="height: auto;border-style: none;" value="#{systemResultViewUtil.parentFeature}">
+                            <f:selectItems value="#{systemResultViewUtil.listOfFeatures}"  var="feature" itemValue="#{feature.id}" itemLabel="#{feature.name}"/>
+                            <a4j:ajax event="change" listener="#{roleServiceBean.retrievePermissionSetOfFeature(systemResultViewUtil.parentFeature)}" render="featurePermissionset notificationMessage"  onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide(); deleteButtonStatus();"/>
+                        </h:selectOneListbox>
+                    </div>
+                    <div style="float: left; width: 5%">
+                        <hr style=" width:.25em; height:33em; background: #444;"/>
+                    </div>
+                    <div style="float: left;width: 40%">
+                        <h:panelGroup id="formData">
+                            <table>
+                                <tr>
+                                    <td>
+                                        Select Role:
+                                    </td>
+                                    <td>
+                                        <h:selectOneMenu value="#{systemResultSessionUtil.roleIdToUpdate}">
+                                            <f:selectItem itemLabel="Add new" itemValue="#{null}"/>
+                                            <f:selectItems value="#{systemResultViewUtil.listOfAllActiveRoles}" var="activeRole" itemLabel="#{activeRole.name}" itemValue="#{activeRole.id}"/>
+                                            <a4j:ajax event="change" listener="#{roleServiceBean.updateRoleFromPage(systemResultSessionUtil.roleIdToUpdate)}" render="formData featurePermissionset FeaturePermissions notificationMessage"  onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide(); deleteButtonStatus();"/>
+                                        </h:selectOneMenu>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Title</td>
+                                    <td>
+                                        <h:inputText id="title" class="required" value="#{roleDataBean.name}" required="true" requiredMessage="#{msg.role_name_required}">
+                                            <f:ajax event="blur" render="titleErr"/>
+                                        </h:inputText>
+                                        <h:message for="title" id="titleErr" style="color: red"/>
+                                    </td>
+                                </tr>
+                                <tr style="height: 10px !important;"></tr>
+                                <tr>
+                                    <td>Description:</td>
+                                    <td><h:inputTextarea id="desc" value="#{roleDataBean.description}"/></td>
+                                </tr>
+                            </table>
+                        </h:panelGroup>
+                        <br/>
+                        <br/>
+                        <br/>
+
+                        <h:panelGroup id="featurePermissionset">
+                            <fieldset>
+                                <legend>Pick permissions for the selected feature</legend>
+                                <br/>
+                                <h:outputText value="#{systemResultViewUtil.parentFeatureName}" style="font-weight: bold;font-size: medium"/>
+                                <a4j:commandLink action="#{roleServiceBean.addFeaturePermissionToSet(permissionID)}" value="Add" style="float: right;margin-right: 60px;text-decoration: none;color: #0084ff;font-size: 15px" render="FeaturePermissions notificationMessage titleErr featurePermissionset" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+                                <br/>
+                                <br/>
+                                <fieldset style="width: 90%; margin-left: 10px">
+                                    <legend>Permissions sets</legend>
+                                    Permission set:
+                                    <h:selectOneMenu id="permissionNAme" value="#{permissionID}" style="margin-left: 20px">
+                                        <f:selectItems value="#{systemResultViewUtil.listOfPermissionForFeature}" var="permissions" itemLabel="#{permissions.name}" itemValue="#{permissions.ID}"/>
+                                        <f:selectItem itemLabel="Add new" itemValue="0"/>
+                                        <a4j:ajax event="change" listener="#{roleServiceBean.retrievePermissionByID(permissionID,systemResultViewUtil.parentFeature)}" render="addNewPermissionForm" onbegin="#{rich:component('waitPanel')}.show(); deleteButtonStatus();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+                                    </h:selectOneMenu>
+                                    <a4j:commandLink value="Delete" id="delButton" action="changePermissionToRole?faces-redirect=true" style="float: right;margin-right: 25px;text-decoration: none;color: #0084ff;font-size: 15px" rendered="#{!(permissionID eq 0)}" render="featurePermissionset" >
+                                        <f:setPropertyActionListener target="#{systemResultSessionUtil.permissionIDToRemove}" value="#{permissionID}" />
+                                    </a4j:commandLink>
+                                    <br/>
+                                    <br/>
+                                    <a4j:outputPanel id="addNewPermissionForm">
+
+                                        <h:outputText id="addNewPermissionOutText" escape="false" value="#{'Name &lt;font style=color:red>*&lt;/font>'}" rendered="#{systemResultViewUtil.addNew}"/>
+                                        <h:inputText id="addNewPermissionText" value="#{roleDataBean.permissionName}" rendered="#{systemResultViewUtil.addNew}" style="margin-left: 70px" required="true" requiredMessage="Enter permission name">
+                                            <f:ajax event="blur" render="permissionErr"/>
+                                        </h:inputText>
+                                        <h:message for="addNewPermissionText" id="permissionErr" style="color: red"/>
+
+                                        <h:selectManyCheckbox  id="permissionSet" value="#{systemResultViewUtil.permissionsSelected}" layout="pageDirection" style="margin: 10px" >
+                                            <f:selectItems value="#{systemResultViewUtil.listOfFeaturePermisssion}"  var="permissions" itemLabel="#{permissions.name}"  itemValue="#{permissions.id}" itemDisabled="#{permissions.enableDisable}"/>
+                                        </h:selectManyCheckbox>
+                                    </a4j:outputPanel>
+                                </fieldset>
+                                <br/>
+                            </fieldset>
+
+                            <br/>
+                            <h:panelGrid columns="2">
+                                <a4j:commandButton styleClass="mybutton" value="Save" action="#{roleServiceBean.addRole()}" render="notificationMessage formData FeaturePermissions" rendered="#{systemResultSessionUtil.roleIdToUpdate eq null}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+                                <a4j:commandButton styleClass="mybutton" value="Update" action="#{roleServiceBean.updateRoleData()}" rendered="#{!(systemResultSessionUtil.roleIdToUpdate eq null)}" render="formData FeaturePermissions notificationMessage" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+                                <a4j:commandButton styleClass="mybutton" value="Cancel" action="#{roleServiceBean.cancelEditing}" immediate="true"/>
+                            </h:panelGrid>
+                            <br/>
+                        </h:panelGroup>
+                    </div>
+                    <div style="float: right;position: relative;left: -15px;width: 25%">
+                        <h:panelGroup id="FeaturePermissions">
+                            <ol id="selectable">
+                                <ui:repeat value="#{systemResultViewUtil.selectedFeaturePermissionForRole}" var="featurePermissions">
+                                    <li class="ui-widget-content" style="width: 100%">
+                                        <ui:repeat value="#{featurePermissions.keySet().toArray()}" var="listValues" varStatus="status">
+                                            <ui:fragment rendered="#{featurePermissions.size() ne 1}">
+                                                <ui:fragment rendered="#{status.index eq 0}">
+                                                    <h:outputText style="font-weight: bold" value="#{featurePermissions.get(listValues)}"/> <br/>
+                                                </ui:fragment>
+                                                <ui:fragment rendered="#{status.index eq 1}">
+                                                    <h:outputText value="#{featurePermissions.get(listValues)}"/>
+                                                </ui:fragment>
+                                            </ui:fragment>
+                                            <ui:fragment rendered="#{featurePermissions.size() eq 1}">
+                                                <ui:fragment rendered="#{status.index eq 0}">
+                                                    <h:outputText style="font-weight: bold" value="#{featureServiceBean.getFeatureName(listValues)}"/> <br/>
+                                                    <h:outputText value="#{featurePermissions.get(listValues)}"/>
+                                                </ui:fragment>
+                                            </ui:fragment>
+                                        </ui:repeat>
+                                        <a4j:commandButton value="Delete" styleClass="mybutton" style="float: right" action="#{roleServiceBean.removeFeaturePermissionFromList(featurePermissions)}" render="FeaturePermissions " onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+                                    </li>
+                                </ui:repeat>
+                            </ol>
+                        </h:panelGroup>
+                    </div>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans ="http://www.springframework.org/schema/beans"
+             xmlns:context="http://www.springframework.org/schema/context"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/security
+        http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <http auto-config="true"  >
+
+        <custom-filter before="FILTER_SECURITY_INTERCEPTOR" ref="armmsFilterSecurityInterceptor" />
+	
+        <!--Custom login page--> 
+       
+        <form-login login-page="/login" authentication-failure-url="/login"
+                    default-target-url="/pages/dashboard.xhtml" authentication-success-handler-ref="customAuthenticationSuccessHandler"/>
+        <session-management>
+            <concurrency-control max-sessions="1" />
+        </session-management>    
+        <logout success-handler-ref="customLogoutSuccessHandler" />
+        <access-denied-handler ref="customAccessDeniedHandler"/>
+        <!--Custom logout page--> 
+        <logout />
+    </http>
+    
+    <beans:bean id="jasyptPasswordEncryptor" class="org.jasypt.util.password.BasicPasswordEncryptor" />
+    <beans:bean id="passwordEncoder" class="org.jasypt.spring.security3.PasswordEncoder">
+        <beans:property name="passwordEncryptor">
+            <beans:ref bean="jasyptPasswordEncryptor" />
+        </beans:property>
+    </beans:bean>
+  
+    <beans:bean id="securityUserService" class="com.argusoft.armms.web.security.ArmmsSecurityUserService"/>
+    <authentication-manager alias="authenticationManager" >
+        <authentication-provider user-service-ref="securityUserService">
+            <password-encoder ref="passwordEncoder"/>
+
+        </authentication-provider>
+    </authentication-manager>
+    
+    <beans:bean id="customAuthenticationSuccessHandler" class="com.argusoft.armms.web.handler.CustomAuthenticationSuccessHandler">
+    </beans:bean>
+        
+    <beans:bean id="customLogoutSuccessHandler" class="com.argusoft.armms.web.handler.CustomLogoutSuccessHandler">
+    </beans:bean>
+        
+    <beans:bean id="customAccessDeniedHandler" class="com.argusoft.armms.web.handler.CustomAccessDeniedHandler">
+    </beans:bean>
+    <beans:bean id="armmsFilterSecurityInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+        <beans:property name="authenticationManager" ref="authenticationManager"/>
+        <beans:property name="accessDecisionManager" ref="affirmativeBasedAccessDecisionManager"/>
+        <beans:property name="securityMetadataSource" ref="armmsSecurityMetadataSource"/>
+    </beans:bean>
+    <beans:bean id="armmsSecurityMetadataSource" class="com.argusoft.armms.web.security.ArmmsSecurityMetadataSource"/>
+      
+    <beans:bean id="roleVoter" class="org.springframework.security.access.vote.RoleVoter">
+        <beans:property name="rolePrefix" value="" />
+    </beans:bean>
+    <beans:bean id="affirmativeBasedAccessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
+        <beans:constructor-arg>
+            <beans:list>
+                <beans:ref bean="roleVoter"/>      
+                <beans:bean id="authenticatedVoter" class="org.springframework.security.access.vote.AuthenticatedVoter"/>
+            </beans:list>
+        </beans:constructor-arg>
+    </beans:bean>
+</beans:beans>

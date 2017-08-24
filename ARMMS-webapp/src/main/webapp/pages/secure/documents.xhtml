@@ -1,0 +1,230 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>Documents</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+                <h:form prependId="false">    
+                    <style>
+                        .box{
+                            padding: 6px;
+                            margin-bottom: 10px;
+                            background-color: #f6f6f6;
+                            color: #505050;
+                            line-height: 1.5em;
+                            border: 1px solid #e4e4e4;
+                        }
+                        .p{
+                            display: block;
+                            -webkit-margin-before: 1em;
+                            -webkit-margin-after: 1em;
+                            -webkit-margin-start: 0px;
+                            -webkit-margin-end: 0px;
+                        }
+                    </style>
+                    <style type="text/css">
+                        .rf-fu, .rf-fu-hdr {
+                            float: left;
+                            width: auto;
+                            border: none;
+                            background: none;
+                            padding: 0;
+                            margin: 0;
+                        }
+
+                        .rf-fu-btn-cnt-add {
+                            paddin-left: 0;
+                            cursor: pointer;
+                        }
+
+                        .rf-fu-btn-add {
+                            margin: 0;
+                        }
+
+                        .rf-fu-btns-rgh, .rf-fu-lst {
+                            display: none;
+                        }
+
+                        .rf-fu-btns-lft {
+                            width: 100%;
+                        }
+                    </style>
+                    <script>
+
+                        function showDiv() {
+                            var value = document.getElementById('project_name').value;
+                            document.getElementById('project_name').focus();
+                            if (value === '') {
+                        #{rich:component('attachmentPanel')}.hide();
+                                document.getElementById('tableUploads').style.display = "block";
+                                document.getElementById('project_name').focus();
+                            }
+
+                        }
+                    </script>
+                    <script>
+                        $(function() {
+                            $("#uploadedList").DataTable();
+                        }
+                        );
+                    </script>
+                    <f:event type="preRenderComponent" listener="#{projectResourceServiceBean.init()}"/>
+                    <f:event listener="#{projectServiceBean.retrieveProjectAttachmentByProjectId()}" type="preRenderComponent"/>
+                    <f:event listener="#{projectServiceBean.retieveAllActiveProjectsOfUser()}" type="preRenderComponent"/>
+                    <div class="main-wrapper" id="mainForm">
+                        <div class="left-col"> 
+                            <div class="heading">
+                                <h2>Documents</h2><hr/>
+                                <div style="width: 100%" id="message">
+                                    <a4j:outputPanel id="out">
+                                        <ui:include src="../common/message.xhtml" /> 
+                                    </a4j:outputPanel>
+                                </div>
+                                <table width="100%" border="0" cellspacing="0" cellpadding="0" class="heading-table">
+                                    <tr>
+                                        <td align="left" width="97%">
+                                            <h:outputLabel value="Projects: " style="font-size: 13px;"/>
+                                            <h:selectOneMenu value="#{systemResultViewUtil.projectId}" id="project_name" requiredMessage='#{msg.EnterProjectName}'>
+                                                <f:selectItem itemValue="#{null}" itemLabel="All"/>
+                                                <f:selectItems value="#{systemResultSessionUtil.userProjects}" var="project" itemValue="#{project.projectId}" itemLabel="#{project.projectAlias}"/>
+                                                <a4j:ajax event="change" listener="#{projectServiceBean.retrieveProjectAttachmentByProjectId()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();$('#uploadedList').DataTable();" render="listOfUploads out attachPanel" />
+                                                <f:ajax event="blur" render="project_name_msg" />
+                                            </h:selectOneMenu>
+                                            <h:message id="project_name_msg" for="project_name" style="color: red"/>
+                                        </td>
+                                        <td align="right">
+                                            <a4j:commandLink id="add_new_file" style="display: block" onclick="#{rich:component('attachmentPanel')}.show(); showDiv();" action="#{projectServiceBean.clearData()}" render="add_new_file uploadList out">
+                                                <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/add-more-btn.jpg" rendered="#{loginDataBean.itemAttributes.contains('add documents')}"/>
+                                            </a4j:commandLink>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div><br/>
+                        <div id="tableUploads">
+                            <a4j:outputPanel id="listOfUploads">
+                                <h3 class="norecordfound"><h:outputLabel style="font-size: 16px;text-align: center" value="#{msg.NoFileUploads}" rendered="#{empty systemResultViewUtil.projectAttachmentList}"/></h3>
+                                <rich:dataTable rowKeyVar="rowId"  style="width: 100%;" rowClass="#{rowId%2 == 0 ? 'alt-row1':'alt-row'}" id="uploadedList" value="#{systemResultViewUtil.projectAttachmentList}"  rendered="#{not empty systemResultViewUtil.projectAttachmentList}" var="projAttachments">
+                                    <h:column>
+                                        <f:facet name="header">File Name</f:facet>
+                                        <h:commandLink value="#{projAttachments.fileName}" action="#{systemResultViewUtil.downloadFile()}" style="text-decoration: none;color: #0078D0;cursor: pointer;font-weight: bold">
+                                            <f:setPropertyActionListener target="#{systemResultViewUtil.filePath}" value="#{projAttachments.filePath}"/>
+                                            <f:setPropertyActionListener target="#{systemResultViewUtil.fileName}" value="#{projAttachments.fileName}"/>                      
+                                        </h:commandLink>
+                                    </h:column>
+                                    <h:column>
+                                        <f:facet name="header">Size</f:facet>
+                                        <h:outputText value="#{projAttachments.fileSizeKb}" style="text-align: left;padding-right: 40px;text-decoration: none;color: #0078D0;font-weight: bold" />
+                                    </h:column>
+                                    <h:column>
+                                        <f:facet name="header">Uploaded Date</f:facet>
+                                        <h:outputText value="#{projAttachments.createdOn}" style="text-align: left;padding-right: 40px;text-decoration: none;color: #0078D0;font-weight: bold">
+                                            <f:convertDateTime pattern="dd.MM.yyyy HH:mm" />
+                                        </h:outputText>
+                                    </h:column>
+                                    <h:column>
+                                        <f:facet name="header">Uploaded By</f:facet>
+                                        <a4j:commandLink value="#{projAttachments.uploadedByName}" style="text-align: left;padding-right: 40px;text-decoration: none;color: #0078D0;font-weight: bold" action="pretty:userProfile"><f:setPropertyActionListener target="#{systemResultSessionUtil.userId}" value="#{projAttachments.uploadedBy}"/></a4j:commandLink>
+                                    </h:column>
+                                    <h:column>
+                                        <f:facet name="header">Project Name</f:facet>
+                                        <h:outputText value="#{projAttachments.projectName}" style="text-align: left;padding-right: 40px;text-decoration: none;color: #0078D0;font-weight: bold" />
+                                    </h:column>
+                                    <h:column rendered="#{loginDataBean.itemAttributes.contains('delete documents')}">
+                                        <f:facet name="header">Action</f:facet>
+                                        <center>
+                                            <a4j:commandLink title="Delete" action="#{projectServiceBean.deleteProjectAttachment()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"  render="listOfUploads out">
+                                                <img src="#{facesContext.externalContext.requestContextPath}/images/delete.png" style="border: none"/>
+                                                <f:setPropertyActionListener target="#{fileUploadDataBean.projectAttachmentId}" value="#{projAttachments.projectAttachmentId}"/>
+                                            </a4j:commandLink>
+                                        </center>
+                                    </h:column>
+                                </rich:dataTable>
+                                <script>
+                                    $(function() {
+                                        $("#uploadedList").DataTable();
+                                    }
+                                    );
+                                </script>
+                            </a4j:outputPanel>
+
+                        </div>
+                    </div>
+                </h:form>
+                <rich:popupPanel id="attachmentPanel" modal="true" autosized="true" width="770" height="450" >
+                    <h2>Upload Documents</h2>
+                    <f:facet name="controls">
+                        <h:outputLink value="#" onclick="#{rich:component('attachmentPanel')}.hide()">
+                            <h:graphicImage value="/images/close-btn.png" style="width: 20px;height: 15px ;top: 1px" >
+                            </h:graphicImage>
+                        </h:outputLink>
+                    </f:facet>
+
+                    <h:form prependId="false">
+                        <div id="new_files">
+                            <div class="box">
+                                <h3>New Document</h3>
+                                <a4j:outputPanel id="attachPanel">
+                                    <h:outputLabel value="Projects: " style="font-size: 13px;"/>
+                                    <h:selectOneMenu value="#{systemResultViewUtil.projectId}" id="project_names" requiredMessage='#{msg.EnterProjectName}'>
+                                        <f:selectItem itemValue="#{null}" itemLabel="All"/>
+                                        <f:selectItems value="#{systemResultSessionUtil.userProjects}" var="project" itemValue="#{project.projectId}" itemLabel="#{project.projectAlias}"/>
+                                        <a4j:ajax event="change" listener="#{projectServiceBean.retrieveProjectAttachmentByProjectId()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();" render="listOfUploads out" />
+                                    </h:selectOneMenu>
+                                </a4j:outputPanel>
+                                <a4j:outputPanel id="uploadList"><br/><br/>
+                                    <rich:dataTable rowKeyVar="rowId" rowClass="#{rowId%2 == 0 ? 'alt-row1':'alt-row'}" id="UploadTable" value="#{systemResultViewUtil.tempProjectAttachmentList}"  rendered="#{not empty systemResultViewUtil.tempProjectAttachmentList}" var="tempProjAttachments">
+                                        <h:column>
+                                            <h:outputText value="#{tempProjAttachments.fileName}" style="text-align: left;padding-right: 120px" />
+                                        </h:column >
+                                        <h:column>
+                                            <h:inputText id="Description"  value="#{fileUploadDataBean.fileDescription}" style="text-align: left;border: 0;">
+                                                <f:passThroughAttribute name="placeholder"
+                                                                        value="Optional Description"/>
+                                            </h:inputText>
+                                        </h:column>
+                                        <h:column>
+                                            <a4j:commandLink title="Delete" action="#{projectServiceBean.deleteProjectAttachmentToList()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"  render="uploadList">
+                                                <img src="#{facesContext.externalContext.requestContextPath}/images/delete.png" style="border: none"/>
+                                                <f:setPropertyActionListener target="#{systemResultViewUtil.rowIndex}" value="#{rowId}"/>
+                                            </a4j:commandLink>
+                                        </h:column>
+                                    </rich:dataTable>
+                                </a4j:outputPanel>
+                                <p>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <h:outputText value="Files"/> 
+                                            </td>
+                                            <td>
+                                                <rich:fileUpload fileUploadListener="#{taskServiceBean.fileUploadListener}" id="upload"
+                                                                 acceptedTypes="jpg, gif, png, bmp,pdf,odt,doc,docx,xls,ppt,pptx"
+                                                                 ontyperejected="alert('Only JPG, GIF,XLS,DOC,DOCX,ODT,PDF,PNG,PPT,PPTX and BMP files are accepted');" 
+                                                                 addLabel="Choose Files"
+                                                                 style="margin: 10px;">
+                                                    <f:ajax event="uploadcomplete" listener="#{projectServiceBean.addProjectAttachmentToList()}" render="uploadList upload"/>
+                                                </rich:fileUpload>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </p>
+                            </div>
+                            <a4j:commandButton id="addFiles" styleClass="mybutton" action="#{projectServiceBean.addProjectAttachment()}" value="Add Files" onclick="hideDiv()" render="listOfUploads addFiles out"/>
+                        </div>
+                    </h:form>
+
+                </rich:popupPanel>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

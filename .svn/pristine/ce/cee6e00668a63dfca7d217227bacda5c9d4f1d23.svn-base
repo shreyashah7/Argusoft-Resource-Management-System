@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:rich="http://richfaces.org/rich" template="../layout/homeLayout.xhtml">
+    <ui:define name="content">
+
+        <h2>Manage Resources</h2>
+        <hr></hr>
+        <br></br>
+        <br></br>
+        <h:panelGroup id="out">
+            <a4j:outputPanel>
+                <ui:include src="../common/message.xhtml"/>
+            </a4j:outputPanel>
+        </h:panelGroup>
+        <h:form  id="resourceData" prependId="false" class="form-table" >
+            <a4j:outputPanel id="temp">
+                <f:event type="preRenderComponent" listener="#{projectServiceBean.retrieveProjectOfCurrentUser()}"/>
+                <f:event listener="#{userServiceBean.showUsers()}" type="preRenderComponent"/>
+                <f:event listener="#{technologyServiceBean.retrieveTechByCategory()}" type="preRenderComponent"/>
+
+                <script type="text/javascript">
+
+                    $(function()
+                    {
+                        $("#tech").pickList({
+                            sourceListLabel: "Available Technologies",
+                            targetListLabel: "Selected Technologies",
+                            addAllLabel: "Add All",
+                            addLabel: "Add",
+                            removeAllLabel: "Remove All",
+                            removeLabel: "Remove"
+                        });
+                    });
+                    $(function()
+                    {
+                        $("#user").pickList({
+                            sourceListLabel: "Available Users",
+                            targetListLabel: "Selected Users",
+                            addAllLabel: "Add All",
+                            addLabel: "Add",
+                            removeAllLabel: "Remove All",
+                            removeLabel: "Remove"
+                        });
+                    });
+
+                </script>
+                <table  align="left" cellpadding="2" cellspacing="4"  >
+
+                    <tr>
+                        <td>
+                            <h:outputText value="Project"/>
+
+                        </td>
+                        <td>
+                            
+                            <h:selectOneMenu id="project" value="#{projectResourceDataBean.projectId}" required="true" requiredMessage="Select project.">
+                                <f:selectItem itemValue="#{null}" itemLabel="Select"/>
+
+                                <f:selectItems value="#{systemResultViewUtil.manageProjectResource}" var="project"
+                                               itemValue="#{project.projectId}" itemLabel="#{project.projectName}" ></f:selectItems>
+                                <f:ajax event="blur" render="reqd-err" />
+
+                            </h:selectOneMenu>
+                            <rich:message id="reqd-err" for="project" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h:outputText value="Users"/>
+
+                        </td>
+                        <td>
+
+                            <rich:panel id="users" style="width:470px;">
+                                <h:selectManyMenu id="user" value="#{projectResourceDataBean.userIds}" converter="javax.faces.Long" >
+                                    <f:selectItems value="#{systemResultViewUtil.users}" var="user"
+                                                   itemValue="#{user.userId}" itemLabel="#{user.firstName} #{user.lastName}" /> 
+                                </h:selectManyMenu>
+                            </rich:panel>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h:outputText value="Technologies"/>
+
+                        </td>
+                        <td>
+
+                            <rich:panel id="resourceform" style="width:470px;">
+                                <h:selectManyMenu id="tech" value="#{projectResourceDataBean.techIds}" >
+                                    <f:selectItems value="#{systemResultViewUtil.projectResourceTech}" var="technology"
+                                                   itemValue="#{technology.techId}" itemLabel="#{technology.technologyName}" /> 
+                                </h:selectManyMenu>
+                            </rich:panel>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h:outputText value="Tools"/>
+
+                        </td>
+                        <td>
+
+
+                            <h:selectManyCheckbox id="tool" value="#{projectResourceDataBean.toolIds}" >
+                                <f:selectItems value="#{systemResultViewUtil.projectResourceTool}" var="tools"
+                                               itemValue="#{tools}" itemLabel="#{tools}" /> 
+                            </h:selectManyCheckbox>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h:outputText value="Server"/>
+
+                        </td>
+                        <td>
+
+                            <h:selectManyCheckbox id="server" value="#{projectResourceDataBean.serverIds}">
+                                <f:selectItems value="#{systemResultViewUtil.projectResourceServer}" var="server"
+                                               itemValue="#{server}" itemLabel="#{server}" />   
+                            </h:selectManyCheckbox>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h:outputText value="Operating System"/>
+
+                        </td>
+                        <td>
+
+                            <h:selectManyCheckbox id="operatingsys" value="#{projectResourceDataBean.osIds}" >
+                                <f:selectItems value="#{systemResultViewUtil.projectResourceOS}" var="os"
+                                               itemValue="#{os}" itemLabel="#{os}" />   
+                            </h:selectManyCheckbox>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h:outputText value="Browser"/>
+
+                        </td>
+                        <td>
+
+                            <h:selectManyCheckbox id="browser" value="#{projectResourceDataBean.browserIds}">
+                                <f:selectItems value="#{systemResultViewUtil.projectResourceBrowser}" var="browser"
+                                               itemValue="#{browser}" itemLabel="#{browser}" />   
+                            </h:selectManyCheckbox>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <h:panelGrid columns="2">
+                                <a4j:commandButton value="Submit" styleClass="mybutton"  action="#{projectResourceServiceBean.addResourcesToProject()}" render="out temp" >
+                                </a4j:commandButton>
+                                <h:button value="Cancel" styleClass="mybutton"  />
+                            </h:panelGrid>
+
+                        </td>
+
+                    </tr>
+
+                </table>
+            </a4j:outputPanel>
+        </h:form>
+    </ui:define>
+</ui:composition>

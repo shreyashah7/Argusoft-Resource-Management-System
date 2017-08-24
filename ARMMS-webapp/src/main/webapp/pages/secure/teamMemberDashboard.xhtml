@@ -1,0 +1,242 @@
+
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"          
+
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+    <h:head>
+        <script type="text/javascript" src="./scripts/jquery/jquery.js"></script>
+        <link href="./css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="./scripts/jquery/jquery.dataTables.min.js"></script>
+        <script src="./scripts/jquery/jquery.dataTables.js"></script>
+        <style>
+
+            .project-master-table-odd-row{
+                text-align:center;
+
+            }
+
+            .project-master-table-even-row{
+                text-align:center;
+
+            }
+        </style>
+    </h:head>
+
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content" class="content-admin-dashboard">
+                <f:event type="preRenderComponent" listener="#{taskServiceBean.showTaskByProjectIdAndUserId()}"/>
+                <f:event type="preRenderComponent" listener="#{projectServiceBean.retrieveAllActiveProjects()}"/>
+                <f:event type="preRenderComponent" listener="#{taskServiceBean.showProjectDuration}"/>
+                <h:form prependId="false">
+                    <h:panelGroup layout="block" id="msg">
+                        <ui:include src="../common/message.xhtml" />
+                    </h:panelGroup>
+
+
+
+
+                    <br></br> <br></br> <br></br> <br></br>
+
+
+                    <h2> My Task </h2>
+                    <hr></hr>
+                    <br></br><br></br> <br></br> <br></br>
+                    <h:panelGroup id="temp">  
+                        My Projects   <h:selectOneMenu value="#{systemResultViewUtil.projectIdForTask}" id="p_assignedTo" >
+                            <f:selectItem itemLabel="All" itemValue="#{null}" />
+                            <f:selectItems value="#{systemResultViewUtil.projectList}" var="projects" itemLabel="#{projects.projectName}" itemValue="#{projects.projectId}"/>
+                           
+                            <a4j:ajax event="change" listener="#{taskServiceBean.showTaskByProjectIdAndUserId()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"  render=" msg tablepanel"  />
+                        </h:selectOneMenu></h:panelGroup>
+                    <br></br><br></br>
+                    <h:panelGroup id="tablepanel" >
+                        <rich:dataTable  id="datatbl" value="#{systemResultViewUtil.taskForUserList}" rendered="#{(systemResultViewUtil.taskForUserList ne null) and (systemResultViewUtil.taskForUserList.size() gt 0)}" var="task" styleClass="task-master-table"
+                                         headerClass="task-master-table-header" 
+                                         rowClasses="task-master-table-odd-row,task-master-table-even-row" rowKeyVar="row">
+                            <rich:column>
+
+                                <f:facet name="header"> S.No</f:facet>
+                                <h:outputText value="#{row+1}" style="font-size: 15px"/>
+                            </rich:column>
+                            <rich:column>
+                                <f:facet name="header">Project</f:facet>
+                                <h:outputText value="#{task.projectName}"/>
+                            </rich:column>
+
+                            <rich:column>
+                                <f:facet name="header">Task Id</f:facet>
+
+                                <h:link value="#{task.taskId}"/>
+                            </rich:column>
+                            <rich:column>
+                                <f:facet name="header">Task Description</f:facet>
+
+                                <h:outputText value="#{task.taskDescription}" />
+                            </rich:column>
+
+                            <rich:column>
+                                <f:facet name="header">Priority</f:facet>
+                                <h:outputText value="#{task.taskPriority} "/>
+                            </rich:column>
+                            <rich:column>
+                                <f:facet name="header"> Date Assigned</f:facet>
+                                <h:outputText value="#{task.startDate}" >
+                                    <f:convertDateTime type="date" pattern="yyyy-MM-dd" dateStyle="yyyy-MM-dd"/>
+                                </h:outputText>
+                            </rich:column>
+
+                            <rich:column>
+                                <f:facet name="header">Due Date</f:facet>
+                                <h:outputText value="#{task.endDate}">
+                                    <f:convertDateTime type="date" pattern="yyyy-MM-dd" dateStyle="yyyy-MM-dd"/>
+                                </h:outputText>
+                            </rich:column>
+                            <rich:column>
+                                <f:facet name="header">Assigned By</f:facet>
+                                <h:outputText value="#{task.taskAssignedBy}" />
+                            </rich:column>
+                            <rich:column>
+
+                                <f:facet name="header">Work</f:facet>
+
+                                <a4j:commandButton action="#{taskServiceBean.checkDueDate(task)}"  value="Stop" rendered="#{task.status eq 'Start'}" render="tablepanel temp msg progress" oncomplete="if(#{systemResultViewUtil.isFlag()  eq true}){#{rich:component('complete-task')}.show();}" >
+                                    <f:setPropertyActionListener target="#{systemResultViewUtil.taskDataBean}" value="#{task}"/>
+
+                                </a4j:commandButton>
+                                <a4j:commandButton action="#{taskServiceBean.changeStatus(task)}"   value="Start" rendered="#{task.status eq 'Stop' }" render="tablepanel temp msg " />
+                                <a4j:commandButton action="#{taskServiceBean.changeStatus(task)}"   value="Start" rendered="#{task.status eq 'New' }" render="tablepanel temp msg " />
+                            </rich:column>
+                            <rich:column>
+                                <f:facet name="header">Total Time</f:facet>
+                                <h:outputText value="#{task.duration}" rendered="#{task.status eq 'Stop'}"  />
+                            </rich:column>
+                            <rich:column>
+                                <f:facet name="header">Decline</f:facet>
+
+                                <a4j:commandButton oncomplete="#{rich:component('add-user-popup')}.show();"  value="Decline"  render="tablepanel,add-user-panel" >
+                                    <f:setPropertyActionListener target="#{systemResultViewUtil.taskidForTaskDecline}" value="#{task.taskId}"/>
+                                </a4j:commandButton>    
+                            </rich:column>
+
+                            <rich:column>
+                                <f:facet name="header">Mark As Complete</f:facet>
+
+
+                                <h:selectBooleanCheckbox   onclick="return confirm('Are You Sure You Have Completed The Project')" >
+                                    <a4j:ajax  execute="@this"  rendered="return confirm('Are You Sure You Have Completed The Project')"
+                                               listener="#{taskServiceBean.completeTask(task)}" render="tablepanel msg" />
+                                </h:selectBooleanCheckbox>  
+                            </rich:column>
+                            <rich:column>
+                                <f:facet name="header">Comment</f:facet>
+
+                            </rich:column>
+
+                        </rich:dataTable>
+
+                        <script type="text/javascript">
+                            $('#datatbl').DataTable({
+                            });
+                        </script>
+                    </h:panelGroup>
+                    <a4j:outputPanel id="progress">
+                        <br></br> <br></br>
+                        <h3> This Week</h3>
+                        <br></br>
+                       
+                        <div style="height: 20px; width: 100% ">
+                          
+                            <ui:repeat value="#{systemResultViewUtil.projectMapList}" rendered="#{systemResultViewUtil.totaltaskduration!=null and systemResultViewUtil.totaltaskduration!=0}" var="project" varStatus="status" >
+                                <div style="width: #{((project.label/systemResultViewUtil.totaltaskduration)*100)}%; background-color: #{systemResultViewUtil.colorMap.get(status.index)}; float: left">#{project.value} </div>
+                            </ui:repeat>
+                        </div>
+                        <br></br>
+                        <h3> TotalTaskDuration: #{systemResultViewUtil.totalWork} </h3>                 
+                    </a4j:outputPanel>
+                </h:form>
+
+                <!-- Pop up for task decline -->
+                <rich:popupPanel  id="add-user-popup" autosized="true" width="500">
+                    <br/>
+
+                    <h2> Decline Task </h2>
+
+                    <hr> </hr>
+
+                    <h:form prependId="false"  id="add-user-popup-form">
+
+                        <div id="addUserDiv">
+                            <a4j:outputPanel id="add-user-panel">  
+
+
+                                <table  class="form-table" >
+
+                                    <br></br>
+
+                                    <tr>
+                                        <td>
+                                            <h:outputText value="Reason:"/>
+                                        </td>
+                                        <td>
+                                            <h:inputTextarea id="desc"  value="#{taskDeclineDataBean.declineReason}" >
+
+                                            </h:inputTextarea>
+                                            <br/>
+                                            <h:message for="desc" style="color: red"/>
+                                        </td>
+
+                                    </tr>
+
+
+                                    <tr>
+                                        <td>
+                                            <a4j:commandButton styleClass="mybutton" id="InsertData1" value="Submit"  action="#{taskServiceBean.addDeclineReason()}" oncomplete="if(#{messageDataBean.isSuccess != null and messageDataBean.isSuccess or messageDataBean.isSuccess eq false}){#{rich:component('add-user-popup')}.hide();}"  render="add-user-panel,msg,tablepanel"/>
+                                        </td>
+                                        <td>
+                                            <a4j:commandButton styleClass="mybutton" oncomplete="#{rich:component('add-user-popup')}.hide();" value="Cancel"  render="add-user-panel,tablepanel progress" immediate="true">
+
+                                            </a4j:commandButton>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </a4j:outputPanel>
+                        </div>
+                    </h:form>
+                </rich:popupPanel>
+                <rich:popupPanel id="complete-task" autosized="true" width="500">
+                    <h:form prependId="false"  id="complete-popup-form">
+
+                        <div id="completeTaskDiv">
+                            <a4j:outputPanel id="completeTaskdiv">  
+                                <table  class="form-table" >
+                                    <tr>
+                                        <h:outputLabel value="Today is your due date.Do you want to mark your task as completed">
+
+                                        </h:outputLabel>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <a4j:commandButton styleClass="mybutton" id="InsertData" value="OK"  action="#{taskServiceBean.endTask()}" oncomplete="if(#{messageDataBean.isSuccess != null and messageDataBean.isSuccess or messageDataBean.isSuccess eq false}){#{rich:component('complete-task')}.hide();}"  render="completeTaskdiv,msg,tablepanel progress"/>
+                                        </td>
+                                        <td>
+                                            <a4j:commandButton styleClass="mybutton" action="#{taskServiceBean.changeTaskStatus()}" oncomplete="#{rich:component('complete-task')}.hide();" value="Cancel"  render="completeTaskdiv,tablepanel progress" immediate="true">
+
+                                            </a4j:commandButton>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </a4j:outputPanel>
+                        </div>
+                    </h:form>
+                </rich:popupPanel>
+            </ui:define>
+        </ui:composition>
+
+    </h:body>
+</html>

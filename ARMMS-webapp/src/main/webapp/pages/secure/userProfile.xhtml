@@ -1,0 +1,247 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:rich="http://richfaces.org/rich">
+    <h:head>
+        <title>My Profile</title>
+        <script type="text/javascript" src="./scripts/jquery/jquery.js"></script>
+        <link href="./css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="./scripts/jquery/jquery.dataTables.min.js"></script>
+        <script src="./scripts/jquery/jquery.dataTables.js"></script>
+        <link href="../css/dashboard.css" rel="stylesheet" type="text/css" />
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml" >
+            <ui:define name="content">
+                <f:event type="preRenderComponent" listener="#{userServiceBean.retrieveLoggedInUserInfo()}"/> 
+                <f:event type="preRenderComponent" listener="#{projectServiceBean.retieveAllActiveProjectsOfUserForUserProfile()}"/>  
+                <f:event listener="#{activityServiceBean.retrieveActivityOfUser()}" type="preRenderComponent"/>
+                <f:event listener="#{taskServiceBean.retrieveInCompleteTaskByUserId()}" type="preRenderComponent"/>
+                <script>
+                    $(document).ready(function() {
+                        getDatePickerForRangeWithFormat('startDate', 'endDate');
+                    });
+                </script>
+
+                <h:form prependId="false">
+                    <table>
+                        <tr>
+                            <td align="left" width="55%" valign="top" style="overflow: auto">
+                                <table>
+                                    <tr>
+                                        <td>
+                                          <br/><br/><a4j:outputPanel id="image_displays">
+                                                <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/shsh.png" style="width: 120px; height: 120px;border: none" rendered="#{!userDataBean.displayImgFlag}"/>
+                                                <a4j:outputPanel rendered="#{userDataBean.displayImgFlag}">
+                                                    <a4j:mediaOutput id="pic" style="width: 120px; height: 120px;" element="img"  value="#{loginDataBean.profilePicturePath}" createContent="#{systemResultSessionUtil.drawImage}" mimeType="image/jpg" /><br/>
+                                                </a4j:outputPanel>
+                                            </a4j:outputPanel>
+                                        </td>
+                                        <td>
+                                            &nbsp;&nbsp;<h:outputLabel style="font-size: 20px" value="#{userDataBean.userName}"/>
+                                        </td>
+                                    </tr>
+                                </table><br/>
+
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <img src="#{facesContext.externalContext.requestContextPath}/images/dot_bullet.jpg" style="border: none;"/>&nbsp;
+                                            <h:outputText value="Email:  "/>
+                                            <h:outputText value="#{userDataBean.emailId}"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <img src="#{facesContext.externalContext.requestContextPath}/images/dot_bullet.jpg" style="border: none;"/>&nbsp;
+                                            <h:outputText value="Registered On:  "/>
+                                            <h:outputText value="#{userDataBean.createdOn}"/>
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <img src="#{facesContext.externalContext.requestContextPath}/images/dot_bullet.jpg" style="border: none;"/>&nbsp;
+                                            <h:outputText value="Last Connection:  "/>
+                                            <h:outputText value="#{userDataBean.lastLoggedInTime}"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <a4j:outputPanel rendered="#{loginDataBean.itemAttributes.contains('view own calendar')}">
+                                                <img src="#{facesContext.externalContext.requestContextPath}/images/dot_bullet.jpg" style="border: none;"/>&nbsp;
+                                                <h:commandLink value="Show Calendar" action="calendar" />
+                                            </a4j:outputPanel>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <a4j:outputPanel rendered="#{loginDataBean.itemAttributes.contains('view own gantt')}">
+                                                <img src="#{facesContext.externalContext.requestContextPath}/images/dot_bullet.jpg" style="border: none;"/>&nbsp;
+                                                <h:commandLink value="Show Gant Chart" action="ganttChart"/>
+                                            </a4j:outputPanel>
+                                        </td>
+                                    </tr>
+                                </table><br/><br/>
+                                <a4j:outputPanel id="projectListPanel">
+                                    <h:outputLabel style="font-size: 20px" value="Projects " /><br/><br/>
+                                    <h3 class="norecordfound"><h:outputLabel value="#{msg.NoProjectFound}" style="font-size: 14px;color: red" rendered="#{empty systemResultViewUtil.listOfProjectsOfUser}"/></h3>
+                                    <ui:repeat value="#{systemResultViewUtil.listOfProjectsOfUser}" var="projectDisplay" rendered="#{not empty systemResultViewUtil.listOfProjectsOfUser}">
+                                        <a4j:commandLink style="color: #0084ff;text-decoration: none;font-weight: normal;cursor: pointer;"  action="#{activityServiceBean.projectSummaryOutcome(projectDisplay.projectId)}">
+                                            <img src="#{facesContext.externalContext.requestContextPath}/images/dot_bullet.jpg" style="border: none;"/>&nbsp;
+                                            <h:outputLabel style="cursor: pointer;" value="#{projectDisplay.projectAlias}"/>
+                                            &nbsp;
+                                        </a4j:commandLink>
+                                        (<h:outputLabel style="font-weight: normal;cursor: pointer;" value="#{projectDisplay.createdOn}">
+                                            <f:convertDateTime pattern="dd-MMM-yyyy"/>
+                                        </h:outputLabel>)
+                                        <br/>
+                                    </ui:repeat>
+                                </a4j:outputPanel>
+
+                                <br/><br/>
+                                <a4j:outputPanel id="taskListPanel">
+                                    <h:outputLabel style="font-size: 20px" value="Pending Task " /><br/><br/>
+                                    <h3 class="norecordfound"><h:outputLabel value="#{msg.NoPendingTask}" style="font-size: 14px" rendered="#{empty systemResultViewUtil.taskDataBeanList}"/></h3>
+                                    <ui:repeat value="#{systemResultViewUtil.taskDataBeanList}" var="taskDisplay" rendered="#{not empty systemResultViewUtil.taskDataBeanList}">
+                                        <div style="float: left">
+                                            <img src="#{facesContext.externalContext.requestContextPath}/images/dot_bullet.jpg" style="border: none;"/>&nbsp;
+                                        </div>
+                                        <div style="float: right;width: 97%">
+                                            <a4j:commandLink style="color: #0084ff;text-decoration: none;font-weight: normal;cursor: pointer;font-size: 13px" action="pretty:TaskViewAndUpdate">
+                                                <h:outputText style="cursor: pointer;" value="##{taskDisplay.taskId}"/>
+                                                <h:outputText style="cursor: pointer;" value=": #{taskDisplay.taskName}"/>
+                                                (created on : <h:outputText style="font-weight: normal;cursor: pointer;" value="#{taskDisplay.createdOn}">
+                                                    <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                                </h:outputText>)
+                                                <f:setPropertyActionListener target="#{systemResultSessionUtil.taskIdForTaskView}" value="#{taskDisplay.taskId}"/>
+                                            </a4j:commandLink>
+                                        </div>
+                                        <div style="margin-left: 17px">
+                                            <h:outputText style="font-weight: bold;font-size: 13px;" value="End Date: "/>
+                                            <h:outputText style="font-size: 12px;" value="#{taskDisplay.endDate}">
+                                                <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                            </h:outputText><br/>
+                                        </div>
+                                        <br/>
+                                    </ui:repeat>
+                                </a4j:outputPanel>
+                            </td>
+                            <td align="right" valign="top" width="45%" style="word-break: break-all">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <br/> <br/><h:outputLabel style="font-size: 20px;" value="Activity"/><br/><br/>
+                                            <table width="100%">
+                                                <tr>
+                                                    <th width="10%">
+                                                        <h:outputText value="From" style="float: left;"/>
+                                                    </th>
+                                                    <td width="30%"> 
+                                                        <h:inputText style="float: left;width: 90%" value="#{activityDataBean.startDate}"  id="startDate"  >
+                                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                                        </h:inputText>
+                                                        <br/>
+                                                    </td>
+                                                    <th width="10%">
+                                                        <h:outputText value="To"/>
+                                                    </th>
+                                                    <td width="30%"> 
+                                                        <h:inputText style="float: left;width: 90%" value="#{activityDataBean.endDate}"  id="endDate" >
+                                                            <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                                        </h:inputText>
+                                                        <br/>
+                                                    </td>
+                                                    <td width="5%">
+                                                        <a4j:commandButton  style="float: right" type="reset" value="Show" action="#{activityServiceBean.retrieveActivityOfUser()}" styleClass="mybutton" render="activityDisplay"/>
+                                                    </td>
+                                                </tr>
+                                            </table><br/>
+                                            <a4j:outputPanel id="activityDisplay" style="padding-top: 10px;float: left;word-break: break-all">
+                                                <h3 class="norecordfound"><h:outputLabel value="#{msg.NoActivityFound}" style="font-size: 14px;color: red" rendered="#{empty systemResultViewUtil.masterActivityDataBean}"/></h3>
+                                                <rich:dataTable id="master" style="border: none;float: left" styleClass="meal-planes" value="#{systemResultViewUtil.masterActivityDataBean}" var="masterlist" rendered="#{not empty systemResultViewUtil.masterActivityDataBean}">
+                                                    <rich:column style="border: none">
+                                                        <h:outputLabel value="#{masterlist.displayDate}" style="font-size: 14px">
+                                                            <f:convertDateTime pattern="dd-MMM-yyyy"/>
+                                                        </h:outputLabel>
+                                                        <br/>
+                                                        <br/>
+                                                        <rich:dataTable id="activityList" style="border: none;width: 90%;margin-left: 70px" styleClass="meal-planes" value="#{masterlist.activityDataBeanViewList}" var="activityListDisplay" rendered="#{not empty masterlist.activityDataBeanViewList}">
+                                                            <rich:column style="border: none">
+                                                                <a4j:outputPanel style="width: 100%;float: left">
+                                                                    <a4j:outputPanel  style="width: 14%; float: left">
+                                                                        <img src="#{facesContext.externalContext.requestContextPath}/images/project_bullet.jpg" style="border: none"/>&nbsp;
+                                                                        <img src="#{facesContext.externalContext.requestContextPath}/images/shsh.png" style="border: none;"/>
+                                                                        &nbsp;&nbsp;
+                                                                    </a4j:outputPanel>
+                                                                    <a4j:outputPanel style="width: 86%;float: left;word-break: break-all;z-index: 200">
+                                                                        <a4j:commandLink style="text-decoration: none;color: #0084ff;cursor: pointer;" action="#{activityServiceBean.retrieveActivityById()}">
+                                                                            <h:outputLabel value="#{activityListDisplay.activityType} (#{activityListDisplay.projectName})-- ##{activityListDisplay.activityId} #{activityListDisplay.activityName}" style="font-size: 13px;cursor: pointer;word-break: break-all;"/>
+                                                                            <f:setPropertyActionListener target="#{systemResultSessionUtil.activityId}" value="#{activityListDisplay.activityId}"/>
+                                                                            <f:setPropertyActionListener target="#{systemResultSessionUtil.activityType}" value="#{activityListDisplay.activityType}"/>
+                                                                        </a4j:commandLink>
+                                                                    </a4j:outputPanel>
+                                                                    <br/><br/><br/>
+                                                                </a4j:outputPanel>
+                                                            </rich:column>
+                                                        </rich:dataTable>
+                                                    </rich:column>
+                                                </rich:dataTable>
+                                            </a4j:outputPanel>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                            </td>
+                        </tr>
+                    </table>
+                    <script>
+                        getDatePickerForRangeWithFormat('startDate', 'endDate');
+                    </script>
+                </h:form>
+                <rich:popupPanel id="activityFeature" modal="true" autosized="true" width="770" height="310" >
+
+                    <h2>#{activityDataBean.activityType} Details</h2>
+                    <hr/>
+                    <br/>
+                    <f:facet name="controls">
+                        <h:outputLink value="#" onclick="#{rich:component('activityFeature')}.hide()">
+                            <h:graphicImage value="/images/close-btn.png" style="width: 20px;height: 15px ;top: 1px" >
+                            </h:graphicImage>
+                        </h:outputLink>
+                    </f:facet>
+                    <h:form prependId="false">
+                        <a4j:outputPanel id="activityDetails">
+                            <h:outputLabel style="font-size: 16px;font-weight: normal" value="#{systemResultSessionUtil.activityType}-Id:"/>&nbsp;
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{taskDataBean.taskId}" rendered="#{not empty taskDataBean.taskId}"/>
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectDataBean.projectId}" rendered="#{not empty projectDataBean.projectId}"/>
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectMilestoneDataBean.projectMilestoneId}" rendered="#{not empty projectMilestoneDataBean.projectMilestoneId}"/>
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectResourceDataBean.id}" rendered="#{not empty projectResourceDataBean.id}"/>
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{technologyDataBean.techId}" rendered="#{not empty technologyDataBean.techId}"/>
+                            <br/><br/>
+                            <h:outputLabel style="font-size: 16px;font-weight: normal" value="#{systemResultSessionUtil.activityType}-Name:"/>&nbsp;
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{taskDataBean.taskName}" rendered="#{not empty taskDataBean.taskName}"/>
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectDataBean.projectName}" rendered="#{not empty projectDataBean.projectName}"/>
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectMilestoneDataBean.milestoneName}" rendered="#{not empty projectMilestoneDataBean.milestoneName}"/>
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectResourceDataBean.name}" rendered="#{not empty projectResourceDataBean.name}"/>
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{technologyDataBean.name}" rendered="#{not empty technologyDataBean.name}"/>
+                            <br/><br/>
+                            <h:outputLabel style="font-size: 16px;font-weight: normal" value="#{systemResultSessionUtil.activityType}-Description:"/>&nbsp;
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{taskDataBean.taskDescription}" rendered="#{not empty taskDataBean.taskDescription}"/>
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectDataBean.projectDescription}" rendered="#{not empty projectDataBean.projectDescription}"/>
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectMilestoneDataBean.milestoneDesc}" rendered="#{not empty projectMilestoneDataBean.milestoneDesc}"/>
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{projectResourceDataBean.resourceDesc}" rendered="#{not empty projectResourceDataBean.resourceDesc}"/>
+                            <h:outputText style="font-size: 16px;font-weight: normal" value="#{technologyDataBean.description}" rendered="#{not empty technologyDataBean.description}"/>
+                            <br></br>
+                        </a4j:outputPanel>
+                    </h:form>
+                </rich:popupPanel>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

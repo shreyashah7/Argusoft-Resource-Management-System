@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+    <h:head>
+        <script type="text/javascript" src="./scripts/jquery/jquery.js"></script>
+        <link href="./css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="./scripts/jquery/jquery.dataTables.min.js"></script>
+        <script src="./scripts/jquery/jquery.dataTables.js"></script>
+        <script src="./scripts/common/scope.js"></script>
+        <title>Manage Project Milestones</title>
+        <meta name="viewport" content="width=device-width"/>
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+
+
+                <style>
+                    .project-milestone-table{   
+                        border-collapse:collapse;
+                    }
+
+                    .project-milestone-table-header{
+                        text-align:center;
+                        background:none repeat scroll 0 0 #E5E5E5;
+                        border-bottom:1px solid #BBBBBB;
+                        padding:16px;
+                    }
+
+                    .project-milestone-table-odd-row{
+                        text-align:center;
+                        background:none repeat scroll 0 0 #FFFFFF;
+                        border-top:1px solid #BBBBBB;
+                    }
+
+                    .project-milestone-table-even-row{
+                        text-align:center;
+                        background:none repeat scroll 0 0 #F9F9F9;
+                        border-top:1px solid #BBBBBB;
+                    }
+
+                </style>
+
+                <f:view>
+                    <f:event id="initmilestone" type="preRenderComponent" listener="#{projectMilestoneServiceBean.initprojectMilestoneDetails()}"/>
+                </f:view>
+                <f:view>
+                    <f:event type="preRenderComponent" listener="#{projectMilestoneServiceBean.initprojectNames()}"/>
+                </f:view>
+                <h:form  prependId="false">
+
+                    <h2>Project Milestones</h2>
+                    <hr/>
+                    <div class="active-div">
+                        <h:panelGroup layout="block" id="notificationMessage">
+                            <ui:include src="../common/message.xhtml" />
+                        </h:panelGroup>
+                        <h:selectOneMenu id="status"  value="#{systemResultViewUtil.showMilestoneType}" style="float: left">
+                            <f:selectItem itemLabel="Active" itemValue="Active" />
+                            <f:selectItem itemLabel="InActive" itemValue="Inactive"/>
+                            <f:selectItem itemLabel="All" itemValue="Show All"/>
+                            <a4j:ajax event="change" listener="#{projectMilestoneServiceBean.showAllMilestones()}"  render="projectMilestoneService notificationMessage" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+                        </h:selectOneMenu>
+                        <a4j:commandLink  oncomplete="#{rich:component('add-milestone-popup')}.show();" render="add-milestone-panel,projectMilestoneService,status" rendered="#{loginDataBean.itemAttributes.contains('add milestone')}" style="float: right">
+                            <h:graphicImage value="images/add-more-btn.jpg" title="Click here to add new milestone" />
+                        </a4j:commandLink>
+                    </div>
+
+                    <a4j:outputPanel id="projectMilestoneService">
+
+                        <h3 class="norecordfound"><h:outputText rendered="#{empty systemResultViewUtil.projectMilestoneDetails}" value="No milestones found"/></h3>
+
+                        <a4j:outputPanel id="projectMilestoneList">
+
+                            <rich:dataTable id="datatbl" rendered="#{not empty systemResultViewUtil.projectMilestoneDetails}" value="#{systemResultViewUtil.projectMilestoneDetails}" var="projectMilestones" 
+                                            rowClasses="project-milestone-table-odd-row,project-milestone-table-even-row">
+                                <h:column>
+                                    <f:facet name="header">Project Name</f:facet>
+                                    <a4j:commandLink value="#{projectMilestones.projectAlias}" action="#{activityServiceBean.projectSummaryOutcome(projectMilestones.projectId)}" />
+                                </h:column>
+
+                                <h:column>
+                                    <f:facet name="header">Milestone Name</f:facet>
+                                    <h:outputText value="#{projectMilestones.milestoneName}"/>
+                                </h:column>
+
+                                <h:column>
+                                    <f:facet name="header">Description</f:facet>
+                                    <h:outputText value="#{projectMilestones.milestoneDesc}" rendered="#{projectMilestones.milestoneDesc ne null}"/>
+                                    <h:outputText value="N/A" rendered="#{projectMilestones.milestoneDesc eq ''}"/>
+                                </h:column>
+
+
+                                <h:column>
+                                    <f:facet name="header">Start Date</f:facet>
+                                    <h:outputText value="#{projectMilestones.milestoneStartDate}">
+                                        <f:convertDateTime type="date" pattern="dd-MM-yyyy" timeZone="#{systemPropertyUtil.serverTimeZone}"/>
+                                    </h:outputText>
+                                </h:column>
+
+
+                                <h:column>
+                                    <f:facet name="header">Estimated End Date</f:facet>
+                                    <h:outputText value="#{projectMilestones.milestoneEndDate}">
+                                        <f:convertDateTime type="date" pattern="dd-MM-yyyy" timeZone="#{systemPropertyUtil.serverTimeZone}"/>
+                                    </h:outputText>
+                                </h:column>
+
+                                <h:column rendered="#{loginDataBean.itemAttributes.contains('update milestone')}">
+                                    <f:facet name="header">Action</f:facet>
+                                    <a4j:commandLink  oncomplete="#{rich:component('edit-milestone-popup')}.show();" action="#{projectMilestoneServiceBean.getProjectDetails()}" render="edit-milestone-panel,notificationMessage"> 
+                                        <f:setPropertyActionListener target="#{systemResultSessionUtil.projectMilestone_milestoneId}" value="#{projectMilestones.projectMilestoneId}" />
+                                        <h:graphicImage value="images/edit.jpg" title="Click here to edit" />
+                                    </a4j:commandLink> 
+
+                                </h:column>
+
+                                <h:column rendered="#{loginDataBean.itemAttributes.contains('update milestone')}">
+                                    <f:facet name="header">Status</f:facet>
+                                    <a4j:commandLink action="#{projectMilestoneServiceBean.setActiveInactive(projectMilestones)}" render="projectMilestoneService status notificationMessage" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();">
+                                        <h:graphicImage value="images/inactive.png" rendered="#{!projectMilestones.isActive}" title="Click here to inactivate"/>
+                                        <h:graphicImage value="images/active.png" rendered="#{projectMilestones.isActive}" title="Click here to activate"/>
+                                    </a4j:commandLink>
+                                </h:column>
+
+                            </rich:dataTable>
+                            <script type="text/javascript">
+                                $('#datatbl').DataTable({
+                                    "aaSorting": []
+                                });
+                            </script>
+                        </a4j:outputPanel>
+                    </a4j:outputPanel>
+
+                </h:form>
+
+
+
+                <!-- popup panel for add-->
+
+                <rich:popupPanel  id="add-milestone-popup" autosized="true" width="600">
+                    <h2>Add Project Milestone</h2>
+                    <hr/>
+
+                    <f:facet name="controls">
+                        <h:outputLink value="#" onclick="#{rich:component('add-milestone-popup')}.hide();
+                                        return false;">
+                            <h:graphicImage value="images/close-btn.png"  />
+                        </h:outputLink>
+                    </f:facet>
+
+                    <br/>
+                    <h:form prependId="false"  id="add-milestone-popup-form">
+
+                        <div id="addMilestoneDiv">
+                            <a4j:outputPanel id="add-milestone-panel"> 
+                                <script type="text/javascript" src="./scripts/armms.js"/>
+                                <script>
+                            getDatePickerForRangeWithFormat('milestoneStartDate', 'milestoneEndDate');</script>
+
+                                <!--            <h:messages style="color: red;"></h:messages>-->
+                                <table>
+                                    <tr>
+                                        <td>Project name</td>
+                                        <td>
+                                            <h:selectOneMenu id="projectID" class="required" style="width: 200px" value="#{projectMilestoneDataBean.projectId}" required="true" requiredMessage="#{msg.project_id_required}">
+                                                <f:selectItem itemLabel="-----Select-----" itemValue="#{null}" />
+                                                <f:selectItems  value="#{systemResultViewUtil.projectNames}" var="projects" itemValue="#{projects.projectId}" itemLabel="#{projects.projectName}" />
+                                                <f:ajax event="blur" render="projectIDErr" />
+                                            </h:selectOneMenu>
+                                            <br/>
+                                            <h:message id="projectIDErr" for="projectID" style="color: red"/>
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td>Name</td>
+                                        <td>
+                                            <h:inputText id="milestoneName" class="required" style="width: 200px" value="#{projectMilestoneDataBean.milestoneName}" required="true" requiredMessage="#{msg.milestone_name_required}" >
+                                                <f:ajax event="blur" render="milestoneNameErr" />
+                                            </h:inputText>
+                                            <br/>
+                                            <h:message id="milestoneNameErr" for="milestoneName" style="color: red"/>
+                                        </td>
+
+                                    </tr>
+
+                                    <tr>
+                                        <td>Description:</td>
+                                        <td>
+                                            <h:inputTextarea id="milestoneDesc" value="#{projectMilestoneDataBean.milestoneDesc}" style="width: 200px" rows="5" cols="10"/>
+                                            <br/>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Start date</td>
+                                        <td>
+                                            <h:inputText id="milestoneStartDate" class="required" style="width: 200px" value="#{projectMilestoneDataBean.milestoneStartDate}" required="true" requiredMessage="#{msg.start_date}">
+                                                <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+                                            </h:inputText>
+                                            <br/>
+                                            <h:message id="milestoneStartDateErr" for="milestoneStartDate" style="color: red"/>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+
+                                        <tr>
+                                            <td>Estimated End Date</td>
+                                            <td>
+                                                <h:inputText id="milestoneEndDate" class="required" style="width: 200px"  value="#{projectMilestoneDataBean.milestoneEndDate}" required="true" requiredMessage="#{msg.end_date}">
+                                                    <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy"/>
+
+                                                </h:inputText>
+                                                <br/>
+                                                <h:message id="milestoneEndDateErr" for="milestoneEndDate" style="color: red"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="2" style="padding-left: 150px;">
+                                                <br/>
+                                                <h:panelGrid columns="2">
+                                                    <a4j:commandButton styleClass="mybutton" action="#{projectMilestoneServiceBean.addProjectMilestone()}"  oncomplete="if(#{messageDataBean.isSuccess != null and messageDataBean.isSuccess}){#{rich:component('add-milestone-popup')}.hide();}"  render="add-milestone-panel,projectMilestoneService,status,notificationMessage" value="Add"/>
+                                                    <a4j:commandButton styleClass="mybutton" value="Cancel" style="text-decoration: none" onclick="#{rich:component('add-milestone-popup')}.hide(); return false;"/>
+                                                </h:panelGrid>
+                                            </td>
+                                        </tr>
+                                    </tr>
+                                </table>
+                            </a4j:outputPanel>
+                        </div>
+                    </h:form>
+                </rich:popupPanel>
+
+
+                <!-- Edit data popup-->
+
+                <rich:popupPanel  id="edit-milestone-popup" autosized="true" width="600">
+                    <h2>Edit Project Milestone</h2>
+                    <hr/>
+
+                    <f:facet name="controls">
+                        <h:outputLink value="#" onclick="#{rich:component('edit-milestone-popup')}.hide(); return false;">
+                            <h:graphicImage value="images/close-btn.png"  />
+                        </h:outputLink>
+                    </f:facet>
+
+                    <br/>
+                    <h:form prependId="false"  id="edit-milestone-popup-form">
+
+                        <div id="editmilestoneDiv">
+                            <a4j:outputPanel id="edit-milestone-panel"> 
+                                <script>
+
+                                            getDatePickerForRangeWithFormat('milestoneStartDateedit', 'milestoneEndDateedit');
+                                    getDatePickerForRangeWithFormat('milestoneStartDateedit', 'actualEndDateedit');
+
+                                </script>
+                                <script type="text/javascript" src="./scripts/armms.js"/>
+
+                                <table>
+                                    <tr>
+                                        <td>Project Name</td>
+                                        <td>
+                                            <h:selectOneMenu id="projectIDedit"  class="required" style="width: 200px" value="#{projectMilestoneDataBean.projectId}" required="true" requiredMessage="#{msg.project_id_required}">
+                                                <f:selectItem itemLabel="-----Select-----" itemValue="#{null}" />
+                                                <f:selectItems  value="#{systemResultViewUtil.projectNames}" var="projects" itemValue="#{projects.projectId}" itemLabel="#{projects.projectName}" />
+                                                <f:ajax event="blur" render="projectIDeditErr" />
+                                            </h:selectOneMenu>
+                                            <br/>
+                                            <h:message id="projectIDeditErr" for="projectIDedit" style="color: red"/>
+                                        </td>
+
+
+                                    </tr>
+                                    <tr>
+                                        <td>Name</td>
+                                        <td>
+                                            <h:inputText id="milestoneNameedit" class="required" style="width: 200px" value="#{projectMilestoneDataBean.milestoneName}" required="true" requiredMessage="#{msg.milestone_name_required}" >
+                                                <f:ajax event="blur" render="milestoneNameeditErr" />
+                                            </h:inputText>
+                                            <br/>
+                                            <h:message id="milestoneNameeditErr" for="milestoneNameedit" style="color: red"/>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Description</td>
+                                        <td>
+                                            <h:inputTextarea id="milestoneDescedit" style="width: 200px" value="#{projectMilestoneDataBean.milestoneDesc}" rows="5" cols="20" />    
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Start date</td>
+                                        <td>
+                                            <h:inputText id="milestoneStartDateedit" class="required" style="width: 200px" value="#{projectMilestoneDataBean.milestoneStartDate}" required="true" requiredMessage="#{msg.start_date}">
+                                                <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy" timeZone="#{systemPropertyUtil.serverTimeZone}"/>
+                                                <f:ajax event="blur" render="milestoneStartDateeditErr" />
+                                            </h:inputText>
+                                            <br/>
+                                            <h:message id="milestoneStartDateeditErr" for="milestoneStartDateedit" style="color: red"/>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Estimated End Date</td>
+                                        <td>
+                                            <h:inputText  id="milestoneEndDateedit" class="required" style="width: 200px" value="#{projectMilestoneDataBean.milestoneEndDate}" required="true" requiredMessage="#{msg.end_date}">
+                                                <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy" timeZone="#{systemPropertyUtil.serverTimeZone}"/>
+                                                <f:ajax event="blur" render="milestoneEndDateeditErr" />
+                                            </h:inputText>
+                                            <br/>
+                                            <h:message id="milestoneEndDateeditErr" for="milestoneEndDateedit" style="color: red"/>
+                                        </td>
+
+                                    </tr>
+
+                                    <!--                                    <tr>
+                                                                            <td>Is active</td>
+                                                                            <td>
+                                                                                <h:selectBooleanCheckbox value="{projectMilestoneDataBean.isActive}" />
+                                                                            </td>
+                                    
+                                                                        </tr>-->
+                                    <h:inputHidden value="#{projectMilestoneDataBean.isActive}"/>
+
+                                    <tr>
+                                        <td>Actual end date</td>
+                                        <td>
+                                            <h:inputText id="actualEndDateedit" style="width: 200px" value="#{projectMilestoneDataBean.actualEndDate}">
+                                                <f:convertDateTime type="date" pattern="dd-MM-yyyy" dateStyle="dd-MM-yyyy" timeZone="#{systemPropertyUtil.serverTimeZone}"/>
+                                            </h:inputText>
+
+                                        </td>
+
+                                    </tr>
+                                    <h:inputHidden value="#{projectMilestoneDataBean.isActive}"></h:inputHidden>
+                                        <tr>
+                                            <td colspan="2" style="padding-left: 135px">
+                                                <br/>
+                                                <h:panelGrid columns="2">
+                                                    <a4j:commandButton styleClass="mybutton" action="#{projectMilestoneServiceBean.updateProjectMilestone()}" oncomplete="if(#{messageDataBean.isSuccess != null and messageDataBean.isSuccess}){#{rich:component('edit-milestone-popup')}.hide();}" render="edit-milestone-panel, notificationMessage, projectMilestoneService,status" value="Update"/>
+                                                    <a4j:commandButton styleClass="mybutton" value="Cancel" style="text-decoration: none" onclick="#{rich:component('edit-milestone-popup')}.hide(); return false;"/>
+                                                </h:panelGrid>
+                                            </td>
+                                        </tr>
+                                </table>
+
+                            </a4j:outputPanel>
+                        </div>
+                    </h:form>
+                </rich:popupPanel>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

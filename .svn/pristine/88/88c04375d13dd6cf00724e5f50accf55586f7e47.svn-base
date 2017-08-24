@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:a4j="http://richfaces.org/a4j">
+
+    <h:head>
+        <title>Activity</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+                <f:event listener="#{activityServiceBean.init()}" type="preRenderComponent"/>
+                <f:event listener="#{projectServiceBean.displayAllActiveProjects()}" type="preRenderComponent"/>
+
+                <h:form prependId="false">
+                    <h2> Activity Log </h2>
+                    <hr></hr>
+                    
+                    
+                    <div style="width: 100%" id="message">
+                        <a4j:outputPanel id="out">
+                            <ui:include src="../common/message.xhtml" /> 
+                        </a4j:outputPanel>
+                    </div>
+                    <div style="overflow: auto">
+                        <a4j:outputPanel id="activityDisplay" style="padding-top: 10px;float: left;">
+                            <a4j:commandLink value="Summary" style="text-decoration: none;color: #0084ff;cursor: pointer;" action="#{activityServiceBean.redirectToProjectSummaryPage()}" >
+                            </a4j:commandLink>
+                            <rich:dataTable id="master" style="float: left" styleClass="meal-planes" value="#{systemResultSessionUtil.masterActivityDataBean}" var="masterlist" rendered="#{not empty systemResultSessionUtil.masterActivityDataBean}">
+                                <rich:column>
+                                    <h:outputLabel value="#{masterlist.displayDate}" style="font-size: 14px">
+                                        <f:convertDateTime pattern="dd-MMM-yyyy"/>
+                                    </h:outputLabel>
+                                    <br/>
+                                    <br/>
+
+                                    <rich:dataTable id="activityList" style="float: left;margin-left: 100px" styleClass="meal-planes" value="#{masterlist.activityDataBeanViewList}" var="activityListDisplay" rendered="#{not empty masterlist.activityDataBeanViewList}">
+                                        <rich:column>
+                                            <div>
+                                                <img src="#{facesContext.externalContext.requestContextPath}/images/project_bullet.jpg" style="border: none"/>&nbsp;
+                                                <img src="#{facesContext.externalContext.requestContextPath}/images/shsh.png" style="border: none;"/>&nbsp;
+                                                <a4j:commandLink style="text-decoration: none;color: #0084ff;cursor: pointer;" action="#{activityServiceBean.retrieveActivityById()}">
+                                                    <h:outputLabel value="#{activityListDisplay.activityType}" style="font-size: 14px;cursor: pointer;"/>&nbsp;
+                                                    <h:outputLabel value="(#{activityListDisplay.projectName})--" style="font-size: 14px;cursor: pointer;"/>&nbsp;
+                                                    <h:outputLabel value="##{activityListDisplay.activityId}" style="font-size: 14px;cursor: pointer;"/>:&nbsp;
+                                                    <h:outputLabel value="#{activityListDisplay.activityName}" style="font-size: 14px;cursor: pointer;"/>&nbsp;&nbsp;
+                                                    <f:setPropertyActionListener target="#{systemResultSessionUtil.activityId}" value="#{activityListDisplay.activityId}"/>
+                                                    <f:setPropertyActionListener target="#{systemResultSessionUtil.activityType}" value="#{activityListDisplay.activityType}"/>
+                                                </a4j:commandLink>
+                                            </div>
+                                            <div>
+                                                <a4j:outputPanel rendered="#{empty activityListDisplay.lastModifiedByName}">
+                                                    &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;<h:outputLabel value="Created By:" style="font-size: 14px;font-weight: normal"/> &nbsp;<a4j:commandLink value="#{activityListDisplay.createdOrModifiedByName}" style="font-size: 14px;font-weight: normal;text-decoration: none;color: #505050" action="pretty:userProfile"><f:setPropertyActionListener target="#{systemResultSessionUtil.userId}" value="#{activityListDisplay.createdOrModifiedBy}"/></a4j:commandLink>
+                                                </a4j:outputPanel>
+                                                <a4j:outputPanel rendered="#{not empty activityListDisplay.lastModifiedByName}">
+                                                    &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;<h:outputLabel value="Modified By:" style="font-size: 14px;font-weight: normal"/> &nbsp;<a4j:commandLink value="#{activityListDisplay.createdOrModifiedByName}" style="font-size: 14px;font-weight: normal;text-decoration: none;color: #505050" action="pretty:userProfile"><f:setPropertyActionListener target="#{systemResultSessionUtil.userId}" value="#{activityListDisplay.createdOrModifiedBy}"/></a4j:commandLink>
+                                                </a4j:outputPanel>
+                                            </div>
+                                        </rich:column>
+                                    </rich:dataTable>
+                                </rich:column>
+                            </rich:dataTable>
+
+                        </a4j:outputPanel>
+                    </div>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+

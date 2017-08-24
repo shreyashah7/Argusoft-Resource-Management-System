@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:rich="http://richfaces.org/rich">
+
+   
+        <rich:popupPanel id="waitPanel"  autosized="true" width="200" height="120"
+                         moveable="false" resizeable="false">
+            <f:facet name="header">
+                <center><h:outputText value="Processing..." /></center>
+            </f:facet>
+            <br></br>
+            <br></br>
+            <div align="center">
+                <h:graphicImage value="/images/loading1.gif" />  
+            </div>
+        </rich:popupPanel>
+ 
+    
+</html>
+

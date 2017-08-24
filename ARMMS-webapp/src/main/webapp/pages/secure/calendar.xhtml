@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <title>Calendar</title>
+        <meta name="viewport" content="width=device-width"/>
+    </h:head>
+    <h:body>       
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+                <style>
+                    .cal-had-cell{
+                        vertical-align:top;
+                        border-width:thin;
+                    }
+
+                    .cal-body-cell{
+                        height:70px;                        
+                        vertical-align:top;
+                        border-width:thin;                        
+                        overflow-y: overlay;
+                    }
+                    .inner-data-table{
+                        /*height: auto;*/
+                        margin-bottom: 3px;
+                        position: relative;
+                        left: 15px;
+                        top: 1px;                        
+                        border: none;
+                        background-color: transparent;
+                    }
+                    .inner-column{
+                        background: none;
+                        /*width: 60px;*/
+                        border: none;
+                    }
+                    .com-link{
+                        background: none;
+                        text-decoration: none;
+                        font-size: 10px;
+                        color: #0078D0;
+                        text-transform: capitalize;
+                    }
+                </style>
+                <h2>Calendar</h2>
+                <hr/>   
+                <div style="width: 100% ">
+
+                    <h:form prependId="false" style="position: relative">     
+                        <f:event type="preRenderComponent" listener="#{calServiceBean.populateListOfUsers()}"/>          
+                        <f:event type="preRenderComponent" listener="#{calServiceBean.populateCalendar()}"/>
+
+                        <div style="width: 98%"> 
+                            <div style="position: relative">                                
+                                <h:panelGroup style="position: relative" rendered="#{loginDataBean.itemAttributes.contains('view others calendar')}">
+                                    <h:selectOneMenu id = "userSelection" value="#{systemResultViewUtil.userIdForCalendar}" style="float: left;margin-top: 1%;width: 12%">
+                                        <f:selectItems value="#{systemResultViewUtil.listOfUsers}" var="user" itemLabel="#{user.firstName}" itemValue="#{user.userId}"/>               
+                                        <a4j:ajax event="change" render="cal" listener="#{calServiceBean.populateCalendar()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+                                    </h:selectOneMenu>
+                                </h:panelGroup>
+                            </div>
+
+                            <div style="padding-top: 5%">
+                                <a4j:commandButton id="prev" style="float: left;width: 10%" render="month year cal prev next" oncomplete="#{rich:component('waitPanel')}.hide();#{calServiceBean.populateCalendar()}" value="#{systemResultViewUtil.prevMonthName}"  onbegin="#{rich:component('waitPanel')}.show();">
+                                    <f:setPropertyActionListener value="#{calServiceBean.prevMonth()}" target="#{calDataBean.month}"/>
+                                    <!--                                    <a4j:ajax event="change" render="month year cal" listener="{calServiceBean.populateCalendar()}"/> -->
+                                </a4j:commandButton>
+                                <h:selectOneMenu id="month" value="#{calDataBean.month}"  style="position: absolute;left: 30%;width: 12%">
+                                    <f:selectItem itemValue="0" itemLabel="January" />
+                                    <f:selectItem itemValue="1" itemLabel="Fabruary" />
+                                    <f:selectItem itemValue="2" itemLabel="March" />
+                                    <f:selectItem itemValue="3" itemLabel="April" />                
+                                    <f:selectItem itemValue="4" itemLabel="May" />
+                                    <f:selectItem itemValue="5" itemLabel="June" />
+                                    <f:selectItem itemValue="6" itemLabel="July" />
+                                    <f:selectItem itemValue="7" itemLabel="August" />
+                                    <f:selectItem itemValue="8" itemLabel="September"/>
+                                    <f:selectItem itemValue="9" itemLabel="October"/>
+                                    <f:selectItem itemValue="10" itemLabel="November"/>
+                                    <f:selectItem itemValue="11" itemLabel="December"/>                
+                                    <a4j:ajax event="change" render="prev next month cal" listener="#{calServiceBean.populateCalendar()}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide();"/>
+                                </h:selectOneMenu>
+                                <a4j:commandButton id="today" style="position: absolute;left: 60%;width: 12%" render="month year cal next prev" oncomplete="#{rich:component('waitPanel')}.hide() #{calServiceBean.populateCalendar()}" value="Today" onbegin="#{rich:component('waitPanel')}.show();">
+                                    <f:setPropertyActionListener value="#{calServiceBean.currentDate.month}" target="#{calDataBean.month}"/>
+                                    <f:setPropertyActionListener value="#{calServiceBean.currentDate.year + 1900}" target="#{calDataBean.year}"/>
+                                    <!--<a4j:ajax event="change" render="month year cal" listener="{calServiceBean.populateCalendar()}"/>--> 
+                                </a4j:commandButton>
+                                <h:selectOneMenu id = "year" value="#{calDataBean.year}" style="position: absolute;left: 43%;width: 12%">
+                                    <f:selectItems value="#{systemResultViewUtil.listOfyears}" var="item" itemLabel="#{item}" itemValue="#{item}"/>                
+                                    <a4j:ajax event="change" render="prev next year cal" listener="#{calServiceBean.populateCalendar()}"/>
+                                </h:selectOneMenu>            
+
+                                <a4j:commandButton id="next" render="month year cal next prev" oncomplete="#{rich:component('waitPanel')}.hide() #{calServiceBean.populateCalendar()}" value="#{systemResultViewUtil.nextMonthName}" style="position: absolute;left:88%;width: 10%" onbegin="#{rich:component('waitPanel')}.show();">
+                                    <f:setPropertyActionListener value="#{calServiceBean.nextMonth()}" target="#{calDataBean.month}"/>
+                                    <!--<a4j:ajax event="change" render="month year cal" listener="{calServiceBean.populateCalendar()}"/>--> 
+                                </a4j:commandButton>
+                            </div>
+                        </div>
+                        <center>
+                            <div style="width: 98%;padding-top: 1%;float: left;">
+                                <rich:dataTable id="cal" value="#{systemResultViewUtil.calendarDataList}" var="week" 
+                                                rows="#{calServiceBean.noOfWeeks}" style="width: 100%">                
+                                    <f:facet name="header">
+                                        <rich:columnGroup >
+                                            <rich:column styleClass="cal-had-cell">
+                                                <h:outputText value="SUN" />                                                
+                                            </rich:column >
+                                            <rich:column styleClass="cal-had-cell">
+                                                <h:outputText value="MON" />
+                                            </rich:column>
+                                            <rich:column styleClass="cal-had-cell">
+                                                <h:outputText value="TUE" />
+                                            </rich:column>
+                                            <rich:column styleClass="cal-had-cell">
+                                                <h:outputText value="WED" />
+                                            </rich:column>
+                                            <rich:column styleClass="cal-had-cell">
+                                                <h:outputText value="THU" />
+                                            </rich:column>
+                                            <rich:column styleClass="cal-had-cell">
+                                                <h:outputText value="FRI" />
+                                            </rich:column>
+                                            <rich:column styleClass="cal-had-cell">
+                                                <h:outputText value="SAT" />
+                                            </rich:column>                        
+                                        </rich:columnGroup>
+                                    </f:facet>
+
+                                    <rich:columnGroup>
+                                        <rich:column style="background-color:#{ week[0].show==true ? (week[0].date.time eq calServiceBean.currentDate.time)? '#D1E5F0':'#ffffff'  : '#E5E5E5'}" >
+                                            <div class="cal-body-cell">
+                                                <h:outputText style="float: left;font-size:10px" value="#{week[0].date.date}" >
+                                                </h:outputText>  
+                                                <rich:dataTable styleClass="inner-data-table" value="#{week[0].taskDataBeans}" var="task" >
+                                                    <rich:column  styleClass="inner-column">
+                                                        <a4j:commandLink styleClass='com-link' render="viewdetails" value="#{task.taskName}" action="#{calServiceBean.setValuesForPopUp(task)}" oncomplete="#{rich:component('viewdetails')}.show(); return false;"/>                                                                                                   
+                                                    </rich:column>
+                                                </rich:dataTable>    
+                                            </div>
+                                        </rich:column>
+                                        <rich:column style="background-color:#{ week[1].show==true ? (week[1].date.time eq calServiceBean.currentDate.time)? '#D1E5F0':'#ffffff'  : '#E5E5E5'}" >
+                                            <div class="cal-body-cell">
+                                                <h:outputText style="float: left;font-size:10px" value="#{week[1].date.date}" >
+                                                </h:outputText>  
+                                                <rich:dataTable styleClass="inner-data-table" value="#{week[1].taskDataBeans}" var="task" >
+                                                    <rich:column  styleClass="inner-column">
+                                                        <a4j:commandLink styleClass='com-link' render="viewdetails" value="#{task.taskName}" action="#{calServiceBean.setValuesForPopUp(task)}" oncomplete="#{rich:component('viewdetails')}.show(); return false;"/>                                                                                                   
+                                                    </rich:column>
+                                                </rich:dataTable> 
+                                            </div>
+                                        </rich:column>
+                                        <rich:column style="background-color:#{ week[2].show==true ? (week[2].date.time eq calServiceBean.currentDate.time)? '#D1E5F0':'#ffffff'  : '#E5E5E5'}" >
+                                            <div class="cal-body-cell">
+                                                <h:outputText style="float: left;font-size:10px" value="#{week[2].date.date}" >
+                                                </h:outputText>         
+                                                <rich:dataTable styleClass="inner-data-table" value="#{week[2].taskDataBeans}" var="task" >
+                                                    <rich:column  styleClass="inner-column">
+                                                        <a4j:commandLink styleClass='com-link' render="viewdetails" value="#{task.taskName}" action="#{calServiceBean.setValuesForPopUp(task)}" oncomplete="#{rich:component('viewdetails')}.show(); return false;"/>                                                                                                   
+                                                    </rich:column>
+                                                </rich:dataTable>  
+                                            </div>
+                                        </rich:column>
+                                        <rich:column style="background-color:#{ week[3].show==true ? (week[3].date.time eq calServiceBean.currentDate.time)? '#D1E5F0':'#ffffff'  : '#E5E5E5'}" >
+                                            <div class="cal-body-cell">
+                                                <h:outputText style="float: left;font-size:10px" value="#{week[3].date.date}" >
+                                                </h:outputText>         
+                                                <rich:dataTable styleClass="inner-data-table" value="#{week[3].taskDataBeans}" var="task" >
+                                                    <rich:column  styleClass="inner-column">
+                                                        <a4j:commandLink styleClass='com-link' render="viewdetails" value="#{task.taskName}" action="#{calServiceBean.setValuesForPopUp(task)}" oncomplete="#{rich:component('viewdetails')}.show(); return false;"/>                                                                                                   
+                                                    </rich:column>
+                                                </rich:dataTable>  
+                                            </div>
+                                        </rich:column>
+                                        <rich:column style="background-color:#{ week[4].show==true ? (week[4].date.time eq calServiceBean.currentDate.time)? '#D1E5F0':'#ffffff'  : '#E5E5E5'}"  >
+                                            <div class="cal-body-cell">
+                                                <h:outputText style="float: left;font-size:10px" value="#{week[4].date.date}" >
+                                                </h:outputText>  
+                                                <rich:dataTable styleClass="inner-data-table" value="#{week[4].taskDataBeans}" var="task" >
+                                                    <rich:column styleClass="inner-column">
+                                                        <a4j:commandLink styleClass='com-link' render="viewdetails" value="#{task.taskName}" action="#{calServiceBean.setValuesForPopUp(task)}" oncomplete="#{rich:component('viewdetails')}.show(); return false;"/>                                                                                                   
+                                                    </rich:column>
+                                                </rich:dataTable> 
+                                            </div>
+                                        </rich:column>
+                                        <rich:column style="background-color:#{ week[5].show==true ? (week[5].date.time eq calServiceBean.currentDate.time)? '#D1E5F0':'#ffffff'  : '#E5E5E5'}" >
+                                            <div class="cal-body-cell">
+                                                <h:outputText style="float: left;font-size:10px" value="#{week[5].date.date}" >
+                                                </h:outputText>  
+                                                <rich:dataTable styleClass="inner-data-table" value="#{week[5].taskDataBeans}" var="task" >
+                                                    <rich:column  styleClass="inner-column">
+                                                        <a4j:commandLink styleClass='com-link' render="viewdetails" value="#{task.taskName}" action="#{calServiceBean.setValuesForPopUp(task)}" oncomplete="#{rich:component('viewdetails')}.show(); return false;"/>                                                                                                   
+                                                    </rich:column>
+                                                </rich:dataTable> 
+                                            </div>
+                                        </rich:column>
+                                        <rich:column style="background-color:#{ week[6].show==true ? (week[6].date.time eq calServiceBean.currentDate.time)? '#D1E5F0':'#ffffff'  : '#E5E5E5'}"  >
+                                            <div class="cal-body-cell">
+                                                <h:outputText style="float: left;font-size:10px" value="#{week[6].date.date}" >
+                                                </h:outputText>  
+                                                <rich:dataTable styleClass="inner-data-table" value="#{week[6].taskDataBeans}" var="task" >
+                                                    <rich:column styleClass="inner-column">
+                                                        <a4j:commandLink styleClass='com-link' render="viewdetails" value="#{task.taskName}" action="#{calServiceBean.setValuesForPopUp(task)}" oncomplete="#{rich:component('viewdetails')}.show(); return false;"/>                                                                                                   
+                                                    </rich:column>
+                                                </rich:dataTable>   
+                                            </div>
+                                        </rich:column>
+
+                                    </rich:columnGroup>
+                                </rich:dataTable>  
+                            </div>                            
+                        </center>
+                    </h:form>
+                    <rich:popupPanel id="viewdetails"  >
+                        <h2>Task Details</h2>
+                        <hr/>
+
+                        <f:facet name="controls">
+                            <h:outputLink value="#" onclick="#{rich:component('viewdetails')}.hide()">
+                                <h:graphicImage value="#{facesContext.externalContext.requestContextPath}/images/close-btn.png" style="width: 20px;height: 15px ;top: 1px" >
+                                </h:graphicImage>
+                            </h:outputLink>
+                        </f:facet>
+                        <h:form prependId="false">
+                            <h:panelGroup id="popup">
+                                <div style="position: relative;top: 0px">
+                                    <table border="0" style="width: 90%">                       
+                                        <tbody>                                                                          
+                                            <tr>
+                                                <td><h:outputLabel style="text-align: center;font-size: 14px" value="id : "/>
+                                                    <h:outputText style="text-align: center;font-size: 14px" value="#{taskDataBean.taskId}"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <h:outputLabel style="text-align: center;font-size: 14px" value="Task Name : "/>
+                                                    <h:outputText style="text-align: center;font-size: 14px" value="#{taskDataBean.taskName}"/>
+                                                </td>
+                                            </tr>                                            
+                                            <tr>
+                                                <td>
+                                                    <h:outputLabel style="text-align: center;font-size: 14px" value="Project Name : "/>
+                                                    <h:outputText style="text-align: center;font-size: 14px" value="#{taskDataBean.projectAlias}"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <h:outputLabel style="text-align: center;font-size: 14px" value="start date : "/>
+                                                    <h:outputText style="text-align: center;font-size: 14px" value="#{taskDataBean.startDate}">
+                                                        <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                                    </h:outputText>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <h:outputLabel style="text-align: center;font-size: 14px" value="End Date : "/>
+                                                    <h:outputText style="text-align: center;font-size: 14px" value="#{taskDataBean.endDate}">
+                                                        <f:convertDateTime type="date" pattern="dd-MM-yyyy"/>
+                                                    </h:outputText>
+                                                </td>
+                                            </tr>
+                                        </tbody>                       
+                                    </table>
+                                </div>
+                            </h:panelGroup>
+                        </h:form>
+                    </rich:popupPanel>
+
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

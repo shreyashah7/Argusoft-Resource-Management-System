@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:a4j="http://richfaces.org/a4j">
+    <h:head>
+        <script src="./scripts/common/scope.js"></script>
+        <script type="text/javascript" src="./scripts/jquery/jquery.js"></script>
+        <link href="./css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="./scripts/jquery/jquery.dataTables.min.js"></script>
+        <script src="./scripts/jquery/jquery.dataTables.js"></script>
+        <meta name="viewport" content="width=device-width"/>
+    </h:head>
+    <h:body>
+        <ui:composition template="../layout/homeLayout.xhtml">
+            <ui:define name="content">
+                <style>
+                    .project-milestone-table{   
+                        border-collapse:collapse;
+                    }
+
+                    .project-milestone-table-header{
+                        text-align:center;
+                        background:none repeat scroll 0 0 #E5E5E5;
+                        border-bottom:1px solid #BBBBBB;
+                        padding:16px;
+                    }
+
+                    .project-milestone-table-odd-row{
+                        text-align:center;
+                        background:none repeat scroll 0 0 #FFFFFF;
+                        border-top:1px solid #BBBBBB;
+                    }
+
+                    .project-milestone-table-even-row{
+                        text-align:center;
+                        background:none repeat scroll 0 0 #F9F9F9;
+                        border-top:1px solid #BBBBBB;
+                    }
+
+                </style>
+                <script type="text/javascript">
+                    $(document).ready(function() {
+                        $('div[id^="statusdiv-"]').hide();
+                    });
+                    function showSuccess(imgId) {
+                        $('#statusdiv-'+imgId).show();
+                    }
+                </script>
+                <f:view>
+                    <f:event  type="preRenderComponent" listener="#{permissionServiceBean.deletePermission()}"/>
+                </f:view>
+                <h:panelGroup layout="block" id="notificationMessage">
+                    <ui:include src="../common/message.xhtml" />
+                </h:panelGroup>
+                <h2>Role Management</h2>
+
+                <fieldset>
+                    <legend>Change Permission Set</legend>
+                    <h3 class="norecordfound"><h:outputText value="No roles are associated with this permission click on DELETE button to delete permission" rendered="#{empty systemResultViewUtil.listOfRoleWithPermissionID}"/></h3>
+                    <h:form prependId="false" id="frm">
+                        <a4j:outputPanel>
+                            <h:dataTable id="datatbl" rendered="#{not empty systemResultViewUtil.listOfRoleWithPermissionID}" value="#{systemResultViewUtil.listOfRoleWithPermissionID}" var="roles" styleClass="project-milestone-table"
+                                         headerClass="project-milestone-table-header"
+                                         rowClasses="project-milestone-table-odd-row,project-milestone-table-even-row">
+
+                                <h:column>
+                                    <f:facet name="header">Designation</f:facet>
+                                    <h:outputText value="#{roles.name}"/>
+                                </h:column>
+
+                                <h:column>
+                                    <f:facet name="header">Permission set</f:facet>
+                                    <h:selectOneMenu value="#{permissionDataBean.ID}"> 
+                                        <f:selectItems value="#{systemResultViewUtil.listOFpermissionWithSameFeature}" var="featureList" itemValue="#{featureList.ID}" itemLabel="#{featureList.name}"/>
+                                        <a4j:ajax event="change" listener="#{permissionServiceBean.changePermission(roles.id)}" onbegin="#{rich:component('waitPanel')}.show();" oncomplete="#{rich:component('waitPanel')}.hide(); showSuccess(#{roles.id})"/>
+                                    </h:selectOneMenu>
+                                </h:column>
+                                <h:column >
+                                    <div id="statusdiv-#{roles.id}">
+                                        <h:graphicImage value="images/right.png"/>
+                                    </div>
+                                </h:column>
+                            </h:dataTable>
+                            <script type="text/javascript">
+                                $('#datatbl').DataTable({
+                                    "aaSorting": []
+                                });
+                            </script>
+                        </a4j:outputPanel>
+                        <h:panelGrid columns="2">
+                            <a4j:commandButton styleClass="mybutton" action="#{permissionServiceBean.removePermission()}" render="notificationMessage" style="float: right" value="Delete"/>
+                            <a4j:commandButton styleClass="mybutton" action="manageRole?faces-redirect=true" render="notificationMessage" style="float: right" value="Cancel"/>
+                        </h:panelGrid>
+                    </h:form>
+                </fieldset>
+
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
